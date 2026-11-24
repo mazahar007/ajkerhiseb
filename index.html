@@ -178,7 +178,7 @@ body.locked .app,body.locked .bottomnav{display:none}
   <div class="grid4" style="margin-top:12px">
     <div class="stat income"><div class="icon">💰</div><div class="label">মোট আয়</div><div class="value" id="totalIncome">০</div></div>
     <div class="stat expense"><div class="icon">💸</div><div class="label">মোট ব্যয়</div><div class="value" id="totalExpense">০</div></div>
-    <div class="stat bank"><div class="icon">🏦</div><div class="label">ব্যাংক উত্তোলন</div><div class="value" id="totalBank">০</div></div>
+    <div class="stat bank"><div class="icon">🏦</div><div class="label">ব্যাংক উত্তোলন</div><div class="value" id="totalBank">০</div><div style="font-size:11px;color:var(--muted)">আয়-ব্যয়ের বাইরে — শুধু দেখানো হচ্ছে</div></div>
     <div class="stat"><div class="icon">⚖️</div><div class="label">বাকি (আয় − ব্যয়)</div><div class="value" id="balance">০</div></div>
   </div>
   <div class="card" id="budgetCard"><h2>📅 মাসিক বাজেট — <span id="budgetMonthLabel"></span></h2>
@@ -295,6 +295,7 @@ body.locked .app,body.locked .bottomnav{display:none}
 <section class="view" id="view-report">
   <div class="card"><h2>💰 মাসভিত্তিক আয়-ব্যয় রিপোর্ট</h2>
     <table class="rep"><thead><tr><th>মাস</th><th>আয়</th><th>ব্যয়</th><th>বাজেট</th><th>ব্যাংক</th><th>বাকি</th></tr></thead><tbody id="repBody"></tbody></table>
+    <p class="note" style="margin:10px 0 0">ব্যাংক উত্তোলন আয় বা ব্যয় নয় — খরচের জন্য তোলা টাকা, তাই শুধু আলাদা করে দেখানো হচ্ছে। বাকি = আয় − ব্যয়। হাতে থাকা টাকা = উত্তোলন + আয় − ব্যয়।</p>
   </div>
   <div class="card"><h2>📊 মাসভিত্তিক ব্যয়ের চার্ট</h2><div id="barChart"></div></div>
   <div class="card"><h2>🏷️ ক্যাটাগরি অনুযায়ী ব্যয়</h2>
@@ -1324,9 +1325,12 @@ function download(name, text, mime) {
 document.getElementById('exportJson').onclick = () => download('hisheber-khata-backup.json', JSON.stringify(entries, null, 2), 'application/json');
 document.getElementById('exportCsv').onclick = () => {
   const q = s => '"' + String(s == null ? '' : s).replace(/"/g, '""') + '"';
-  const rows = [['তারিখ', 'আইটেম', 'ক্যাটাগরি', 'ধরন', 'টাকা', 'নোট'].join(',')];
+  // টাকার কলাম তিন ভাগে: আয় / ব্যয় / ব্যাংক উত্তোলন। ব্যাংক উত্তোলন আয়-ব্যয়
+  // নয় — ওর টাকা শুধু নিজের কলামে থাকে, আয় বা ব্যয়ের কলামে কখনো নয়,
+  // যাতে Excel-এ কলাম যোগ করলেও উত্তোলন আয়-ব্যয়ে না ঢোকে।
+  const rows = [['তারিখ', 'আইটেম', 'ক্যাটাগরি', 'ধরন', 'আয় (৳)', 'ব্যয় (৳)', 'ব্যাংক উত্তোলন (৳)', 'নোট'].join(',')];
   entries.slice().sort((a, b) => (a.date || '').localeCompare(b.date || '')).forEach(e =>
-    rows.push([e.date, q(e.item), q(e.category || 'অন্যান্য'), TYPE_LABEL[e.type] || e.type, e.amount, q(e.note || '')].join(',')));
+    rows.push([e.date, q(e.item), q(e.category || 'অন্যান্য'), TYPE_LABEL[e.type] || e.type, e.type === 'income' ? e.amount : '', e.type === 'expense' ? e.amount : '', e.type === 'bank' ? e.amount : '', q(e.note || '')].join(',')));
   download('hisheber-khata-backup.csv', '\uFEFF' + rows.join('\n'), 'text/csv');
 };
 document.getElementById('importFile').addEventListener('change', async ev => {
