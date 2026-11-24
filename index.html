@@ -107,6 +107,13 @@ button{cursor:pointer;font:inherit}
 /* ---- Report bars ---- */
 .bar-row{display:grid;grid-template-columns:110px 1fr 90px;gap:10px;align-items:center;padding:7px 0;border-top:1px solid var(--line);font-size:14px}
 .bar-row:first-of-type{border-top:0}
+.cat-chip{font-size:12px;border-radius:999px;padding:2px 8px;margin-left:6px;background:#f1f5f9;color:#475569}
+.budget-track{background:#f1f5f9;border-radius:999px;height:14px;overflow:hidden;margin:10px 0}
+.budget-fill{height:100%;border-radius:999px;background:var(--green)}
+.budget-fill.warn{background:var(--amber)}
+.budget-fill.over{background:var(--red)}
+.budget-warn{font-weight:700;color:var(--amber)}
+.budget-over{font-weight:700;color:var(--red)}
 .bar-track{background:#f1f5f9;border-radius:999px;height:10px;overflow:hidden}
 .bar-fill{height:100%;border-radius:999px;background:var(--red)}
 .bar-fill.inc{background:var(--green)}
@@ -157,6 +164,15 @@ footer{color:var(--muted);font-size:13px;text-align:center;margin-top:24px}
     <div class="stat bank"><div class="icon">🏦</div><div class="label">ব্যাংক উত্তোলন</div><div class="value" id="totalBank">০</div></div>
     <div class="stat"><div class="icon">⚖️</div><div class="label">বাকি (আয় − ব্যয়)</div><div class="value" id="balance">০</div></div>
   </div>
+  <div class="card" id="budgetCard"><h2>📅 মাসিক বাজেট — <span id="budgetMonthLabel"></span></h2>
+    <div id="budgetBox"></div>
+    <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
+      <input id="budgetInput" type="number" min="1" step="1" placeholder="এই মাসের বাজেট (৳)" style="flex:1;min-width:160px">
+      <button class="btn" id="budgetSave">💾 বাজেট সংরক্ষণ</button>
+      <button class="btn ghost" id="budgetClear" hidden>মুছে ফেলুন</button>
+    </div>
+    <p class="note" id="budgetMsg"></p>
+  </div>
   <div class="grid2">
     <div class="card"><h2>📅 আজকের হিসাব</h2><div id="todayBox"></div></div>
     <div class="card"><h2>🗓️ এই মাসের হিসাব</h2><div id="monthBox"></div></div>
@@ -176,6 +192,7 @@ footer{color:var(--muted);font-size:13px;text-align:center;margin-top:24px}
   <div class="card"><h2>নতুন এন্ট্রি যোগ করুন</h2>
   <form id="entryForm">
     <div><label>ধরন</label><select id="type"><option value="expense">ব্যয়</option><option value="income">আয়</option><option value="bank">ব্যাংক উত্তোলন</option></select></div>
+    <div><label>ক্যাটাগরি</label><select id="category"><option value="বাজার">বাজার</option><option value="ঔষধ">ঔষধ</option><option value="ব্যক্তিগত">ব্যক্তিগত</option><option value="যাতায়াত">যাতায়াত</option><option value="বাড়ি ভাড়া">বাড়ি ভাড়া</option><option value="বিল">বিল</option><option value="শিক্ষা">শিক্ষা</option><option value="অন্যান্য">অন্যান্য</option></select></div>
     <div><label>আইটেম / বিবরণ</label><input id="item" required placeholder="যেমন: কলা" maxlength="80"></div>
     <div><label>টাকার অংক (৳)</label><input id="amount" type="number" min="1" step="1" required placeholder="যেমন: ৭০"></div>
     <div><label>তারিখ</label><input id="date" type="date" required></div>
@@ -209,6 +226,7 @@ footer{color:var(--muted);font-size:13px;text-align:center;margin-top:24px}
       </div>
       <input id="search" placeholder="আইটেম খুঁজুন…">
       <select id="monthFilter"><option value="all">সব মাস</option></select>
+      <select id="catFilter"><option value="all">সব ক্যাটাগরি</option><option value="বাজার">বাজার</option><option value="ঔষধ">ঔষধ</option><option value="ব্যক্তিগত">ব্যক্তিগত</option><option value="যাতায়াত">যাতায়াত</option><option value="বাড়ি ভাড়া">বাড়ি ভাড়া</option><option value="বিল">বিল</option><option value="শিক্ষা">শিক্ষা</option><option value="অন্যান্য">অন্যান্য</option></select>
     </div>
     <ul class="list" id="list"></ul>
     <div class="empty" id="empty" hidden>কোনো এন্ট্রি পাওয়া যায়নি।</div>
@@ -218,9 +236,13 @@ footer{color:var(--muted);font-size:13px;text-align:center;margin-top:24px}
 <!-- ===== রিপোর্ট ===== -->
 <section class="view" id="view-report">
   <div class="card"><h2>💰 মাসভিত্তিক আয়-ব্যয় রিপোর্ট</h2>
-    <table class="rep"><thead><tr><th>মাস</th><th>আয়</th><th>ব্যয়</th><th>ব্যাংক</th><th>বাকি</th></tr></thead><tbody id="repBody"></tbody></table>
+    <table class="rep"><thead><tr><th>মাস</th><th>আয়</th><th>ব্যয়</th><th>বাজেট</th><th>ব্যাংক</th><th>বাকি</th></tr></thead><tbody id="repBody"></tbody></table>
   </div>
   <div class="card"><h2>📊 মাসভিত্তিক ব্যয়ের চার্ট</h2><div id="barChart"></div></div>
+  <div class="card"><h2>🏷️ ক্যাটাগরি অনুযায়ী ব্যয়</h2>
+    <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px"><label style="margin:0">মাস:</label><select id="catMonth" style="width:auto;flex:1"></select></div>
+    <div id="catBreakdown"></div>
+  </div>
 </section>
 
 <!-- ===== ব্যাকআপ ===== -->
@@ -271,7 +293,7 @@ footer{color:var(--muted);font-size:13px;text-align:center;margin-top:24px}
   </div>
 </section>
 
-<!-- Seed totals (2026-11-24): মোট ব্যয় 3200, ব্যাংক উত্তোলন 9000, হাতে থাকা টাকা 5800, বাকি -3200 -->
+<!-- Seed totals (2026-11-24): মোট ব্যয় 3200, ব্যাংক উত্তোলন 9000, হাতে থাকা টাকা 5800, বাকি -3200; ক্যাটাগরি: বাজার 2795, ঔষধ 285, ব্যক্তিগত 120 -->
 <noscript><p>মোট ব্যয় ৩,২০০ টাকা, ব্যাংক উত্তোলন ৯,০০০ টাকা, হাতে থাকা টাকা ৫,৮০০ টাকা।</p></noscript>
 <footer>ডেটা লোকাল মোডে আপনার ব্রাউজারে থাকে (localStorage)। Supabase যুক্ত করলে সব ডিভাইসে সিঙ্ক হবে।</footer>
 </div></main>
@@ -294,6 +316,21 @@ const SUPABASE_CONFIG = { url: '', anonKey: '' };
 const SB_STORE_KEY = 'hisheberKhataSupabase';
 const KEY = 'hisheberKhataV1';
 const TYPE_LABEL = { income: 'আয়', expense: 'ব্যয়', bank: 'ব্যাংক উত্তোলন' };
+const CATEGORIES = ['বাজার', 'ঔষধ', 'ব্যক্তিগত', 'যাতায়াত', 'বাড়ি ভাড়া', 'বিল', 'শিক্ষা', 'অন্যান্য'];
+const GROCERY_ITEMS = ['সরিসার তেল', 'আলু', 'পেঁয়াজ', 'আদা', 'রসুন', 'গুড়', 'বিস্কিট', 'মাফিন', 'চানাচুর', 'চিড়া', 'প্যারা সন্দেশ', 'কলা', 'লেবু', 'লবণ', 'পাঁচফোড়ন', 'কালোজিরা', 'সরিষা কালো', 'চা পাতা'];
+function autoCategory(item, type) {
+  if (type !== 'expense') return 'অন্যান্য';
+  if (item === 'ঔষধ') return 'ঔষধ';
+  if (item === 'শ্যাম্পু') return 'ব্যক্তিগত';
+  if (GROCERY_ITEMS.includes(item)) return 'বাজার';
+  return 'অন্যান্য';
+}
+/* Monthly budgets: { '2026-11': 5000 } — no default; unset until the user sets one. */
+const BUDGET_KEY = 'hisheberKhataBudgets';
+function loadBudgets() { try { return JSON.parse(localStorage.getItem(BUDGET_KEY) || '{}') || {}; } catch (e) { return {}; } }
+function saveBudgets() { localStorage.setItem(BUDGET_KEY, JSON.stringify(budgets)); }
+let budgets = loadBudgets();
+function getBudget(mk) { return budgets[mk] ? +budgets[mk] : null; }
 
 const SEED = [
   ['সরিসার তেল', 260], ['আলু', 70], ['পেঁয়াজ', 270], ['পেঁয়াজ', 90], ['আদা', 120],
@@ -301,13 +338,21 @@ const SEED = [
   ['চানাচুর', 90], ['লবণ', 40], ['পাঁচফোড়ন', 50], ['কালোজিরা', 50], ['চা পাতা', 230],
   ['শ্যাম্পু', 120], ['সরিষা কালো', 50], ['চিড়া', 60], ['প্যারা সন্দেশ', 60], ['ঔষধ', 285],
   ['কলা', 70], ['লেবু', 20]
-].map((x, i) => ({ id: 'seed-e' + (i + 1), type: 'expense', item: x[0], amount: x[1], date: '2026-11-24', note: '', created: i + 1 }));
-SEED.push({ id: 'seed-b1', type: 'bank', item: 'ব্যাংক থেকে উত্তোলন', amount: 5000, date: '2026-11-24', note: '', created: 100 });
-SEED.push({ id: 'seed-b2', type: 'bank', item: 'ব্যাংক থেকে উত্তোলন', amount: 4000, date: '2026-11-24', note: '', created: 101 });
+].map((x, i) => ({ id: 'seed-e' + (i + 1), type: 'expense', item: x[0], amount: x[1], date: '2026-11-24', note: '', category: autoCategory(x[0], 'expense'), created: i + 1 }));
+SEED.push({ id: 'seed-b1', type: 'bank', item: 'ব্যাংক থেকে উত্তোলন', amount: 5000, date: '2026-11-24', note: '', category: 'অন্যান্য', created: 100 });
+SEED.push({ id: 'seed-b2', type: 'bank', item: 'ব্যাংক থেকে উত্তোলন', amount: 4000, date: '2026-11-24', note: '', category: 'অন্যান্য', created: 101 });
 
 /* ===== Local storage ===== */
 function loadLocal() {
-  try { const raw = localStorage.getItem(KEY); if (raw) return JSON.parse(raw); } catch (e) {}
+  try {
+    const raw = localStorage.getItem(KEY);
+    if (raw) {
+      const arr = JSON.parse(raw);
+      // Backward compat: old rows without a category get one from the item name.
+      arr.forEach(e => { if (!e.category) e.category = autoCategory(e.item, e.type); });
+      return arr;
+    }
+  } catch (e) {}
   localStorage.setItem(KEY, JSON.stringify(SEED)); return SEED.slice();
 }
 function saveLocal() { localStorage.setItem(KEY, JSON.stringify(entries)); }
@@ -329,11 +374,23 @@ function loadSbJs() {
   });
 }
 function rowToEntry(r) {
-  return { id: String(r.id), type: r.type, item: r.item, amount: +r.amount, date: r.date, note: r.note || '', created: r.created_at ? Date.parse(r.created_at) : 0 };
+  return { id: String(r.id), type: r.type, item: r.item, amount: +r.amount, date: r.date, note: r.note || '', category: r.category || autoCategory(r.item, r.type), created: r.created_at ? Date.parse(r.created_at) : 0 };
 }
 function entryToRow(e) {
-  return { id: e.id, date: e.date, item: e.item, type: e.type, amount: e.amount, note: e.note || null, created_at: new Date(e.created || Date.now()).toISOString() };
+  return { id: e.id, date: e.date, item: e.item, type: e.type, amount: e.amount, note: e.note || null, category: e.category || 'অন্যান্য', created_at: new Date(e.created || Date.now()).toISOString() };
 }
+async function sbLoadBudgets() {
+  const { data, error } = await sb.from('budgets').select('month, amount');
+  if (error) throw error;
+  if (data && data.length) { budgets = {}; data.forEach(b => { budgets[b.month] = +b.amount; }); saveBudgets(); }
+  else if (Object.keys(budgets).length) {
+    const rows = Object.entries(budgets).map(([month, amount]) => ({ month, amount }));
+    const { error: upErr } = await sb.from('budgets').upsert(rows);
+    if (upErr) throw upErr;
+  }
+}
+async function sbSaveBudget(mk, amount) { const { error } = await sb.from('budgets').upsert({ month: mk, amount }); if (error) throw error; }
+async function sbDeleteBudget(mk) { const { error } = await sb.from('budgets').delete().eq('month', mk); if (error) throw error; }
 async function initSupabase() {
   const cfg = getSbConfig();
   if (!cfg) { setSync('local'); return false; }
@@ -349,6 +406,7 @@ async function syncFromRemote() {
   if (!sbMode) return;
   const { data, error } = await sb.from('transactions').select('*').order('date', { ascending: false }).order('created_at', { ascending: false });
   if (error) throw error;
+  try { await sbLoadBudgets(); } catch (e) { /* budgets table may not exist yet on old projects */ }
   if (data && data.length) { entries = data.map(rowToEntry); saveLocal(); }
   else if (entries.length) { // first sync: upload local ledger (seed) to Supabase
     const { error: upErr } = await sb.from('transactions').upsert(entries.map(entryToRow));
@@ -390,7 +448,7 @@ document.querySelectorAll('[data-view]').forEach(a => a.addEventListener('click'
 document.querySelectorAll('[data-goto]').forEach(b => b.addEventListener('click', () => showView(b.dataset.goto)));
 
 /* ===== Render: totals + dashboard + list ===== */
-let editingId = null, filterType = 'all', searchQ = '', filterMonth = 'all';
+let editingId = null, filterType = 'all', searchQ = '', filterMonth = 'all', filterCat = 'all', catMonthSel = '';
 function render() {
   const t = totals();
   document.getElementById('totalIncome').textContent = bn2(t.inc);
@@ -410,11 +468,13 @@ function render() {
     <div class="mini-row"><span>${label} বাকি</span><b>${bn2(tt.balance)}</b></div>`;
   document.getElementById('todayBox').innerHTML = box(tToday, 'আজ');
   document.getElementById('monthBox').innerHTML = box(tMonth, 'এই মাসে');
+  // Monthly budget (current month)
+  renderBudget();
   // Recent 5
   const recent = entries.slice().sort((a, b) => (b.date || '').localeCompare(a.date || '') || (b.created || 0) - (a.created || 0)).slice(0, 5);
   document.getElementById('recentList').innerHTML = recent.map(e => {
     const sign = e.type === 'income' ? '+' : (e.type === 'expense' ? '−' : '');
-    return `<li><div><div class="item-name">${escapeHtml(e.item)}<span class="badge ${e.type}">${TYPE_LABEL[e.type]}</span></div><div class="item-meta">${fmtDate(e.date)}</div></div><span class="amt ${e.type}">${sign} ৳${bn2(e.amount)}</span></li>`;
+    return `<li><div><div class="item-name">${escapeHtml(e.item)}<span class="badge ${e.type}">${TYPE_LABEL[e.type]}</span><span class="cat-chip">🏷️ ${escapeHtml(e.category || 'অন্যান্য')}</span></div><div class="item-meta">${fmtDate(e.date)}</div></div><span class="amt ${e.type}">${sign} ৳${bn2(e.amount)}</span></li>`;
   }).join('') || '<div class="empty">কোনো এন্ট্রি নেই।</div>';
   // Month filter options
   const months = [...new Set(entries.map(e => monthKey(e.date)).filter(Boolean))].sort().reverse();
@@ -424,6 +484,7 @@ function render() {
   // List
   let list = entries.slice().sort((a, b) => (b.date || '').localeCompare(a.date || '') || (b.created || 0) - (a.created || 0));
   if (filterType !== 'all') list = list.filter(e => e.type === filterType);
+  if (filterCat !== 'all') list = list.filter(e => (e.category || 'অন্যান্য') === filterCat);
   if (searchQ) list = list.filter(e => e.item.toLowerCase().includes(searchQ));
   if (filterMonth !== 'all') list = list.filter(e => monthKey(e.date) === filterMonth);
   document.getElementById('count').textContent = '(' + bn2(list.length) + 'টি)';
@@ -432,7 +493,7 @@ function render() {
   list.forEach(e => {
     const li = document.createElement('li');
     const sign = e.type === 'income' ? '+' : (e.type === 'expense' ? '−' : '');
-    li.innerHTML = `<div><div class="item-name">${escapeHtml(e.item)}<span class="badge ${e.type}">${TYPE_LABEL[e.type]}</span></div><div class="item-meta">${fmtDate(e.date)}${e.note ? ' • ' + escapeHtml(e.note) : ''}</div></div>
+    li.innerHTML = `<div><div class="item-name">${escapeHtml(e.item)}<span class="badge ${e.type}">${TYPE_LABEL[e.type]}</span><span class="cat-chip">🏷️ ${escapeHtml(e.category || 'অন্যান্য')}</span></div><div class="item-meta">${fmtDate(e.date)}${e.note ? ' • ' + escapeHtml(e.note) : ''}</div></div>
     <div style="display:flex;align-items:center;gap:10px"><span class="amt ${e.type}">${sign} ৳${bn2(e.amount)}</span>
     <span class="actions"><button data-act="edit">বদলান</button><button data-act="del" class="danger">মুছুন</button></span></div>`;
     li.querySelector('[data-act="edit"]').onclick = () => startEdit(e.id);
@@ -448,11 +509,87 @@ function render() {
   if (currentView === 'report') renderReport();
 }
 
+/* ===== Monthly budget ===== */
+function renderBudget() {
+  const mk = monthKey(todayStr());
+  const label = document.getElementById('budgetMonthLabel');
+  if (label) label.textContent = monthLabel(mk);
+  const box = document.getElementById('budgetBox');
+  if (!box) return;
+  const budget = getBudget(mk);
+  const spent = totals(entries.filter(e => monthKey(e.date) === mk && e.type === 'expense')).exp;
+  const input = document.getElementById('budgetInput');
+  const clearBtn = document.getElementById('budgetClear');
+  if (document.activeElement !== input) input.value = budget ? budget : '';
+  if (clearBtn) clearBtn.hidden = !budget;
+  if (!budget) {
+    box.innerHTML = `<div class="mini-row"><span>এই মাসে ব্যয় হয়েছে</span><b style="color:var(--red)">৳${bn2(spent)}</b></div>
+      <p class="note" style="margin:8px 0 0">এই মাসে এখনো বাজেট নির্ধারণ করা হয়নি। উপরে অংক বসিয়ে “বাজেট সংরক্ষণ” চাপুন — তাহলে খরচের অগ্রগতি আর সতর্কতা দেখাবে।</p>`;
+    return;
+  }
+  const pct = Math.round(spent / budget * 100);
+  const remaining = budget - spent;
+  const cls = pct >= 100 ? 'over' : pct >= 80 ? 'warn' : '';
+  const warn = pct >= 100 ? '<div class="budget-over">⚠️ বাজেট ছাড়িয়ে গেছে! ব্যয় বাজেটের ' + bn2(pct) + '%।</div>'
+    : pct >= 80 ? '<div class="budget-warn">⚠️ সতর্কতা: বাজেটের ' + bn2(pct) + '% খরচ হয়ে গেছে।</div>' : '';
+  box.innerHTML = `<div class="mini-row"><span>মাসিক বাজেট</span><b>৳${bn2(budget)}</b></div>
+    <div class="mini-row"><span>এই মাসে ব্যয়</span><b style="color:var(--red)">৳${bn2(spent)} (${bn2(pct)}%)</b></div>
+    <div class="mini-row"><span>বাকি আছে</span><b style="color:${remaining < 0 ? 'var(--red)' : 'var(--green)'}">৳${bn2(remaining)}</b></div>
+    <div class="budget-track"><div class="budget-fill ${cls}" style="width:${Math.min(100, pct)}%"></div></div>${warn}`;
+}
+async function saveBudget() {
+  const mk = monthKey(todayStr());
+  const val = +document.getElementById('budgetInput').value;
+  const msg = document.getElementById('budgetMsg');
+  if (!val || val <= 0) { msg.textContent = '❌ সঠিক অংক দিন (১ টাকার বেশি)।'; return; }
+  budgets[mk] = val; saveBudgets();
+  if (sbMode) { try { await sbSaveBudget(mk, val); } catch (err) { msg.textContent = '⚠️ লোকালে সংরক্ষণ হয়েছে, Supabase-এ হয়নি: ' + err.message; render(); return; } }
+  msg.textContent = '✅ ' + monthLabel(mk) + ' মাসের বাজেট ৳' + bn2(val) + ' সংরক্ষণ হয়েছে।';
+  render();
+}
+async function clearBudget() {
+  const mk = monthKey(todayStr());
+  if (!confirm(monthLabel(mk) + ' মাসের বাজেট মুছে ফেলবেন?')) return;
+  delete budgets[mk]; saveBudgets();
+  if (sbMode) { try { await sbDeleteBudget(mk); } catch (err) {} }
+  document.getElementById('budgetMsg').textContent = 'বাজেট মোছা হয়েছে।';
+  render();
+}
+
+/* ===== Category breakdown (report) ===== */
+function renderCatBreakdown() {
+  const sel = document.getElementById('catMonth');
+  const box = document.getElementById('catBreakdown');
+  if (!sel || !box) return;
+  const months = [...new Set(entries.filter(e => e.type === 'expense').map(e => monthKey(e.date)).filter(Boolean))].sort().reverse();
+  const cur = sel.value;
+  sel.innerHTML = months.map(m => `<option value="${m}">${monthLabel(m)}</option>`).join('');
+  if (months.includes(cur)) sel.value = cur;
+  else if (months.includes(catMonthSel)) sel.value = catMonthSel;
+  else if (months.length) sel.value = months[0];
+  catMonthSel = sel.value;
+  const mk = sel.value;
+  if (!mk) { box.innerHTML = '<div class="empty">কোনো ব্যয়ের ডেটা নেই।</div>'; return; }
+  const byCat = {};
+  entries.filter(e => e.type === 'expense' && monthKey(e.date) === mk).forEach(e => {
+    const c = e.category || 'অন্যান্য';
+    byCat[c] = (byCat[c] || 0) + e.amount;
+  });
+  const rows = Object.entries(byCat).sort((a, b) => b[1] - a[1]);
+  const total = rows.reduce((s, r) => s + r[1], 0);
+  if (!rows.length) { box.innerHTML = '<div class="empty">এই মাসে কোনো ব্যয় নেই।</div>'; return; }
+  const max = Math.max(1, ...rows.map(r => r[1]));
+  box.innerHTML = rows.map(([c, amt]) => {
+    const pct = total ? Math.round(amt / total * 100) : 0;
+    return `<div class="bar-row"><span>🏷️ ${escapeHtml(c)}</span><div class="bar-track"><div class="bar-fill" style="width:${Math.round(amt / max * 100)}%"></div></div><b style="color:var(--red);text-align:right">৳${bn2(amt)} (${bn2(pct)}%)</b></div>`;
+  }).join('') + `<div class="mini-row" style="margin-top:6px"><span>মোট ব্যয়</span><b style="color:var(--red)">৳${bn2(total)}</b></div>`;
+}
+
 /* ===== Add / edit ===== */
 function startEdit(id) {
   const e = entries.find(x => x.id === id); if (!e) return;
   editingId = id;
-  document.getElementById('type').value = e.type; document.getElementById('item').value = e.item;
+  document.getElementById('type').value = e.type; document.getElementById('category').value = e.category || autoCategory(e.item, e.type); document.getElementById('item').value = e.item;
   document.getElementById('amount').value = e.amount; document.getElementById('date').value = e.date;
   document.getElementById('note').value = e.note || '';
   document.getElementById('submitBtn').textContent = '💾 সংরক্ষণ করুন';
@@ -472,6 +609,7 @@ document.getElementById('entryForm').addEventListener('submit', async ev => {
   const amount = +document.getElementById('amount').value;
   const date = document.getElementById('date').value;
   const type = document.getElementById('type').value;
+  const category = document.getElementById('category').value;
   const note = document.getElementById('note').value.trim();
   const msg = document.getElementById('formMsg');
   if (!item || !amount || !date) return;
@@ -479,12 +617,12 @@ document.getElementById('entryForm').addEventListener('submit', async ev => {
   try {
     if (editingId) {
       const e = entries.find(x => x.id === editingId);
-      Object.assign(e, { type, item, amount, date, note });
+      Object.assign(e, { type, item, amount, date, note, category });
       saveLocal();
       if (sbMode) await sbUpdate(e);
       msg.textContent = '✅ সংরক্ষণ হয়েছে।';
     } else {
-      const e = { id: 'e' + Date.now(), type, item, amount, date, note, created: Date.now() };
+      const e = { id: 'e' + Date.now(), type, item, amount, date, note, category, created: Date.now() };
       entries.push(e); saveLocal();
       if (sbMode) await sbInsert(e);
       msg.textContent = '✅ যোগ হয়েছে।';
@@ -504,6 +642,17 @@ document.getElementById('typeFilters').addEventListener('click', ev => {
 });
 document.getElementById('search').addEventListener('input', ev => { searchQ = ev.target.value.trim().toLowerCase(); render(); });
 document.getElementById('monthFilter').addEventListener('change', ev => { filterMonth = ev.target.value; render(); });
+document.getElementById('catFilter').addEventListener('change', ev => { filterCat = ev.target.value; render(); });
+document.getElementById('catMonth').addEventListener('change', ev => { catMonthSel = ev.target.value; renderCatBreakdown(); });
+document.getElementById('type').addEventListener('change', ev => {
+  document.getElementById('category').value = ev.target.value === 'expense' ? 'বাজার' : 'অন্যান্য';
+});
+document.getElementById('item').addEventListener('change', ev => {
+  const v = ev.target.value.trim();
+  if (v) document.getElementById('category').value = autoCategory(v, document.getElementById('type').value);
+});
+document.getElementById('budgetSave').onclick = saveBudget;
+document.getElementById('budgetClear').onclick = clearBudget;
 
 /* ===== Calendar view ===== */
 let calYear, calMonth, calSelected = null;
@@ -553,8 +702,10 @@ function renderReport() {
   const keys = Object.keys(byMonth).sort().reverse();
   document.getElementById('repBody').innerHTML = keys.map(k => {
     const t = totals(byMonth[k]);
-    return `<tr><td>${monthLabel(k)}</td><td>৳${bn2(t.inc)}</td><td style="color:var(--red)">৳${bn2(t.exp)}</td><td style="color:var(--blue)">৳${bn2(t.bank)}</td><td>${bn2(t.balance)}</td></tr>`;
-  }).join('') || '<tr><td colspan="5" class="empty">কোনো ডেটা নেই।</td></tr>';
+    const b = getBudget(k);
+    return `<tr><td>${monthLabel(k)}</td><td>৳${bn2(t.inc)}</td><td style="color:var(--red)">৳${bn2(t.exp)}</td><td>${b ? '৳' + bn2(b) : '—'}</td><td style="color:var(--blue)">৳${bn2(t.bank)}</td><td>${bn2(t.balance)}</td></tr>`;
+  }).join('') || '<tr><td colspan="6" class="empty">কোনো ডেটা নেই।</td></tr>';
+  renderCatBreakdown();
   const maxExp = Math.max(1, ...keys.map(k => totals(byMonth[k]).exp));
   document.getElementById('barChart').innerHTML = keys.map(k => {
     const t = totals(byMonth[k]);
@@ -571,9 +722,9 @@ function download(name, text, mime) {
 document.getElementById('exportJson').onclick = () => download('hisheber-khata-backup.json', JSON.stringify(entries, null, 2), 'application/json');
 document.getElementById('exportCsv').onclick = () => {
   const q = s => '"' + String(s == null ? '' : s).replace(/"/g, '""') + '"';
-  const rows = [['তারিখ', 'আইটেম', 'ধরন', 'টাকা', 'নোট'].join(',')];
+  const rows = [['তারিখ', 'আইটেম', 'ক্যাটাগরি', 'ধরন', 'টাকা', 'নোট'].join(',')];
   entries.slice().sort((a, b) => (a.date || '').localeCompare(b.date || '')).forEach(e =>
-    rows.push([e.date, q(e.item), TYPE_LABEL[e.type] || e.type, e.amount, q(e.note || '')].join(',')));
+    rows.push([e.date, q(e.item), q(e.category || 'অন্যান্য'), TYPE_LABEL[e.type] || e.type, e.amount, q(e.note || '')].join(',')));
   download('hisheber-khata-backup.csv', '\uFEFF' + rows.join('\n'), 'text/csv');
 };
 document.getElementById('importFile').addEventListener('change', async ev => {
@@ -586,7 +737,7 @@ document.getElementById('importFile').addEventListener('change', async ev => {
     const ids = new Set(entries.map(e => e.id));
     let added = 0;
     valid.forEach(e => {
-      const en = { id: e.id && !ids.has(String(e.id)) ? String(e.id) : 'e' + Date.now() + Math.floor(Math.random() * 1e6), type: ['income', 'expense', 'bank'].includes(e.type) ? e.type : 'expense', item: String(e.item), amount: +e.amount, date: String(e.date).slice(0, 10), note: e.note ? String(e.note) : '', created: e.created || Date.now() };
+      const en = { id: e.id && !ids.has(String(e.id)) ? String(e.id) : 'e' + Date.now() + Math.floor(Math.random() * 1e6), type: ['income', 'expense', 'bank'].includes(e.type) ? e.type : 'expense', item: String(e.item), amount: +e.amount, date: String(e.date).slice(0, 10), note: e.note ? String(e.note) : '', category: e.category && CATEGORIES.includes(e.category) ? e.category : autoCategory(String(e.item), ['income', 'expense', 'bank'].includes(e.type) ? e.type : 'expense'), created: e.created || Date.now() };
       entries.push(en); ids.add(en.id); added++;
     });
     saveLocal();
