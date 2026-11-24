@@ -58,6 +58,19 @@ create index if not exists budget_items_date_idx on public.budget_items (date de
 alter table public.budget_items
   add column if not exists date date;
 
+-- মাল্টি-অ্যাকাউন্ট (লোকাল): অ্যাপে প্রতিটা অ্যাকাউন্টের নিজের আলাদা খাতা
+-- থাকে, তবে তা এখনো শুধু ওই ব্রাউজারের localStorage-এ (অ্যাকাউন্ট-আইডি
+-- দিয়ে আলাদা চাবিতে)। Supabase-এ সব অ্যাকাউন্টের ডেটা আপাতত একটাই
+-- ভাগ করা লেজারে যায় — সার্ভারে প্রতি-ব্যবহারকারী আলাদা করতে নিচের
+-- user_id কলাম রাখা হলো; ভবিষ্যতে অ্যাপ user_id পাঠাতে শুরু করলে
+-- (auth.uid() বা লোকাল অ্যাকাউন্ট-আইডি) এই কলামে ছাঁকা যাবে। কোনো
+-- আসল চাবি বা অ্যাকাউন্ট এখানে বানানো হয়নি।
+alter table public.transactions add column if not exists user_id text;
+alter table public.budgets add column if not exists user_id text;
+alter table public.budget_items add column if not exists user_id text;
+create index if not exists transactions_user_idx on public.transactions (user_id);
+create index if not exists budget_items_user_idx on public.budget_items (user_id);
+
 -- Row Level Security চালু (Supabase-এ ডিফল্টভাবে RLS বন্ধ থাকে না,
 -- তবে টেবিল বানানোর পর এটি চালু করা নিরাপত্তার নিয়ম)।
 alter table public.transactions enable row level security;
@@ -83,7 +96,11 @@ create policy "budget_items_all_anon" on public.budget_items
 
 -- লগইন (Supabase Auth): ইমেইল/পাসওয়ার্ড লগইনের জন্য আলাদা টেবিল
 -- লাগে না — Supabase-এর নিজের auth.users টেবিল ব্যবহার হয়। অ্যাপের
--- পাসকোড লগইন আলাদাভাবে ব্রাউজারে (localStorage-এ হ্যাশ আকারে) চলে,
+-- পিন লগইন আলাদাভাবে ব্রাউজারে (localStorage-এ হ্যাশ আকারে) চলে,
 -- তাই এই schema-তে Auth-এর জন্য কিছু যোগ করতে হয় না। ভবিষ্যতে শুধু
 -- লগইন করা ব্যবহারকারীর ডেটা দেখাতে চাইলে উপরের anon policy-গুলোর
 -- বদলে authenticated + auth.uid() ভিত্তিক policy বসাতে হবে।
+-- লোকাল মাল্টি-অ্যাকাউন্ট: একই ব্রাউজারে একাধিক অ্যাকাউন্ট (প্রতিটার
+-- নিজের পিন আর আলাদা খাতা) চলে — তবে সেগুলো শুধু ওই ব্রাউজারেই থাকে।
+-- অন্য ডিভাইসে একই অ্যাকাউন্ট পেতে হলে Supabase সিঙ্ক + উপরের user_id
+-- কলামে অ্যাকাউন্ট আলাদা করতে হবে (এখনো অ্যাপ user_id পাঠায় না)।
