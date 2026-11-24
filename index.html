@@ -198,6 +198,7 @@ body.locked .app,body.locked .bottomnav{display:none}
       <button class="btn ghost" data-goto="budgetlist">📋 বাজেট লিস্ট</button>
       <button class="btn ghost" data-goto="backup">📥 ব্যাকআপ</button>
       <button class="btn ghost" data-goto="settings">⚙️ সিঙ্ক সেটিংস</button>
+      <button class="btn ghost" id="logoutBtnDash" style="color:var(--red);border-color:#fecaca">🚪 লগআউট</button>
     </div>
   </div>
 </section>
@@ -355,6 +356,10 @@ body.locked .app,body.locked .bottomnav{display:none}
       <p class="note" id="changePassMsg"></p>
     </div>
   </div>
+  <div class="card"><h2>🚪 লগআউট</h2>
+    <p class="note">খাতা থেকে বের হয়ে যাবেন — আবার খুলতে পাসকোড লাগবে। আপনার হিসাব মুছবে না।</p>
+    <button class="btn ghost" id="logoutBtnSettings" type="button" style="color:var(--red);border-color:#fecaca">🚪 লগআউট</button>
+  </div>
 </section>
 
 <!-- Seed totals (2026-11-24): মোট ব্যয় 3200, ব্যাংক উত্তোলন 9000, হাতে থাকা টাকা 5800, বাকি -3200; ক্যাটাগরি: বাজার 2795, ঔষধ 285, ব্যক্তিগত 120 -->
@@ -511,7 +516,12 @@ async function logoutUser() {
   try { if (sb && sb.auth) await sb.auth.signOut(); } catch (e) {}
   lockApp();
 }
-document.getElementById('logoutBtn').addEventListener('click', logoutUser);
+/* লগআউট বাটন তিন জায়গায়: সাইডবার (ডেস্কটপ), ড্যাশবোর্ডের দ্রুত কাজ, সিঙ্ক সেটিংস —
+   সাইডবার মোবাইলে লুকানো থাকে বলে মোবাইলে ওই দুটোই লগআউটের রাস্তা। */
+['logoutBtn', 'logoutBtnDash', 'logoutBtnSettings'].forEach(id => {
+  const b = document.getElementById(id);
+  if (b) b.addEventListener('click', logoutUser);
+});
 document.getElementById('changePassBtn').addEventListener('click', async () => {
   const msg = document.getElementById('changePassMsg');
   const oldP = document.getElementById('oldPass').value;
