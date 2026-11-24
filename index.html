@@ -126,7 +126,7 @@ table.rep th{color:var(--muted);font-weight:600}
 .note ol{margin:6px 0;padding-left:20px}
 footer{color:var(--muted);font-size:13px;text-align:center;margin-top:24px}
 /* ---- Mobile bottom nav ---- */
-.bottomnav{display:grid;grid-template-columns:repeat(5,1fr);background:#fff;border-top:1px solid var(--line);position:fixed;bottom:0;left:0;right:0;z-index:30;font-size:10px}
+.bottomnav{display:grid;grid-template-columns:repeat(6,1fr);background:#fff;border-top:1px solid var(--line);position:fixed;bottom:0;left:0;right:0;z-index:30;font-size:10px}
 .bottomnav a{display:flex;flex-direction:column;align-items:center;padding:8px 0 10px;color:#475569;text-decoration:none;cursor:pointer}
 .bottomnav a.active{color:var(--green);font-weight:700}
 .bottomnav .ic{font-size:18px;line-height:1.2}
@@ -142,6 +142,7 @@ footer{color:var(--muted);font-size:13px;text-align:center;margin-top:24px}
     <a data-view="entry"><span>➕</span>নতুন এন্ট্রি</a>
     <a data-view="calendar"><span>📅</span>তারিখ ক্যালেন্ডার</a>
     <a data-view="list"><span>🧾</span>সব এন্ট্রি</a>
+    <a data-view="budgetlist"><span>📋</span>বাজেট লিস্ট</a>
     <a data-view="report"><span>💰</span>আয়-ব্যয় রিপোর্ট</a>
     <a data-view="backup"><span>📥</span>ব্যাকআপ</a>
     <a data-view="settings"><span>⚙️</span>সিঙ্ক সেটিংস</a>
@@ -181,6 +182,7 @@ footer{color:var(--muted);font-size:13px;text-align:center;margin-top:24px}
   <div class="card"><h2>🔧 দ্রুত কাজ</h2>
     <div style="display:flex;gap:8px;flex-wrap:wrap">
       <button class="btn" data-goto="entry">➕ নতুন এন্ট্রি</button>
+      <button class="btn ghost" data-goto="budgetlist">📋 বাজেট লিস্ট</button>
       <button class="btn ghost" data-goto="backup">📥 ব্যাকআপ</button>
       <button class="btn ghost" data-goto="settings">⚙️ সিঙ্ক সেটিংস</button>
     </div>
@@ -230,6 +232,31 @@ footer{color:var(--muted);font-size:13px;text-align:center;margin-top:24px}
     </div>
     <ul class="list" id="list"></ul>
     <div class="empty" id="empty" hidden>কোনো এন্ট্রি পাওয়া যায়নি।</div>
+  </div>
+</section>
+
+<!-- ===== বাজেট লিস্ট ===== -->
+<section class="view" id="view-budgetlist">
+  <div class="card"><h2>📋 বাজেট লিস্ট — <span id="budgetListMonthLabel"></span></h2>
+    <p class="note">আলাদা বাজেটের তালিকা। প্রতিটা আইটেমের বাজেট থেকে ওই মাসের খরচ নিজে থেকেই মাইনাস হয়ে বাকি দেখাবে। খরচ ধরা হয় ওই মাসে <b>ওই নামের আইটেমের</b> মোট ব্যয় দিয়ে; নাম না মিললে ওই <b>ক্যাটাগরির</b> মোট ব্যয় দিয়ে। “খরচে যোগ করুন” চাপলেই আইটেমটি আজকের তারিখে, বাজেটের অংকে, খরচের তালিকায় যোগ হয়ে যাবে।</p>
+    <div style="display:flex;gap:8px;align-items:center;margin-bottom:10px;flex-wrap:wrap">
+      <label style="margin:0">মাস:</label>
+      <select id="budgetListMonth" style="width:auto;flex:1"></select>
+    </div>
+    <div id="budgetListSummary"></div>
+    <form id="budgetItemForm" style="margin-top:12px">
+      <div><label>আইটেমের নাম</label><input id="biName" required placeholder="যেমন: আলু / বাজার" maxlength="80"></div>
+      <div><label>ক্যাটাগরি</label><select id="biCategory"><option value="বাজার">বাজার</option><option value="ঔষধ">ঔষধ</option><option value="ব্যক্তিগত">ব্যক্তিগত</option><option value="যাতায়াত">যাতায়াত</option><option value="বাড়ি ভাড়া">বাড়ি ভাড়া</option><option value="বিল">বিল</option><option value="শিক্ষা">শিক্ষা</option><option value="অন্যান্য">অন্যান্য</option></select></div>
+      <div><label>বাজেটের অংক (৳)</label><input id="biAmount" type="number" min="1" step="1" required placeholder="যেমন: ৫০০"></div>
+      <div><label>মাস</label><input id="biMonth" type="month" required></div>
+      <div class="full"><button class="btn" type="submit" id="biSubmit">➕ বাজেট লিস্টে যোগ করুন</button>
+      <button class="btn ghost" type="button" id="biCancel" hidden>বাতিল</button></div>
+    </form>
+    <p class="note" id="biMsg"></p>
+  </div>
+  <div class="card"><h2>এই মাসের বাজেট লিস্ট</h2>
+    <ul class="list" id="budgetItemList" style="margin-top:0"></ul>
+    <div class="empty" id="budgetItemEmpty" hidden>এই মাসে কোনো বাজেট আইটেম নেই — উপরে ফর্ম থেকে যোগ করুন।</div>
   </div>
 </section>
 
@@ -304,6 +331,7 @@ footer{color:var(--muted);font-size:13px;text-align:center;margin-top:24px}
   <a data-view="entry"><span class="ic">➕</span>এন্ট্রি</a>
   <a data-view="calendar"><span class="ic">📅</span>তারিখ</a>
   <a data-view="list"><span class="ic">🧾</span>লিস্ট</a>
+  <a data-view="budgetlist"><span class="ic">📋</span>বাজেট</a>
   <a data-view="report"><span class="ic">💰</span>রিপোর্ট</a>
 </nav>
 
@@ -331,6 +359,146 @@ function loadBudgets() { try { return JSON.parse(localStorage.getItem(BUDGET_KEY
 function saveBudgets() { localStorage.setItem(BUDGET_KEY, JSON.stringify(budgets)); }
 let budgets = loadBudgets();
 function getBudget(mk) { return budgets[mk] ? +budgets[mk] : null; }
+
+/* ===== Budget List (আলাদা বাজেটের তালিকা) =====
+   Starts empty — no amounts invented. Each item: name, category, amount, month.
+   Spent = that month's expenses with the SAME item name; if none match by name,
+   spent = that month's expenses in the item's category. Remaining = amount - spent. */
+const BUDGET_ITEMS_KEY = 'hisheberKhataBudgetItems';
+function loadBudgetItems() { try { const a = JSON.parse(localStorage.getItem(BUDGET_ITEMS_KEY) || '[]'); return Array.isArray(a) ? a : []; } catch (e) { return []; } }
+function saveBudgetItems() { localStorage.setItem(BUDGET_ITEMS_KEY, JSON.stringify(budgetItems)); }
+let budgetItems = loadBudgetItems();
+let budgetListMonth = monthKey(todayStr());
+let editingBudgetId = null;
+function spentForBudgetItem(item) {
+  const byName = entries.filter(e => e.type === 'expense' && monthKey(e.date) === item.month && (e.item || '').trim().toLowerCase() === (item.name || '').trim().toLowerCase());
+  if (byName.length) return byName.reduce((s, e) => s + e.amount, 0);
+  return entries.filter(e => e.type === 'expense' && monthKey(e.date) === item.month && (e.category || 'অন্যান্য') === item.category).reduce((s, e) => s + e.amount, 0);
+}
+async function sbUpsertBudgetItem(it) { const { error } = await sb.from('budget_items').upsert({ id: it.id, name: it.name, category: it.category, amount: it.amount, month: it.month }); if (error) throw error; }
+async function sbDeleteBudgetItem(id) { const { error } = await sb.from('budget_items').delete().eq('id', id); if (error) throw error; }
+async function sbLoadBudgetItems() {
+  const { data, error } = await sb.from('budget_items').select('*');
+  if (error) throw error;
+  if (data && data.length) { budgetItems = data.map(r => ({ id: String(r.id), name: r.name, category: r.category || 'অন্যান্য', amount: +r.amount, month: r.month })); saveBudgetItems(); }
+  else if (budgetItems.length) { const { error: upErr } = await sb.from('budget_items').upsert(budgetItems.map(it => ({ id: it.id, name: it.name, category: it.category, amount: it.amount, month: it.month }))); if (upErr) throw upErr; }
+}
+function renderBudgetList() {
+  const label = document.getElementById('budgetListMonthLabel');
+  if (label) label.textContent = monthLabel(budgetListMonth);
+  const sel = document.getElementById('budgetListMonth');
+  if (sel) {
+    const months = [...new Set([...entries.map(e => monthKey(e.date)), ...budgetItems.map(b => b.month), monthKey(todayStr())].filter(Boolean))].sort().reverse();
+    const cur = sel.value;
+    sel.innerHTML = months.map(m => `<option value="${m}">${monthLabel(m)}</option>`).join('');
+    sel.value = months.includes(cur) ? cur : budgetListMonth;
+    budgetListMonth = sel.value;
+  }
+  const items = budgetItems.filter(b => b.month === budgetListMonth).slice().sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+  const totalBudget = items.reduce((s, b) => s + b.amount, 0);
+  const totalSpent = items.reduce((s, b) => s + spentForBudgetItem(b), 0);
+  const totalRem = totalBudget - totalSpent;
+  const sum = document.getElementById('budgetListSummary');
+  if (sum) sum.innerHTML = items.length ? `
+    <div class="mini-row"><span>এই মাসে মোট বাজেট</span><b>৳${bn2(totalBudget)}</b></div>
+    <div class="mini-row"><span>এই মাসে মোট খরচ (লিস্ট অনুযায়ী)</span><b style="color:var(--red)">৳${bn2(totalSpent)}</b></div>
+    <div class="mini-row"><span>মোট বাকি আছে</span><b style="color:${totalRem < 0 ? 'var(--red)' : 'var(--green)'}">৳${bn2(totalRem)}</b></div>` : '';
+  const ul = document.getElementById('budgetItemList');
+  const empty = document.getElementById('budgetItemEmpty');
+  if (!ul) return;
+  ul.innerHTML = '';
+  if (empty) empty.hidden = items.length > 0;
+  items.forEach(it => {
+    const spent = spentForBudgetItem(it);
+    const remaining = it.amount - spent;
+    const pct = it.amount ? Math.round(spent / it.amount * 100) : 0;
+    const cls = pct >= 100 ? 'over' : pct >= 80 ? 'warn' : '';
+    const warn = pct >= 100 ? '<div class="budget-over">⚠️ বাজেট ছাড়িয়ে গেছে!</div>' : pct >= 80 ? '<div class="budget-warn">⚠️ বাজেটের ' + bn2(pct) + '% খরচ হয়ে গেছে।</div>' : '';
+    const li = document.createElement('li');
+    li.innerHTML = `<div style="flex:1;min-width:0">
+      <div class="item-name">${escapeHtml(it.name)}<span class="cat-chip">🏷️ ${escapeHtml(it.category)}</span></div>
+      <div class="item-meta">${monthLabel(it.month)} • বাজেট ৳${bn2(it.amount)} • খরচ ৳${bn2(spent)} • বাকি <b style="color:${remaining < 0 ? 'var(--red)' : 'var(--green)'}">৳${bn2(remaining)}</b></div>
+      <div class="budget-track"><div class="budget-fill ${cls}" style="width:${Math.min(100, pct)}%"></div></div>${warn}
+    </div>
+    <div class="actions" style="flex-wrap:wrap;justify-content:flex-end">
+      <button data-act="quick" style="background:var(--green);color:#fff;border-color:var(--green)">+ খরচে যোগ করুন</button>
+      <button data-act="edit">বদলান</button>
+      <button data-act="del" class="danger">মুছুন</button>
+    </div>`;
+    li.querySelector('[data-act="quick"]').onclick = () => quickAddBudgetItem(it);
+    li.querySelector('[data-act="edit"]').onclick = () => startEditBudgetItem(it.id);
+    li.querySelector('[data-act="del"]').onclick = async () => {
+      if (!confirm('“' + it.name + '” বাজেট আইটেমটি মুছে ফেলবেন? (খরচের এন্ট্রিগুলো থাকবে।)')) return;
+      budgetItems = budgetItems.filter(x => x.id !== it.id); saveBudgetItems();
+      if (sbMode) { try { await sbDeleteBudgetItem(it.id); } catch (err) {} }
+      render(); renderBudgetList();
+    };
+    ul.appendChild(li);
+  });
+}
+function startEditBudgetItem(id) {
+  const it = budgetItems.find(x => x.id === id); if (!it) return;
+  editingBudgetId = id;
+  document.getElementById('biName').value = it.name;
+  document.getElementById('biCategory').value = it.category;
+  document.getElementById('biAmount').value = it.amount;
+  document.getElementById('biMonth').value = it.month;
+  document.getElementById('biSubmit').textContent = '💾 সংরক্ষণ করুন';
+  document.getElementById('biCancel').hidden = false;
+}
+function cancelEditBudgetItem() {
+  editingBudgetId = null;
+  document.getElementById('budgetItemForm').reset();
+  document.getElementById('biMonth').value = budgetListMonth;
+  document.getElementById('biSubmit').textContent = '➕ বাজেট লিস্টে যোগ করুন';
+  document.getElementById('biCancel').hidden = true;
+  document.getElementById('biMsg').textContent = '';
+}
+async function quickAddBudgetItem(it) {
+  const msg = document.getElementById('biMsg');
+  let amount = +it.amount;
+  if (!amount || amount <= 0) {
+    const ans = prompt('“' + it.name + '”-এর জন্য খরচের অংক কত? (৳)', '');
+    if (ans === null) return;
+    amount = +ans;
+    if (!amount || amount <= 0) { if (msg) msg.textContent = '❌ সঠিক অংক দিন।'; return; }
+  }
+  const e = { id: 'e' + Date.now(), type: 'expense', item: it.name, amount, date: todayStr(), note: 'বাজেট লিস্ট থেকে', category: it.category, created: Date.now() };
+  entries.push(e); saveLocal();
+  try { if (sbMode) await sbInsert(e); } catch (err) { if (msg) msg.textContent = '⚠️ লোকালে যোগ হয়েছে, Supabase-এ হয়নি: ' + err.message; render(); renderBudgetList(); return; }
+  if (msg) msg.textContent = '✅ “' + it.name + '” ৳' + bn2(amount) + ' আজকের খরচে যোগ হয়েছে — বাজেট থেকে কেটে গেছে।';
+  render(); renderBudgetList();
+}
+document.getElementById('budgetItemForm').addEventListener('submit', async ev => {
+  ev.preventDefault();
+  const name = document.getElementById('biName').value.trim();
+  const category = document.getElementById('biCategory').value;
+  const amount = +document.getElementById('biAmount').value;
+  const month = document.getElementById('biMonth').value;
+  const msg = document.getElementById('biMsg');
+  if (!name || !amount || amount <= 0 || !month) { msg.textContent = '❌ নাম, সঠিক অংক আর মাস — তিনটাই দিন।'; return; }
+  try {
+    if (editingBudgetId) {
+      const it = budgetItems.find(x => x.id === editingBudgetId);
+      Object.assign(it, { name, category, amount, month });
+      saveBudgetItems();
+      if (sbMode) await sbUpsertBudgetItem(it);
+      msg.textContent = '✅ বাজেট আইটেম সংরক্ষণ হয়েছে।';
+    } else {
+      const it = { id: 'bi' + Date.now(), name, category, amount, month };
+      budgetItems.push(it); saveBudgetItems();
+      if (sbMode) await sbUpsertBudgetItem(it);
+      msg.textContent = '✅ বাজেট লিস্টে যোগ হয়েছে।';
+    }
+    cancelEditBudgetItem(); renderBudgetList();
+  } catch (err) { msg.textContent = '⚠️ লোকালে সংরক্ষণ হয়েছে, Supabase-এ হয়নি: ' + err.message; renderBudgetList(); }
+});
+document.getElementById('biCancel').onclick = cancelEditBudgetItem;
+document.getElementById('budgetListMonth').addEventListener('change', ev => { budgetListMonth = ev.target.value; renderBudgetList(); });
+document.getElementById('biName').addEventListener('change', ev => {
+  const v = ev.target.value.trim();
+  if (v) document.getElementById('biCategory').value = autoCategory(v, 'expense');
+});
 
 const SEED = [
   ['সরিসার তেল', 260], ['আলু', 70], ['পেঁয়াজ', 270], ['পেঁয়াজ', 90], ['আদা', 120],
@@ -407,6 +575,7 @@ async function syncFromRemote() {
   const { data, error } = await sb.from('transactions').select('*').order('date', { ascending: false }).order('created_at', { ascending: false });
   if (error) throw error;
   try { await sbLoadBudgets(); } catch (e) { /* budgets table may not exist yet on old projects */ }
+  try { await sbLoadBudgetItems(); } catch (e) { /* budget_items table may not exist yet on old projects */ }
   if (data && data.length) { entries = data.map(rowToEntry); saveLocal(); }
   else if (entries.length) { // first sync: upload local ledger (seed) to Supabase
     const { error: upErr } = await sb.from('transactions').upsert(entries.map(entryToRow));
@@ -441,6 +610,7 @@ function showView(v) {
   document.querySelectorAll('[data-view]').forEach(a => a.classList.toggle('active', a.dataset.view === v));
   if (v === 'calendar') renderCalendar();
   if (v === 'report') renderReport();
+  if (v === 'budgetlist') renderBudgetList();
   if (v === 'backup') document.getElementById('backupCount').textContent = bn2(entries.length);
   window.scrollTo({ top: 0 });
 }
@@ -507,6 +677,7 @@ function render() {
   });
   if (currentView === 'calendar') renderCalendar();
   if (currentView === 'report') renderReport();
+  if (currentView === 'budgetlist') renderBudgetList();
 }
 
 /* ===== Monthly budget ===== */
@@ -803,6 +974,7 @@ document.getElementById('sbClear').onclick = () => {
 
 /* ===== Init ===== */
 document.getElementById('date').value = todayStr();
+document.getElementById('biMonth').value = budgetListMonth;
 fillSbForm();
 render();
 initSupabase().then(async ok => {

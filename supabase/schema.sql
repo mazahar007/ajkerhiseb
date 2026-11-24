@@ -38,10 +38,23 @@ create table if not exists public.budgets (
   updated_at timestamptz not null default now()
 );
 
+-- বাজেট লিস্টের টেবিল (আলাদা বাজেটের তালিকা)। month হলো 'YYYY-MM'।
+-- নাম, ক্যাটাগরি, বাজেটের অংক, মাস — খালি শুরু হয়, কোনো ডিফল্ট আইটেম নেই।
+create table if not exists public.budget_items (
+  id text primary key,
+  name text not null,
+  category text not null default 'অন্যান্য',
+  amount numeric not null check (amount > 0),
+  month text not null,
+  created_at timestamptz not null default now()
+);
+create index if not exists budget_items_month_idx on public.budget_items (month);
+
 -- Row Level Security চালু (Supabase-এ ডিফল্টভাবে RLS বন্ধ থাকে না,
 -- তবে টেবিল বানানোর পর এটি চালু করা নিরাপত্তার নিয়ম)।
 alter table public.transactions enable row level security;
 alter table public.budgets enable row level security;
+alter table public.budget_items enable row level security;
 
 -- ব্যক্তিগত একক ব্যবহারকারীর খাতা: anon key দিয়ে পড়া/লেখা যাবে।
 -- ⚠️ সতর্কতা: এটি সবার জন্য উন্মুক্ত নয়, তবে anon key জানা যে কেউ
@@ -54,4 +67,8 @@ create policy "transactions_all_anon" on public.transactions
 
 drop policy if exists "budgets_all_anon" on public.budgets;
 create policy "budgets_all_anon" on public.budgets
+  for all to anon using (true) with check (true);
+
+drop policy if exists "budget_items_all_anon" on public.budget_items;
+create policy "budget_items_all_anon" on public.budget_items
   for all to anon using (true) with check (true);
