@@ -142,6 +142,8 @@ body.locked .app,body.locked .bottomnav{display:none}
 .lock-link{background:none;border:0;color:var(--blue);font-size:13px;margin-top:12px;text-decoration:underline;cursor:pointer}
 .lock-err{color:var(--red);font-size:14px;min-height:20px;margin-top:8px}
 .lock-note{font-size:13px;color:var(--muted);margin-top:10px;line-height:1.6}
+.acct-btn{width:100%;text-align:left;padding:12px 16px;font-weight:600}
+.acct-btn:hover{background:#f1f5f9}
 @media(min-width:768px){.bottomnav{display:none}}
 </style>
 </head>
@@ -160,6 +162,7 @@ body.locked .app,body.locked .bottomnav{display:none}
     <a data-view="settings"><span>⚙️</span>সিঙ্ক সেটিংস</a>
   </nav>
   <div class="side-foot">
+    <div>অ্যাকাউন্ট: <b id="currentAcctName">—</b></div>
     <div>সিঙ্ক: <span class="sync-badge local" id="syncBadge">● লোকাল মোড</span></div>
     <button class="btn ghost" id="logoutBtn" style="width:100%;margin-top:10px;background:transparent;color:#fff;border-color:rgba(255,255,255,.3)">🚪 লগআউট</button>
     <div style="margin-top:8px;opacity:.5;font-size:11px">লাইট ভার্সন • বাংলা সংখ্যা</div>
@@ -303,7 +306,7 @@ body.locked .app,body.locked .bottomnav{display:none}
 <!-- ===== ব্যাকআপ ===== -->
 <section class="view" id="view-backup">
   <div class="card"><h2>📥 ব্যাকআপ</h2>
-    <p class="note">মোট এন্ট্রি: <b id="backupCount">০</b>টি। ব্যাকআপ নিলে পুরো হিসাব ফাইলে নেমে যাবে — ফোন বদলালেও আবার আপলোড করে ফিরিয়ে আনা যাবে।</p>
+    <p class="note">মোট এন্ট্রি: <b id="backupCount">০</b>টি। ব্যাকআপ নিলে এই অ্যাকাউন্টের পুরো হিসাব ফাইলে নেমে যাবে — ফোন বদলালেও আবার আপলোড করে ফিরিয়ে আনা যাবে।</p>
     <div style="display:flex;gap:8px;flex-wrap:wrap">
       <button class="btn blue" id="exportJson">⬇️ JSON ডাউনলোড</button>
       <button class="btn" id="exportCsv">⬇️ CSV (Excel) ডাউনলোড</button>
@@ -315,7 +318,7 @@ body.locked .app,body.locked .bottomnav{display:none}
     </div>
     <div style="margin-top:14px;border-top:1px solid var(--line);padding-top:14px">
       <button class="btn ghost" id="clearAll" style="color:var(--red);border-color:#fecaca">🗑️ সব ডেটা মুছে ফেলুন</button>
-      <p class="note">সাবধান: এটা সব এন্ট্রি মুছে দেবে (Supabase চালু থাকলে সেখান থেকেও)। আগে ব্যাকআপ নিয়ে নিন।</p>
+      <p class="note">সাবধান: এটা এই অ্যাকাউন্টের সব এন্ট্রি মুছে দেবে (Supabase চালু থাকলে সেখান থেকেও)। আগে ব্যাকআপ নিয়ে নিন। অন্য অ্যাকাউন্টের হিসাব মুছবে না।</p>
     </div>
   </div>
 </section>
@@ -324,7 +327,7 @@ body.locked .app,body.locked .bottomnav{display:none}
 <section class="view" id="view-settings">
   <div class="card"><h2>⚙️ সিঙ্ক সেটিংস — Supabase</h2>
     <p class="note">অবস্থা: <span class="sync-badge local" id="syncBadge2">● লোকাল মোড</span></p>
-    <p class="note">লোকাল মোডে ডেটা শুধু এই ব্রাউজারেই থাকে। Supabase যুক্ত করলে সব ডিভাইসে একই হিসাব সিঙ্ক হবে। চাবি দুটো শুধু এই ব্রাউজারে থাকে, কোথাও পাঠানো হয় না।</p>
+    <p class="note">লোকাল মোডে ডেটা শুধু এই ব্রাউজারেই থাকে। Supabase যুক্ত করলে সব ডিভাইসে একই হিসাব সিঙ্ক হবে। চাবি দুটো শুধু এই ব্রাউজারে থাকে, কোথাও পাঠানো হয় না। লোকাল অ্যাকাউন্টগুলো এই ব্রাউজারেই থাকে — অন্য ডিভাইসে আবার অ্যাকাউন্ট খুলতে হবে, যতক্ষণ না Supabase সিঙ্ক চালু হয়।</p>
     <div style="display:grid;gap:10px">
       <div><label>Supabase Project URL</label><input id="sbUrl" placeholder="https://xxxx.supabase.co"></div>
       <div><label>Supabase anon key (public)</label><input id="sbKey" placeholder="eyJhbGciOi…" autocomplete="off"></div>
@@ -346,13 +349,13 @@ body.locked .app,body.locked .bottomnav{display:none}
       </ol>
     </div>
   </div>
-  <div class="card"><h2>🔐 পাসকোড পরিবর্তন</h2>
-    <p class="note">পাসকোড শুধু এই ব্রাউজারে থাকে (হ্যাশ আকারে, আসল পাসকোড কোথাও সংরক্ষণ হয় না)। বদলাতে পুরোনো পাসকোড লাগবে।</p>
+  <div class="card"><h2>🔐 পিন পরিবর্তন</h2>
+    <p class="note">পিন শুধু এই ব্রাউজারে থাকে (হ্যাশ আকারে, আসল পিন কোথাও সংরক্ষণ হয় না)। এই পিন বদলাবে: <b id="changePassAcct">—</b>। বদলাতে পুরোনো পিন লাগবে।</p>
     <div style="display:grid;gap:10px">
-      <div><label>পুরোনো পাসকোড</label><input id="oldPass" type="password" inputmode="numeric" autocomplete="current-password" placeholder="••••"></div>
-      <div><label>নতুন পাসকোড (কমপক্ষে ৪ অক্ষর)</label><input id="newPass" type="password" inputmode="numeric" autocomplete="new-password" placeholder="••••"></div>
-      <div><label>নতুন পাসকোড আবার দিন</label><input id="newPass2" type="password" inputmode="numeric" autocomplete="new-password" placeholder="••••"></div>
-      <button class="btn" id="changePassBtn" type="button">🔐 পাসকোড বদলান</button>
+      <div><label>পুরোনো পিন</label><input id="oldPass" type="password" inputmode="numeric" autocomplete="current-password" placeholder="••••"></div>
+      <div><label>নতুন পিন (কমপক্ষে ৪ অক্ষর)</label><input id="newPass" type="password" inputmode="numeric" autocomplete="new-password" placeholder="••••"></div>
+      <div><label>নতুন পিন আবার দিন</label><input id="newPass2" type="password" inputmode="numeric" autocomplete="new-password" placeholder="••••"></div>
+      <button class="btn" id="changePassBtn" type="button">🔐 পিন বদলান</button>
       <p class="note" id="changePassMsg"></p>
     </div>
   </div>
@@ -364,7 +367,7 @@ body.locked .app,body.locked .bottomnav{display:none}
 
 <!-- Seed totals (2026-11-24): মোট ব্যয় 3200, ব্যাংক উত্তোলন 9000, হাতে থাকা টাকা 5800, বাকি -3200; ক্যাটাগরি: বাজার 2795, ঔষধ 285, ব্যক্তিগত 120 -->
 <noscript><p>মোট ব্যয় ৩,২০০ টাকা, ব্যাংক উত্তোলন ৯,০০০ টাকা, হাতে থাকা টাকা ৫,৮০০ টাকা।</p></noscript>
-<footer>ডেটা লোকাল মোডে আপনার ব্রাউজারে থাকে (localStorage) — পাসকোড দিয়ে সুরক্ষিত। Supabase যুক্ত করলে সব ডিভাইসে সিঙ্ক হবে।</footer>
+<footer>প্রতিটা অ্যাকাউন্টের ডেটা আলাদাভাবে এই ব্রাউজারে থাকে (localStorage) — পিন দিয়ে সুরক্ষিত। Supabase যুক্ত করলে সব ডিভাইসে সিঙ্ক হবে।</footer>
 </div></main>
 </div>
 
@@ -382,13 +385,25 @@ body.locked .app,body.locked .bottomnav{display:none}
   <div class="lock-card">
     <div class="lock-emoji">🔐</div>
     <h2 id="lockTitle">হিসেবের খাতা</h2>
-    <p class="note" id="lockSub">খাতা খুলতে পাসকোড দিন</p>
-    <div id="lockPassBox">
+    <p class="note" id="lockSub">আপনার অ্যাকাউন্ট বেছে নিন</p>
+    <div id="acctPicker" hidden>
+      <div id="acctList" style="display:grid;gap:8px;text-align:left"></div>
+      <button class="btn blue" id="acctNewBtn" type="button" style="margin-top:12px">➕ নতুন অ্যাকাউন্ট খুলুন</button>
+    </div>
+    <div id="acctCreateBox" hidden>
+      <input id="acctName" type="text" placeholder="আপনার নাম (যেমন: রহিম)" maxlength="40" style="letter-spacing:0;font-size:16px;text-align:left">
+      <input id="acctPin1" type="password" inputmode="numeric" autocomplete="new-password" placeholder="পিন (কমপক্ষে ৪ অক্ষর)" maxlength="32" style="margin-top:8px">
+      <input id="acctPin2" type="password" inputmode="numeric" autocomplete="new-password" placeholder="পিন আবার দিন" maxlength="32" style="margin-top:8px">
+      <button class="btn" id="acctCreateBtn" type="button">✅ অ্যাকাউন্ট খুলুন</button>
+      <div class="lock-err" id="acctCreateErr"></div>
+      <button class="lock-link" id="acctCreateBack" type="button">← অ্যাকাউন্টের তালিকায় ফিরুন</button>
+    </div>
+    <div id="lockPassBox" hidden>
       <input id="lockPass" type="password" inputmode="numeric" autocomplete="current-password" placeholder="••••" maxlength="32">
-      <input id="lockPass2" type="password" inputmode="numeric" autocomplete="new-password" placeholder="আবার পাসকোড দিন" maxlength="32" style="margin-top:8px">
       <button class="btn" id="lockBtn" type="button">🔓 খুলুন</button>
       <div class="lock-err" id="lockErr"></div>
-      <button class="lock-link" id="forgotPass" type="button">পাসকোড ভুলে গেছেন?</button>
+      <button class="lock-link" id="forgotPass" type="button">পিন ভুলে গেছেন?</button>
+      <button class="lock-link" id="lockBackBtn" type="button" style="display:block;margin:8px auto 0">← অন্য অ্যাকাউন্ট</button>
     </div>
     <div id="lockEmailBox" style="margin-top:16px;border-top:1px solid var(--line);padding-top:14px;text-align:left">
       <div style="font-weight:700;text-align:center">📧 ইমেইল দিয়ে লগইন (Supabase)</div>
@@ -405,21 +420,31 @@ body.locked .app,body.locked .bottomnav{display:none}
       </div>
       <div class="lock-err" id="lockEmailErr" style="text-align:center"></div>
     </div>
-    <p class="lock-note">পাসকোড শুধু এই ব্রাউজারে থাকে (হ্যাশ আকারে)। প্রথমবার খুললে নিজের পাসকোড বানিয়ে নিন — কোনো ডিফল্ট পাসকোড নেই।</p>
+    <p class="lock-note">প্রত্যেকের খাতা আলাদা — নিজের পিনে শুধু নিজের হিসাব দেখা যায়। পিন শুধু এই ব্রাউজারে থাকে (হ্যাশ আকারে)। প্রথমবার নিজের অ্যাকাউন্ট খুলে পিন বানিয়ে নিন — কোনো ডিফল্ট পিন নেই।</p>
   </div>
 </div>
 <script>
-/* ===== লগইন (পাসকোড + Supabase Auth) =====
-   Passcode: SHA-256 hash-ই শুধু localStorage-এ থাকে — আসল পাসকোড
-   কোথাও সংরক্ষণ হয় না। সেশন sessionStorage-এ থাকে, তাই নতুন ট্যাব /
-   ব্রাউজার বন্ধ করলে আবার পাসকোড চাইবে; লগআউট করলে সেশন মুছে যায়।
-   কোনো ডিফল্ট পাসকোড নেই — প্রথমবার ব্যবহারকারী নিজে বানিয়ে নেন।
+/* ===== অ্যাকাউন্ট + পিন লগইন (মাল্টি-ইউজার) =====
+   প্রতিটা অ্যাকাউন্টের নিজের আলাদা খাতা (এন্ট্রি, বাজেট, বাজেট লিস্ট,
+   কাস্টম ক্যাটাগরি) — localStorage-এ অ্যাকাউন্ট-আইডি দিয়ে আলাদা চাবিতে থাকে।
+   পিনের শুধু salted SHA-256 হ্যাশ থাকে — আসল পিন কোথাও সংরক্ষণ হয় না।
+   সেশন sessionStorage-এ থাকে (অ্যাকাউন্ট আইডি), তাই নতুন ট্যাব / ব্রাউজার
+   বন্ধ করলে আবার পিন চাইবে; লগআউট করলে সেশন মুছে যায়।
+   কোনো ডিফল্ট পিন নেই — প্রথমবার নিজের অ্যাকাউন্ট খুলে পিন বানাতে হয়।
+   পুরোনো একক-পাসকোড ব্যবহারকারীর ডেটা migrateLegacyAccount() একবারেই
+   "মাজাহার" অ্যাকাউন্টে নিয়ে আসে — পুরোনো পিনেই ঢোকা যায়, হিসাব অটুট থাকে।
+   নতুন অ্যাকাউন্টের খাতা খালি শুরু হয় — কোনো সিড/অংক কপি করা হয় না।
    Supabase Auth: সিঙ্ক সেটিংসে Supabase বসানো থাকলে ইমেইল/পাসওয়ার্ড
    দিয়েও লগইন করা যায় (সেটা না থাকলে ওই অপশন বন্ধ দেখায়)। */
-const PASS_HASH_KEY = 'hisheberKhataPassHash';
+const PASS_HASH_KEY = 'hisheberKhataPassHash'; // শুধু পুরোনো একক-পাসকোড মাইগ্রেশনের জন্য
+const ACCOUNTS_KEY = 'hisheberKhataAccounts';
 const AUTH_SESSION_KEY = 'hisheberKhataAuthSession';
 const AUTH_SALT = 'ajkerhiseb-lock-v1';
+const DATA_BASE_KEYS = ['hisheberKhataV1', 'hisheberKhataBudgets', 'hisheberKhataBudgetItems', 'hisheberKhataCustomCats'];
 let appStarted = false;
+let currentAccount = null;   // { id, name, pinHash } — লগইন করা অ্যাকাউন্ট
+let selectedAccount = null;  // লক স্ক্রিনে বেছে নেওয়া অ্যাকাউন্ট
+let legacyMigrated = false;  // পুরোনো একক-পাসকোড থেকে মাইগ্রেশন হয়েছে কি না
 async function hashPasscode(code) {
   const input = AUTH_SALT + '::' + code;
   if (window.crypto && crypto.subtle && crypto.subtle.digest) {
@@ -435,28 +460,100 @@ async function hashPasscode(code) {
   h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507) ^ Math.imul(h1 ^ (h1 >>> 13), 3266489909);
   return 'fb-' + (h2 >>> 0).toString(16) + (h1 >>> 0).toString(16);
 }
-function hasPasscode() { try { return !!localStorage.getItem(PASS_HASH_KEY); } catch (e) { return false; } }
-function isAuthed() { try { return sessionStorage.getItem(AUTH_SESSION_KEY) === '1'; } catch (e) { return false; } }
-function setAuthed() { try { sessionStorage.setItem(AUTH_SESSION_KEY, '1'); } catch (e) {} }
-function showLockMode(mode) {
-  const setup = mode === 'setup';
-  document.getElementById('lockTitle').textContent = setup ? 'প্রথমবার সেটআপ' : 'হিসেবের খাতা';
-  document.getElementById('lockSub').textContent = setup ? 'নিজের পাসকোড বানান (কমপক্ষে ৪ অক্ষর)' : 'খাতা খুলতে পাসকোড দিন';
-  document.getElementById('lockPass2').hidden = !setup;
-  document.getElementById('lockBtn').textContent = setup ? '✅ পাসকোড সেট করুন' : '🔓 খুলুন';
-  document.getElementById('forgotPass').style.display = setup ? 'none' : '';
-  document.getElementById('lockErr').textContent = '';
-  document.getElementById('lockPass').value = '';
-  document.getElementById('lockPass2').value = '';
-  document.getElementById('lockPass').focus();
+function loadAccounts() { try { const a = JSON.parse(localStorage.getItem(ACCOUNTS_KEY) || '[]'); return Array.isArray(a) ? a.filter(x => x && x.id && x.name && x.pinHash) : []; } catch (e) { return []; } }
+function saveAccounts(list) { try { localStorage.setItem(ACCOUNTS_KEY, JSON.stringify(list)); } catch (e) {} }
+/* পুরোনো একক-পাসকোড + হিসাব "মাজাহার" অ্যাকাউন্টে নিয়ে আসা (একবারই চলে)। */
+function migrateLegacyAccount() {
+  if (loadAccounts().length) return;
+  const oldHash = localStorage.getItem(PASS_HASH_KEY);
+  if (!oldHash) return;
+  const acct = { id: 'acct-mazahar', name: 'মাজাহার', pinHash: oldHash, created: Date.now() };
+  saveAccounts([acct]);
+  DATA_BASE_KEYS.forEach(k => {
+    const v = localStorage.getItem(k);
+    if (v !== null) localStorage.setItem(k + ':' + acct.id, v);
+    localStorage.removeItem(k);
+  });
+  localStorage.removeItem(PASS_HASH_KEY);
+  legacyMigrated = true;
+}
+function getSessionAccountId() { try { return sessionStorage.getItem(AUTH_SESSION_KEY) || ''; } catch (e) { return ''; } }
+function isAuthed() { return !!getSessionAccountId(); }
+function setAuthed(acctId) { try { sessionStorage.setItem(AUTH_SESSION_KEY, acctId); } catch (e) {} }
+/* লগইন করা অ্যাকাউন্টের ডেটা-চাবি বসানো + ওই অ্যাকাউন্টের ডেটা লোড করা। */
+function setCurrentAccount(acct) {
+  currentAccount = acct || null;
+  if (acct) {
+    KEY = DATA_BASE_KEYS[0] + ':' + acct.id;
+    BUDGET_KEY = DATA_BASE_KEYS[1] + ':' + acct.id;
+    BUDGET_ITEMS_KEY = DATA_BASE_KEYS[2] + ':' + acct.id;
+    CUSTOM_CAT_KEY = DATA_BASE_KEYS[3] + ':' + acct.id;
+  }
+  entries = loadLocal();
+  budgets = loadBudgets();
+  budgetItems = loadBudgetItems();
+  customCats = loadCustomCats();
+  editingId = null; editingBudgetId = null;
+  filterType = 'all'; searchQ = ''; filterMonth = 'all'; filterCat = 'all';
+  budgetListMonth = monthKey(todayStr());
+  rebuildCatDatalists();
+  const nameEl = document.getElementById('currentAcctName');
+  if (nameEl) nameEl.textContent = acct ? acct.name : '—';
+  const cpEl = document.getElementById('changePassAcct');
+  if (cpEl) cpEl.textContent = acct ? acct.name : '—';
+}
+function clearCurrentAccountData() { currentAccount = null; selectedAccount = null; entries = []; budgets = {}; budgetItems = []; customCats = []; }
+/* লক স্ক্রিনের তিন অবস্থা: pick (তালিকা) / pin (পিন দিন) / create (নতুন অ্যাকাউন্ট)। */
+function renderLockScreen(mode) {
+  const accounts = loadAccounts();
+  const picker = document.getElementById('acctPicker');
+  const createBox = document.getElementById('acctCreateBox');
+  const passBox = document.getElementById('lockPassBox');
+  const title = document.getElementById('lockTitle');
+  const sub = document.getElementById('lockSub');
+  const err = document.getElementById('lockErr');
+  if (err) err.textContent = '';
+  const passInput = document.getElementById('lockPass');
+  if (passInput) passInput.value = '';
+  if (!mode) mode = accounts.length ? 'pick' : 'create';
+  picker.hidden = mode !== 'pick';
+  createBox.hidden = mode !== 'create';
+  passBox.hidden = mode !== 'pin';
+  document.getElementById('acctCreateBack').style.display = accounts.length ? '' : 'none';
+  if (mode === 'pick') {
+    title.textContent = 'হিসেবের খাতা';
+    sub.textContent = 'আপনার অ্যাকাউন্ট বেছে নিন';
+    const list = document.getElementById('acctList');
+    list.innerHTML = '';
+    accounts.forEach(a => {
+      const b = document.createElement('button');
+      b.type = 'button'; b.className = 'btn ghost acct-btn';
+      b.textContent = '👤 ' + a.name;
+      b.onclick = () => { selectedAccount = a; renderLockScreen('pin'); };
+      list.appendChild(b);
+    });
+  } else if (mode === 'create') {
+    title.textContent = accounts.length ? 'নতুন অ্যাকাউন্ট' : 'প্রথমবার সেটআপ';
+    sub.textContent = accounts.length ? 'নাম আর পিন দিন — নতুন খাতা খালি শুরু হবে' : 'নিজের অ্যাকাউন্ট খুলুন — নাম আর পিন দিন';
+    document.getElementById('acctName').value = '';
+    document.getElementById('acctPin1').value = '';
+    document.getElementById('acctPin2').value = '';
+    document.getElementById('acctCreateErr').textContent = '';
+    document.getElementById('acctName').focus();
+  } else {
+    title.textContent = 'হিসেবের খাতা';
+    sub.textContent = '“' + (selectedAccount ? selectedAccount.name : '') + '”-এর পিন দিন';
+    if (passInput) passInput.focus();
+  }
+  setupEmailLogin();
 }
 function lockApp() {
   try { sessionStorage.removeItem(AUTH_SESSION_KEY); } catch (e) {}
+  clearCurrentAccountData();
   document.body.classList.add('locked');
   const ls = document.getElementById('lockScreen');
   if (ls) ls.hidden = false;
-  showLockMode(hasPasscode() ? 'unlock' : 'setup');
-  setupEmailLogin();
+  renderLockScreen();
 }
 async function startApp() {
   if (appStarted) return;
@@ -469,6 +566,11 @@ async function startApp() {
   }
 }
 function unlockApp() {
+  if (!currentAccount) {
+    const accounts = loadAccounts();
+    if (accounts.length) setCurrentAccount(accounts[0]); // ইমেইল লগইনের ক্ষেত্রে প্রথম অ্যাকাউন্ট
+  }
+  if (currentAccount) setAuthed(currentAccount.id);
   document.body.classList.remove('locked');
   const ls = document.getElementById('lockScreen');
   if (ls) ls.hidden = true;
@@ -476,41 +578,66 @@ function unlockApp() {
   render();
 }
 async function handleLockBtn() {
-  const setup = !hasPasscode();
   const err = document.getElementById('lockErr');
   const p1 = document.getElementById('lockPass').value;
   const btn = document.getElementById('lockBtn');
+  if (!selectedAccount) { renderLockScreen('pick'); return; }
   btn.disabled = true;
   try {
-    if (p1.length < 4) { err.textContent = '❌ পাসকোড কমপক্ষে ৪ অক্ষরের হতে হবে।'; return; }
-    if (setup) {
-      const p2 = document.getElementById('lockPass2').value;
-      if (p1 !== p2) { err.textContent = '❌ দুইবারের পাসকোড মিলছে না — আবার দিন।'; return; }
-      localStorage.setItem(PASS_HASH_KEY, await hashPasscode(p1));
-      setAuthed(); unlockApp();
+    if (p1.length < 4) { err.textContent = '❌ পিন কমপক্ষে ৪ অক্ষরের হতে হবে।'; return; }
+    if ((await hashPasscode(p1)) === selectedAccount.pinHash) {
+      setCurrentAccount(selectedAccount);
+      unlockApp();
     } else {
-      const stored = localStorage.getItem(PASS_HASH_KEY);
-      if ((await hashPasscode(p1)) === stored) { setAuthed(); unlockApp(); }
-      else { err.textContent = '❌ ভুল পাসকোড — আবার চেষ্টা করুন।'; document.getElementById('lockPass').value = ''; document.getElementById('lockPass').focus(); }
+      err.textContent = '❌ ভুল পিন — আবার চেষ্টা করুন।';
+      document.getElementById('lockPass').value = '';
+      document.getElementById('lockPass').focus();
     }
+  } finally { btn.disabled = false; }
+}
+async function handleCreateAccount() {
+  const err = document.getElementById('acctCreateErr');
+  const name = document.getElementById('acctName').value.trim();
+  const p1 = document.getElementById('acctPin1').value;
+  const p2 = document.getElementById('acctPin2').value;
+  const btn = document.getElementById('acctCreateBtn');
+  err.textContent = '';
+  if (!name) { err.textContent = '❌ নাম দিন।'; return; }
+  const accounts = loadAccounts();
+  if (accounts.some(a => a.name.trim().toLowerCase() === name.toLowerCase())) { err.textContent = '❌ এই নামে অ্যাকাউন্ট আছে — অন্য নাম দিন।'; return; }
+  if (p1.length < 4) { err.textContent = '❌ পিন কমপক্ষে ৪ অক্ষরের হতে হবে।'; return; }
+  if (p1 !== p2) { err.textContent = '❌ দুইবারের পিন মিলছে না — আবার দিন।'; return; }
+  btn.disabled = true;
+  try {
+    const acct = { id: 'acct-' + Date.now(), name, pinHash: await hashPasscode(p1), created: Date.now() };
+    accounts.push(acct); saveAccounts(accounts);
+    // নতুন ইনস্টলে loadLocal() আগেই বেস-চাবিতে সিড বসিয়ে থাকতে পারে — নতুন
+    // অ্যাকাউন্টের খাতা খালি শুরু হবে, তাই বেস-চাবির সিড মুছে ফেলি (মাইগ্রেশন
+    // হয়ে থাকলে বেস-চাবি আগেই খালি)।
+    if (!legacyMigrated && accounts.length === 1) DATA_BASE_KEYS.forEach(k => localStorage.removeItem(k));
+    setCurrentAccount(acct);
+    unlockApp();
   } finally { btn.disabled = false; }
 }
 document.getElementById('lockBtn').addEventListener('click', handleLockBtn);
 document.getElementById('lockPass').addEventListener('keydown', ev => { if (ev.key === 'Enter') handleLockBtn(); });
-document.getElementById('lockPass2').addEventListener('keydown', ev => { if (ev.key === 'Enter') handleLockBtn(); });
+document.getElementById('lockBackBtn').addEventListener('click', () => renderLockScreen('pick'));
+document.getElementById('acctNewBtn').addEventListener('click', () => renderLockScreen('create'));
+document.getElementById('acctCreateBack').addEventListener('click', () => renderLockScreen('pick'));
+document.getElementById('acctCreateBtn').addEventListener('click', handleCreateAccount);
+document.getElementById('acctPin2').addEventListener('keydown', ev => { if (ev.key === 'Enter') handleCreateAccount(); });
 document.getElementById('forgotPass').addEventListener('click', () => {
-  const ok = confirm('পাসকোড ভুলে গেলে খাতা খোলার একটাই উপায়: এই ব্রাউজারের সব হিসাব (এন্ট্রি, বাজেট, বাজেট লিস্ট) মুছে নতুন পাসকোড বানানো।\n\nSupabase-এ সিঙ্ক চালু থাকলে সেখানকার ডেটা থেকে যাবে — নতুন পাসকোড সেট করার পর সিঙ্ক করলে আবার ফিরে আসবে। এগোবেন?');
+  if (!selectedAccount) return;
+  const name = selectedAccount.name;
+  const ok = confirm('“' + name + '”-এর পিন ভুলে গেলে এই অ্যাকাউন্ট খোলার একটাই উপায়: শুধু এই অ্যাকাউন্টের হিসাব (এন্ট্রি, বাজেট, বাজেট লিস্ট) এই ব্রাউজার থেকে মুছে অ্যাকাউন্টটি বাদ দেওয়া।\n\nঅন্য অ্যাকাউন্টের হিসাব মুছবে না। Supabase-এ সিঙ্ক চালু থাকলে সেখানকার ডেটা থেকে যাবে। এগোবেন?');
   if (!ok) return;
+  const id = selectedAccount.id;
   try {
-    localStorage.setItem(KEY, '[]');
-    localStorage.setItem(BUDGET_KEY, '{}');
-    localStorage.setItem(BUDGET_ITEMS_KEY, '[]');
-    localStorage.removeItem(CUSTOM_CAT_KEY);
-    customCats = [];
-    localStorage.removeItem(PASS_HASH_KEY);
+    DATA_BASE_KEYS.forEach(k => localStorage.removeItem(k + ':' + id));
+    saveAccounts(loadAccounts().filter(a => a.id !== id));
   } catch (e) {}
-  entries = []; budgets = {}; budgetItems = [];
-  showLockMode('setup');
+  clearCurrentAccountData();
+  renderLockScreen();
 });
 async function logoutUser() {
   try { if (sb && sb.auth) await sb.auth.signOut(); } catch (e) {}
@@ -527,16 +654,17 @@ document.getElementById('changePassBtn').addEventListener('click', async () => {
   const oldP = document.getElementById('oldPass').value;
   const np = document.getElementById('newPass').value;
   const np2 = document.getElementById('newPass2').value;
-  if (hasPasscode()) {
-    if ((await hashPasscode(oldP)) !== localStorage.getItem(PASS_HASH_KEY)) { msg.textContent = '❌ পুরোনো পাসকোড ভুল।'; return; }
-  }
-  if (np.length < 4) { msg.textContent = '❌ নতুন পাসকোড কমপক্ষে ৪ অক্ষরের হতে হবে।'; return; }
-  if (np !== np2) { msg.textContent = '❌ নতুন পাসকোড দুইবার মিলছে না।'; return; }
-  localStorage.setItem(PASS_HASH_KEY, await hashPasscode(np));
+  if (!currentAccount) { msg.textContent = '❌ আগে লগইন করুন।'; return; }
+  if ((await hashPasscode(oldP)) !== currentAccount.pinHash) { msg.textContent = '❌ পুরোনো পিন ভুল।'; return; }
+  if (np.length < 4) { msg.textContent = '❌ নতুন পিন কমপক্ষে ৪ অক্ষরের হতে হবে।'; return; }
+  if (np !== np2) { msg.textContent = '❌ নতুন পিন দুইবার মিলছে না।'; return; }
+  const accounts = loadAccounts();
+  const acct = accounts.find(a => a.id === currentAccount.id);
+  if (acct) { acct.pinHash = await hashPasscode(np); saveAccounts(accounts); currentAccount.pinHash = acct.pinHash; }
   document.getElementById('oldPass').value = '';
   document.getElementById('newPass').value = '';
   document.getElementById('newPass2').value = '';
-  msg.textContent = '✅ পাসকোড বদলানো হয়েছে।';
+  msg.textContent = '✅ পিন বদলানো হয়েছে।';
 });
 /* Supabase Auth (email/password) — only when Supabase is configured. */
 async function setupEmailLogin() {
@@ -554,7 +682,7 @@ async function setupEmailLogin() {
     await loadSbJs();
     if (!sb) sb = window.supabase.createClient(getSbConfig().url, getSbConfig().anonKey);
     const { data } = await sb.auth.getSession();
-    if (data && data.session) { setAuthed(); unlockApp(); }
+    if (data && data.session) { unlockApp(); }
   } catch (err) {
     if (errBox) errBox.textContent = '⚠️ Supabase সংযোগ হয়নি: ' + err.message;
   }
@@ -571,11 +699,11 @@ async function emailAuth(mode) {
     if (mode === 'signin') {
       const { error } = await sb.auth.signInWithPassword({ email, password });
       if (error) throw error;
-      setAuthed(); unlockApp();
+      unlockApp();
     } else {
       const { data, error } = await sb.auth.signUp({ email, password });
       if (error) throw error;
-      if (data && data.session) { setAuthed(); unlockApp(); }
+      if (data && data.session) { unlockApp(); }
       else errBox.textContent = '✅ অ্যাকাউন্ট তৈরি হয়েছে — ইমেইল চেক করে নিশ্চিত করুন, তারপর “সাইন ইন” চাপুন।';
     }
   } catch (err) { errBox.textContent = '❌ ' + err.message; }
@@ -589,13 +717,16 @@ document.getElementById('emailSignUp').addEventListener('click', () => emailAuth
    Keys are NOT in this repo — never commit real keys here. */
 const SUPABASE_CONFIG = { url: '', anonKey: '' };
 const SB_STORE_KEY = 'hisheberKhataSupabase';
-const KEY = 'hisheberKhataV1';
+/* ডেটা-চাবি: লগইনের আগে বেস-চাবি (পুরোনো একক-খাতা / মাইগ্রেশন), লগইনের পর
+   setCurrentAccount() অ্যাকাউন্ট-আইডি দিয়ে সাফিক্স বসিয়ে দেয় — প্রতিটা
+   অ্যাকাউন্টের ডেটা আলাদা চাবিতে থাকে। */
+let KEY = 'hisheberKhataV1';
 const TYPE_LABEL = { income: 'আয়', expense: 'ব্যয়', bank: 'ব্যাংক উত্তোলন' };
 const CATEGORIES = ['বাজার', 'ঔষধ', 'ব্যক্তিগত', 'যাতায়াত', 'বাড়ি ভাড়া', 'বিল', 'শিক্ষা', 'অন্যান্য'];
 /* Custom categories: typed by the user in the category box (datalist combo).
    Saved in localStorage and offered as suggestions next time, in both forms
    and in the list filter. Built-ins in CATEGORIES are never duplicated. */
-const CUSTOM_CAT_KEY = 'hisheberKhataCustomCats';
+let CUSTOM_CAT_KEY = 'hisheberKhataCustomCats';
 function loadCustomCats() { try { const a = JSON.parse(localStorage.getItem(CUSTOM_CAT_KEY) || '[]'); return Array.isArray(a) ? a.filter(c => typeof c === 'string' && c.trim() && !CATEGORIES.includes(c.trim())) : []; } catch (e) { return []; } }
 let customCats = loadCustomCats();
 function saveCustomCats() { try { localStorage.setItem(CUSTOM_CAT_KEY, JSON.stringify(customCats)); } catch (e) {} }
@@ -626,7 +757,7 @@ function autoCategory(item, type) {
   return 'অন্যান্য';
 }
 /* Monthly budgets: { '2026-11': 5000 } — no default; unset until the user sets one. */
-const BUDGET_KEY = 'hisheberKhataBudgets';
+let BUDGET_KEY = 'hisheberKhataBudgets';
 function loadBudgets() { try { return JSON.parse(localStorage.getItem(BUDGET_KEY) || '{}') || {}; } catch (e) { return {}; } }
 function saveBudgets() { localStorage.setItem(BUDGET_KEY, JSON.stringify(budgets)); }
 let budgets = loadBudgets();
@@ -636,7 +767,7 @@ function getBudget(mk) { return budgets[mk] ? +budgets[mk] : null; }
    Starts empty — no amounts invented. Each item: name, category, amount, month.
    Spent = that month's expenses with the SAME item name; if none match by name,
    spent = that month's expenses in the item's category. Remaining = amount - spent. */
-const BUDGET_ITEMS_KEY = 'hisheberKhataBudgetItems';
+let BUDGET_ITEMS_KEY = 'hisheberKhataBudgetItems';
 function loadBudgetItems() { try { const a = JSON.parse(localStorage.getItem(BUDGET_ITEMS_KEY) || '[]'); return Array.isArray(a) ? a.map(it => ({ ...it, date: it.date || (it.month ? it.month + '-01' : todayStr()) })) : []; } catch (e) { return []; } }
 function saveBudgetItems() { localStorage.setItem(BUDGET_ITEMS_KEY, JSON.stringify(budgetItems)); }
 let budgetItems = loadBudgetItems();
@@ -818,6 +949,9 @@ function loadLocal() {
       return arr;
     }
   } catch (e) {}
+  // নতুন অ্যাকাউন্টের খাতা খালি শুরু হয় — সিড শুধু পুরোনো একক-খাতার
+  // (currentAccount না থাকলে) প্রথম লোডের সময় বসে, মাইগ্রেশনের জন্য।
+  if (currentAccount) return [];
   localStorage.setItem(KEY, JSON.stringify(SEED)); return SEED.slice();
 }
 function saveLocal() { localStorage.setItem(KEY, JSON.stringify(entries)); }
@@ -1275,7 +1409,15 @@ document.getElementById('biMonth').value = budgetListMonth;
 document.getElementById('biDate').value = todayStr();
 rebuildCatDatalists();
 fillSbForm();
-if (isAuthed()) { unlockApp(); } else { lockApp(); }
+migrateLegacyAccount();
+(function restoreSession() {
+  const sid = getSessionAccountId();
+  if (sid) {
+    const acct = loadAccounts().find(a => a.id === sid);
+    if (acct) { setCurrentAccount(acct); unlockApp(); return; }
+  }
+  lockApp();
+})();
 </script>
 </body>
 </html>
