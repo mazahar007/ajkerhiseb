@@ -434,7 +434,11 @@ body.locked .app,body.locked .bottomnav{display:none}
    কোনো ডিফল্ট পিন নেই — প্রথমবার নিজের অ্যাকাউন্ট খুলে পিন বানাতে হয়।
    পুরোনো একক-পাসকোড ব্যবহারকারীর ডেটা migrateLegacyAccount() একবারেই
    "মাজাহার" অ্যাকাউন্টে নিয়ে আসে — পুরোনো পিনেই ঢোকা যায়, হিসাব অটুট থাকে।
-   নতুন অ্যাকাউন্টের খাতা খালি শুরু হয় — কোনো সিড/অংক কপি করা হয় না।
+   "mazahar" / "মাজাহার" নামের অ্যাকাউন্টের খাতা খালি থাকলে (কোনো হিসাব
+   জমা হয়নি) আসল সিড হিসাব (২২ ব্যয় + ২ উত্তোলন) সেখানে বসে — loadLocal()
+   দেখে। অন্য নামের অ্যাকাউন্টের খাতা খালি শুরু হয় — কোনো সিড/অংক কপি
+   করা হয় না। একবার জমা হয়ে গেলে (বা ব্যবহারকারী নিজে সব মুছে ফেললে)
+   আর কখনো সিড বসে না — ভরা খাতা কখনো ওভাররাইট হয় না।
    Supabase Auth: সিঙ্ক সেটিংসে Supabase বসানো থাকলে ইমেইল/পাসওয়ার্ড
    দিয়েও লগইন করা যায় (সেটা না থাকলে ওই অপশন বন্ধ দেখায়)। */
 const PASS_HASH_KEY = 'hisheberKhataPassHash'; // শুধু পুরোনো একক-পাসকোড মাইগ্রেশনের জন্য
@@ -460,6 +464,11 @@ async function hashPasscode(code) {
   h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507) ^ Math.imul(h2 ^ (h2 >>> 13), 3266489909);
   h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507) ^ Math.imul(h1 ^ (h1 >>> 13), 3266489909);
   return 'fb-' + (h2 >>> 0).toString(16) + (h1 >>> 0).toString(16);
+}
+function isMazaharAccount(acct) {
+  if (!acct || !acct.name) return false;
+  const n = String(acct.name).trim();
+  return n.toLowerCase() === 'mazahar' || n === 'মাজাহার';
 }
 function loadAccounts() { try { const a = JSON.parse(localStorage.getItem(ACCOUNTS_KEY) || '[]'); return Array.isArray(a) ? a.filter(x => x && x.id && x.name && x.pinHash) : []; } catch (e) { return []; } }
 function saveAccounts(list) { try { localStorage.setItem(ACCOUNTS_KEY, JSON.stringify(list)); } catch (e) {} }
@@ -950,9 +959,19 @@ function loadLocal() {
       return arr;
     }
   } catch (e) {}
-  // নতুন অ্যাকাউন্টের খাতা খালি শুরু হয় — সিড শুধু পুরোনো একক-খাতার
-  // (currentAccount না থাকলে) প্রথম লোডের সময় বসে, মাইগ্রেশনের জন্য।
-  if (currentAccount) return [];
+  // নতুন অ্যাকাউন্টের খাতা খালি শুরু হয় — তবে "mazahar"/"মাজাহার" নামের
+  // অ্যাকাউন্টের ক্ষেত্রে আসল সিড হিসাব বসে, যদি ওই অ্যাকাউন্টে এখনো কোনো
+  // হিসাব জমা না হয়ে থাকে (চাবিই নেই)। একবার জমা হয়ে গেলে — এমনকি
+  // ব্যবহারকারী নিজে সব মুছে ফেললেও — আর কখনো সিড বসে না, তাই ভরা খাতা
+  // কখনো ওভাররাইট হয় না, আর অন্য নামের অ্যাকাউন্ট সিড পায় না।
+  if (currentAccount) {
+    if (!localStorage.getItem(KEY) && isMazaharAccount(currentAccount)) {
+      localStorage.setItem(KEY, JSON.stringify(SEED)); return SEED.slice();
+    }
+    return [];
+  }
+  // পুরোনো একক-খাতা (currentAccount না থাকলে) প্রথম লোডের সময় সিড বসে,
+  // মাইগ্রেশনের জন্য।
   localStorage.setItem(KEY, JSON.stringify(SEED)); return SEED.slice();
 }
 function saveLocal() { localStorage.setItem(KEY, JSON.stringify(entries)); }
