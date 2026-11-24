@@ -46,9 +46,17 @@ create table if not exists public.budget_items (
   category text not null default 'অন্যান্য',
   amount numeric not null check (amount > 0),
   month text not null,
+  date date,
   created_at timestamptz not null default now()
 );
 create index if not exists budget_items_month_idx on public.budget_items (month);
+create index if not exists budget_items_date_idx on public.budget_items (date desc);
+
+-- পুরোনো টেবিলে তারিখ কলাম না থাকলে যোগ করুন (নতুন প্রজেক্টে এটি no-op)।
+-- তারিখ না দেওয়া পুরোনো আইটেমের date NULL থাকবে — অ্যাপ সেগুলোকে
+-- ওই মাসের ১ তারিখ (month + '-01') হিসেবে দেখাবে।
+alter table public.budget_items
+  add column if not exists date date;
 
 -- Row Level Security চালু (Supabase-এ ডিফল্টভাবে RLS বন্ধ থাকে না,
 -- তবে টেবিল বানানোর পর এটি চালু করা নিরাপত্তার নিয়ম)।

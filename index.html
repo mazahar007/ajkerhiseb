@@ -207,7 +207,7 @@ body.locked .app,body.locked .bottomnav{display:none}
   <div class="card"><h2>নতুন এন্ট্রি যোগ করুন</h2>
   <form id="entryForm">
     <div><label>ধরন</label><select id="type"><option value="expense">ব্যয়</option><option value="income">আয়</option><option value="bank">ব্যাংক উত্তোলন</option></select></div>
-    <div><label>ক্যাটাগরি</label><select id="category"><option value="বাজার">বাজার</option><option value="ঔষধ">ঔষধ</option><option value="ব্যক্তিগত">ব্যক্তিগত</option><option value="যাতায়াত">যাতায়াত</option><option value="বাড়ি ভাড়া">বাড়ি ভাড়া</option><option value="বিল">বিল</option><option value="শিক্ষা">শিক্ষা</option><option value="অন্যান্য">অন্যান্য</option></select></div>
+    <div><label>ক্যাটাগরি</label><input id="category" list="catList" placeholder="বেছে নিন বা নতুন লিখুন" value="বাজার" maxlength="40"><datalist id="catList"><option value="বাজার"></option><option value="ঔষধ"></option><option value="ব্যক্তিগত"></option><option value="যাতায়াত"></option><option value="বাড়ি ভাড়া"></option><option value="বিল"></option><option value="শিক্ষা"></option><option value="অন্যান্য"></option></datalist></div>
     <div><label>আইটেম / বিবরণ</label><input id="item" required placeholder="যেমন: কলা" maxlength="80"></div>
     <div><label>টাকার অংক (৳)</label><input id="amount" type="number" min="1" step="1" required placeholder="যেমন: ৭০"></div>
     <div><label>তারিখ</label><input id="date" type="date" required></div>
@@ -251,15 +251,28 @@ body.locked .app,body.locked .bottomnav{display:none}
 <!-- ===== বাজেট লিস্ট ===== -->
 <section class="view" id="view-budgetlist">
   <div class="card"><h2>📋 বাজেট লিস্ট — <span id="budgetListMonthLabel"></span></h2>
-    <p class="note">আলাদা বাজেটের তালিকা। প্রতিটা আইটেমের বাজেট থেকে ওই মাসের খরচ নিজে থেকেই মাইনাস হয়ে বাকি দেখাবে। খরচ ধরা হয় ওই মাসে <b>ওই নামের আইটেমের</b> মোট ব্যয় দিয়ে; নাম না মিললে ওই <b>ক্যাটাগরির</b> মোট ব্যয় দিয়ে। “খরচে যোগ করুন” চাপলেই আইটেমটি আজকের তারিখে, বাজেটের অংকে, খরচের তালিকায় যোগ হয়ে যাবে।</p>
+    <p class="note">আলাদা বাজেটের তালিকা। প্রতিটা আইটেমের বাজেট থেকে ওই মাসের খরচ নিজে থেকেই মাইনাস হয়ে বাকি দেখাবে। খরচ ধরা হয় ওই মাসে <b>ওই নামের আইটেমের</b> মোট ব্যয় দিয়ে; নাম না মিললে ওই <b>ক্যাটাগরির</b> মোট ব্যয় দিয়ে। প্রতিটা আইটেমের নিজের <b>তারিখ</b> থাকে। ক্যাটাগরি তালিকা থেকে বেছে নেওয়া যায়, আবার নিজে লিখে নতুন ক্যাটাগরিও দেওয়া যায় — নতুন ক্যাটাগরি মনে রাখা হয়, পরের বার তালিকায় দেখাবে। “খরচে যোগ করুন” চাপলেই আইটেমটি আজকের তারিখে, বাজেটের অংকে, খরচের তালিকায় যোগ হয়ে যাবে।</p>
     <div style="display:flex;gap:8px;align-items:center;margin-bottom:10px;flex-wrap:wrap">
       <label style="margin:0">মাস:</label>
       <select id="budgetListMonth" style="width:auto;flex:1"></select>
     </div>
+    <div style="display:flex;gap:8px;align-items:center;margin-bottom:10px;flex-wrap:wrap">
+      <label style="margin:0">তারিখ:</label>
+      <input id="budgetDateFilter" type="date" style="width:auto;flex:1;min-width:140px">
+      <label style="margin:0">সাজান:</label>
+      <select id="budgetSort" style="width:auto;flex:1;min-width:150px">
+        <option value="date-desc">তারিখ: নতুন → পুরোনো</option>
+        <option value="date-asc">তারিখ: পুরোনো → নতুন</option>
+        <option value="amount-desc">অংক: বেশি → কম</option>
+        <option value="name">নাম (A–অ)</option>
+      </select>
+      <button class="btn ghost" type="button" id="budgetDateClear">ছাঁকনি মুছুন</button>
+    </div>
     <div id="budgetListSummary"></div>
     <form id="budgetItemForm" style="margin-top:12px">
       <div><label>আইটেমের নাম</label><input id="biName" required placeholder="যেমন: আলু / বাজার" maxlength="80"></div>
-      <div><label>ক্যাটাগরি</label><select id="biCategory"><option value="বাজার">বাজার</option><option value="ঔষধ">ঔষধ</option><option value="ব্যক্তিগত">ব্যক্তিগত</option><option value="যাতায়াত">যাতায়াত</option><option value="বাড়ি ভাড়া">বাড়ি ভাড়া</option><option value="বিল">বিল</option><option value="শিক্ষা">শিক্ষা</option><option value="অন্যান্য">অন্যান্য</option></select></div>
+      <div><label>ক্যাটাগরি</label><input id="biCategory" list="biCatList" placeholder="বেছে নিন বা নতুন লিখুন" value="বাজার" maxlength="40"><datalist id="biCatList"><option value="বাজার"></option><option value="ঔষধ"></option><option value="ব্যক্তিগত"></option><option value="যাতায়াত"></option><option value="বাড়ি ভাড়া"></option><option value="বিল"></option><option value="শিক্ষা"></option><option value="অন্যান্য"></option></datalist></div>
+      <div><label>তারিখ</label><input id="biDate" type="date" required></div>
       <div><label>বাজেটের অংক (৳)</label><input id="biAmount" type="number" min="1" step="1" required placeholder="যেমন: ৫০০"></div>
       <div><label>মাস</label><input id="biMonth" type="month" required></div>
       <div class="full"><button class="btn" type="submit" id="biSubmit">➕ বাজেট লিস্টে যোগ করুন</button>
@@ -268,6 +281,7 @@ body.locked .app,body.locked .bottomnav{display:none}
     <p class="note" id="biMsg"></p>
   </div>
   <div class="card"><h2>এই মাসের বাজেট লিস্ট</h2>
+    <div style="display:flex;gap:8px;margin-bottom:8px;flex-wrap:wrap"><button class="btn ghost" id="budgetCsv" type="button">⬇️ বাজেট লিস্ট CSV ডাউনলোড</button></div>
     <ul class="list" id="budgetItemList" style="margin-top:0"></ul>
     <div class="empty" id="budgetItemEmpty" hidden>এই মাসে কোনো বাজেট আইটেম নেই — উপরে ফর্ম থেকে যোগ করুন।</div>
   </div>
@@ -486,6 +500,8 @@ document.getElementById('forgotPass').addEventListener('click', () => {
     localStorage.setItem(KEY, '[]');
     localStorage.setItem(BUDGET_KEY, '{}');
     localStorage.setItem(BUDGET_ITEMS_KEY, '[]');
+    localStorage.removeItem(CUSTOM_CAT_KEY);
+    customCats = [];
     localStorage.removeItem(PASS_HASH_KEY);
   } catch (e) {}
   entries = []; budgets = {}; budgetItems = [];
@@ -566,6 +582,31 @@ const SB_STORE_KEY = 'hisheberKhataSupabase';
 const KEY = 'hisheberKhataV1';
 const TYPE_LABEL = { income: 'আয়', expense: 'ব্যয়', bank: 'ব্যাংক উত্তোলন' };
 const CATEGORIES = ['বাজার', 'ঔষধ', 'ব্যক্তিগত', 'যাতায়াত', 'বাড়ি ভাড়া', 'বিল', 'শিক্ষা', 'অন্যান্য'];
+/* Custom categories: typed by the user in the category box (datalist combo).
+   Saved in localStorage and offered as suggestions next time, in both forms
+   and in the list filter. Built-ins in CATEGORIES are never duplicated. */
+const CUSTOM_CAT_KEY = 'hisheberKhataCustomCats';
+function loadCustomCats() { try { const a = JSON.parse(localStorage.getItem(CUSTOM_CAT_KEY) || '[]'); return Array.isArray(a) ? a.filter(c => typeof c === 'string' && c.trim() && !CATEGORIES.includes(c.trim())) : []; } catch (e) { return []; } }
+let customCats = loadCustomCats();
+function saveCustomCats() { try { localStorage.setItem(CUSTOM_CAT_KEY, JSON.stringify(customCats)); } catch (e) {} }
+function allCategories() { return [...CATEGORIES, ...customCats]; }
+function rememberCategory(c) {
+  const v = (c || '').trim();
+  if (!v) return 'অন্যান্য';
+  if (!CATEGORIES.includes(v) && !customCats.includes(v)) { customCats.push(v); saveCustomCats(); rebuildCatDatalists(); }
+  return v;
+}
+function rebuildCatDatalists() {
+  const opts = allCategories().map(c => `<option value="${escapeHtml(c)}">`).join('');
+  ['catList', 'biCatList'].forEach(id => { const d = document.getElementById(id); if (d) d.innerHTML = opts; });
+  const cf = document.getElementById('catFilter');
+  if (cf) {
+    const cur = cf.value;
+    cf.innerHTML = '<option value="all">সব ক্যাটাগরি</option>' + allCategories().map(c => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join('');
+    cf.value = allCategories().includes(cur) ? cur : 'all';
+    filterCat = cf.value;
+  }
+}
 const GROCERY_ITEMS = ['সরিসার তেল', 'আলু', 'পেঁয়াজ', 'আদা', 'রসুন', 'গুড়', 'বিস্কিট', 'মাফিন', 'চানাচুর', 'চিড়া', 'প্যারা সন্দেশ', 'কলা', 'লেবু', 'লবণ', 'পাঁচফোড়ন', 'কালোজিরা', 'সরিষা কালো', 'চা পাতা'];
 function autoCategory(item, type) {
   if (type !== 'expense') return 'অন্যান্য';
@@ -586,23 +627,24 @@ function getBudget(mk) { return budgets[mk] ? +budgets[mk] : null; }
    Spent = that month's expenses with the SAME item name; if none match by name,
    spent = that month's expenses in the item's category. Remaining = amount - spent. */
 const BUDGET_ITEMS_KEY = 'hisheberKhataBudgetItems';
-function loadBudgetItems() { try { const a = JSON.parse(localStorage.getItem(BUDGET_ITEMS_KEY) || '[]'); return Array.isArray(a) ? a : []; } catch (e) { return []; } }
+function loadBudgetItems() { try { const a = JSON.parse(localStorage.getItem(BUDGET_ITEMS_KEY) || '[]'); return Array.isArray(a) ? a.map(it => ({ ...it, date: it.date || (it.month ? it.month + '-01' : todayStr()) })) : []; } catch (e) { return []; } }
 function saveBudgetItems() { localStorage.setItem(BUDGET_ITEMS_KEY, JSON.stringify(budgetItems)); }
 let budgetItems = loadBudgetItems();
 let budgetListMonth = monthKey(todayStr());
+let budgetDateFilter = '', budgetSort = 'date-desc';
 let editingBudgetId = null;
 function spentForBudgetItem(item) {
   const byName = entries.filter(e => e.type === 'expense' && monthKey(e.date) === item.month && (e.item || '').trim().toLowerCase() === (item.name || '').trim().toLowerCase());
   if (byName.length) return byName.reduce((s, e) => s + e.amount, 0);
   return entries.filter(e => e.type === 'expense' && monthKey(e.date) === item.month && (e.category || 'অন্যান্য') === item.category).reduce((s, e) => s + e.amount, 0);
 }
-async function sbUpsertBudgetItem(it) { const { error } = await sb.from('budget_items').upsert({ id: it.id, name: it.name, category: it.category, amount: it.amount, month: it.month }); if (error) throw error; }
+async function sbUpsertBudgetItem(it) { const { error } = await sb.from('budget_items').upsert({ id: it.id, name: it.name, category: it.category, amount: it.amount, month: it.month, date: it.date || (it.month ? it.month + '-01' : todayStr()) }); if (error) throw error; }
 async function sbDeleteBudgetItem(id) { const { error } = await sb.from('budget_items').delete().eq('id', id); if (error) throw error; }
 async function sbLoadBudgetItems() {
   const { data, error } = await sb.from('budget_items').select('*');
   if (error) throw error;
-  if (data && data.length) { budgetItems = data.map(r => ({ id: String(r.id), name: r.name, category: r.category || 'অন্যান্য', amount: +r.amount, month: r.month })); saveBudgetItems(); }
-  else if (budgetItems.length) { const { error: upErr } = await sb.from('budget_items').upsert(budgetItems.map(it => ({ id: it.id, name: it.name, category: it.category, amount: it.amount, month: it.month }))); if (upErr) throw upErr; }
+  if (data && data.length) { budgetItems = data.map(r => ({ id: String(r.id), name: r.name, category: r.category || 'অন্যান্য', amount: +r.amount, month: r.month, date: r.date || (r.month ? r.month + '-01' : todayStr()) })); saveBudgetItems(); }
+  else if (budgetItems.length) { const { error: upErr } = await sb.from('budget_items').upsert(budgetItems.map(it => ({ id: it.id, name: it.name, category: it.category, amount: it.amount, month: it.month, date: it.date || (it.month ? it.month + '-01' : todayStr()) }))); if (upErr) throw upErr; }
 }
 function renderBudgetList() {
   const label = document.getElementById('budgetListMonthLabel');
@@ -615,7 +657,14 @@ function renderBudgetList() {
     sel.value = months.includes(cur) ? cur : budgetListMonth;
     budgetListMonth = sel.value;
   }
-  const items = budgetItems.filter(b => b.month === budgetListMonth).slice().sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+  let items = budgetItems.filter(b => b.month === budgetListMonth);
+  if (budgetDateFilter) items = items.filter(b => (b.date || '') === budgetDateFilter);
+  items = items.slice().sort((a, b) => {
+    if (budgetSort === 'date-asc') return (a.date || '').localeCompare(b.date || '') || (a.name || '').localeCompare(b.name || '');
+    if (budgetSort === 'amount-desc') return (b.amount || 0) - (a.amount || 0);
+    if (budgetSort === 'name') return (a.name || '').localeCompare(b.name || '');
+    return (b.date || '').localeCompare(a.date || '') || (a.name || '').localeCompare(b.name || '');
+  });
   const totalBudget = items.reduce((s, b) => s + b.amount, 0);
   const totalSpent = items.reduce((s, b) => s + spentForBudgetItem(b), 0);
   const totalRem = totalBudget - totalSpent;
@@ -638,7 +687,7 @@ function renderBudgetList() {
     const li = document.createElement('li');
     li.innerHTML = `<div style="flex:1;min-width:0">
       <div class="item-name">${escapeHtml(it.name)}<span class="cat-chip">🏷️ ${escapeHtml(it.category)}</span></div>
-      <div class="item-meta">${monthLabel(it.month)} • বাজেট ৳${bn2(it.amount)} • খরচ ৳${bn2(spent)} • বাকি <b style="color:${remaining < 0 ? 'var(--red)' : 'var(--green)'}">৳${bn2(remaining)}</b></div>
+      <div class="item-meta">📅 ${fmtDate(it.date || (it.month + '-01'))} • ${monthLabel(it.month)} • বাজেট ৳${bn2(it.amount)} • খরচ ৳${bn2(spent)} • বাকি <b style="color:${remaining < 0 ? 'var(--red)' : 'var(--green)'}">৳${bn2(remaining)}</b></div>
       <div class="budget-track"><div class="budget-fill ${cls}" style="width:${Math.min(100, pct)}%"></div></div>${warn}
     </div>
     <div class="actions" style="flex-wrap:wrap;justify-content:flex-end">
@@ -663,6 +712,7 @@ function startEditBudgetItem(id) {
   document.getElementById('biName').value = it.name;
   document.getElementById('biCategory').value = it.category;
   document.getElementById('biAmount').value = it.amount;
+  document.getElementById('biDate').value = it.date || (it.month + '-01');
   document.getElementById('biMonth').value = it.month;
   document.getElementById('biSubmit').textContent = '💾 সংরক্ষণ করুন';
   document.getElementById('biCancel').hidden = false;
@@ -670,6 +720,7 @@ function startEditBudgetItem(id) {
 function cancelEditBudgetItem() {
   editingBudgetId = null;
   document.getElementById('budgetItemForm').reset();
+  document.getElementById('biDate').value = todayStr();
   document.getElementById('biMonth').value = budgetListMonth;
   document.getElementById('biSubmit').textContent = '➕ বাজেট লিস্টে যোগ করুন';
   document.getElementById('biCancel').hidden = true;
@@ -693,20 +744,22 @@ async function quickAddBudgetItem(it) {
 document.getElementById('budgetItemForm').addEventListener('submit', async ev => {
   ev.preventDefault();
   const name = document.getElementById('biName').value.trim();
-  const category = document.getElementById('biCategory').value;
+  const category = rememberCategory(document.getElementById('biCategory').value);
   const amount = +document.getElementById('biAmount').value;
-  const month = document.getElementById('biMonth').value;
+  const date = document.getElementById('biDate').value || todayStr();
+  const month = date.slice(0, 7);
+  document.getElementById('biMonth').value = month;
   const msg = document.getElementById('biMsg');
-  if (!name || !amount || amount <= 0 || !month) { msg.textContent = '❌ নাম, সঠিক অংক আর মাস — তিনটাই দিন।'; return; }
+  if (!name || !amount || amount <= 0 || !month || !date) { msg.textContent = '❌ নাম, সঠিক অংক, তারিখ আর মাস — সবগুলোই দিন।'; return; }
   try {
     if (editingBudgetId) {
       const it = budgetItems.find(x => x.id === editingBudgetId);
-      Object.assign(it, { name, category, amount, month });
+      Object.assign(it, { name, category, amount, month, date });
       saveBudgetItems();
       if (sbMode) await sbUpsertBudgetItem(it);
       msg.textContent = '✅ বাজেট আইটেম সংরক্ষণ হয়েছে।';
     } else {
-      const it = { id: 'bi' + Date.now(), name, category, amount, month };
+      const it = { id: 'bi' + Date.now(), name, category, amount, month, date };
       budgetItems.push(it); saveBudgetItems();
       if (sbMode) await sbUpsertBudgetItem(it);
       msg.textContent = '✅ বাজেট লিস্টে যোগ হয়েছে।';
@@ -716,6 +769,19 @@ document.getElementById('budgetItemForm').addEventListener('submit', async ev =>
 });
 document.getElementById('biCancel').onclick = cancelEditBudgetItem;
 document.getElementById('budgetListMonth').addEventListener('change', ev => { budgetListMonth = ev.target.value; renderBudgetList(); });
+document.getElementById('biDate').addEventListener('change', ev => { if (ev.target.value) document.getElementById('biMonth').value = ev.target.value.slice(0, 7); });
+document.getElementById('budgetDateFilter').addEventListener('change', ev => { budgetDateFilter = ev.target.value; renderBudgetList(); });
+document.getElementById('budgetSort').addEventListener('change', ev => { budgetSort = ev.target.value; renderBudgetList(); });
+document.getElementById('budgetDateClear').addEventListener('click', () => { budgetDateFilter = ''; document.getElementById('budgetDateFilter').value = ''; renderBudgetList(); });
+document.getElementById('budgetCsv').addEventListener('click', () => {
+  const q = s => '"' + String(s == null ? '' : s).replace(/"/g, '""') + '"';
+  const rows = [['তারিখ', 'আইটেম', 'ক্যাটাগরি', 'বাজেট (৳)', 'খরচ (৳)', 'বাকি (৳)', 'মাস'].join(',')];
+  budgetItems.filter(b => b.month === budgetListMonth).slice().sort((a, b) => (a.date || '').localeCompare(b.date || '')).forEach(it => {
+    const spent = spentForBudgetItem(it);
+    rows.push([it.date || '', q(it.name), q(it.category || 'অন্যান্য'), it.amount, spent, it.amount - spent, it.month].join(','));
+  });
+  download('hisheber-khata-budget-list-' + budgetListMonth + '.csv', '\uFEFF' + rows.join('\n'), 'text/csv');
+});
 document.getElementById('biName').addEventListener('change', ev => {
   const v = ev.target.value.trim();
   if (v) document.getElementById('biCategory').value = autoCategory(v, 'expense');
@@ -1001,7 +1067,7 @@ document.getElementById('entryForm').addEventListener('submit', async ev => {
   const amount = +document.getElementById('amount').value;
   const date = document.getElementById('date').value;
   const type = document.getElementById('type').value;
-  const category = document.getElementById('category').value;
+  const category = rememberCategory(document.getElementById('category').value);
   const note = document.getElementById('note').value.trim();
   const msg = document.getElementById('formMsg');
   if (!item || !amount || !date) return;
@@ -1129,7 +1195,7 @@ document.getElementById('importFile').addEventListener('change', async ev => {
     const ids = new Set(entries.map(e => e.id));
     let added = 0;
     valid.forEach(e => {
-      const en = { id: e.id && !ids.has(String(e.id)) ? String(e.id) : 'e' + Date.now() + Math.floor(Math.random() * 1e6), type: ['income', 'expense', 'bank'].includes(e.type) ? e.type : 'expense', item: String(e.item), amount: +e.amount, date: String(e.date).slice(0, 10), note: e.note ? String(e.note) : '', category: e.category && CATEGORIES.includes(e.category) ? e.category : autoCategory(String(e.item), ['income', 'expense', 'bank'].includes(e.type) ? e.type : 'expense'), created: e.created || Date.now() };
+      const en = { id: e.id && !ids.has(String(e.id)) ? String(e.id) : 'e' + Date.now() + Math.floor(Math.random() * 1e6), type: ['income', 'expense', 'bank'].includes(e.type) ? e.type : 'expense', item: String(e.item), amount: +e.amount, date: String(e.date).slice(0, 10), note: e.note ? String(e.note) : '', category: e.category && String(e.category).trim() ? rememberCategory(String(e.category).trim()) : autoCategory(String(e.item), ['income', 'expense', 'bank'].includes(e.type) ? e.type : 'expense'), created: e.created || Date.now() };
       entries.push(en); ids.add(en.id); added++;
     });
     saveLocal();
@@ -1196,6 +1262,8 @@ document.getElementById('sbClear').onclick = () => {
 /* ===== Init (লগইন গেট) — লগইন না হলে খাতা রেন্ডারই হয় না ===== */
 document.getElementById('date').value = todayStr();
 document.getElementById('biMonth').value = budgetListMonth;
+document.getElementById('biDate').value = todayStr();
+rebuildCatDatalists();
 fillSbForm();
 if (isAuthed()) { unlockApp(); } else { lockApp(); }
 </script>
