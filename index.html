@@ -130,10 +130,22 @@ footer{color:var(--muted);font-size:13px;text-align:center;margin-top:24px}
 .bottomnav a{display:flex;flex-direction:column;align-items:center;padding:8px 0 10px;color:#475569;text-decoration:none;cursor:pointer}
 .bottomnav a.active{color:var(--green);font-weight:700}
 .bottomnav .ic{font-size:18px;line-height:1.2}
+/* ---- Lock screen ---- */
+body.locked .app,body.locked .bottomnav{display:none}
+.lock-screen{position:fixed;inset:0;z-index:100;background:var(--navy);color:#fff;display:flex;align-items:center;justify-content:center;padding:20px;overflow-y:auto}
+.lock-screen[hidden]{display:none}
+.lock-card{background:#fff;color:var(--ink);border-radius:20px;padding:28px 24px;width:100%;max-width:420px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.4);margin:auto}
+.lock-card h2{margin:0 0 6px;font-size:22px}
+.lock-card .lock-emoji{font-size:44px}
+.lock-card input{text-align:center;font-size:20px;letter-spacing:6px}
+.lock-card .btn{width:100%;margin-top:10px}
+.lock-link{background:none;border:0;color:var(--blue);font-size:13px;margin-top:12px;text-decoration:underline;cursor:pointer}
+.lock-err{color:var(--red);font-size:14px;min-height:20px;margin-top:8px}
+.lock-note{font-size:13px;color:var(--muted);margin-top:10px;line-height:1.6}
 @media(min-width:768px){.bottomnav{display:none}}
 </style>
 </head>
-<body>
+<body class="locked">
 <div class="app">
 <aside class="sidebar">
   <div class="brand"><div class="name">📒 হিসেবের খাতা</div><div class="tag">আয়-ব্যয়ের হিসাব • Supabase সিঙ্ক-রেডি</div></div>
@@ -149,6 +161,7 @@ footer{color:var(--muted);font-size:13px;text-align:center;margin-top:24px}
   </nav>
   <div class="side-foot">
     <div>সিঙ্ক: <span class="sync-badge local" id="syncBadge">● লোকাল মোড</span></div>
+    <button class="btn ghost" id="logoutBtn" style="width:100%;margin-top:10px;background:transparent;color:#fff;border-color:rgba(255,255,255,.3)">🚪 লগআউট</button>
     <div style="margin-top:8px;opacity:.5;font-size:11px">লাইট ভার্সন • বাংলা সংখ্যা</div>
   </div>
 </aside>
@@ -318,11 +331,21 @@ footer{color:var(--muted);font-size:13px;text-align:center;margin-top:24px}
       </ol>
     </div>
   </div>
+  <div class="card"><h2>🔐 পাসকোড পরিবর্তন</h2>
+    <p class="note">পাসকোড শুধু এই ব্রাউজারে থাকে (হ্যাশ আকারে, আসল পাসকোড কোথাও সংরক্ষণ হয় না)। বদলাতে পুরোনো পাসকোড লাগবে।</p>
+    <div style="display:grid;gap:10px">
+      <div><label>পুরোনো পাসকোড</label><input id="oldPass" type="password" inputmode="numeric" autocomplete="current-password" placeholder="••••"></div>
+      <div><label>নতুন পাসকোড (কমপক্ষে ৪ অক্ষর)</label><input id="newPass" type="password" inputmode="numeric" autocomplete="new-password" placeholder="••••"></div>
+      <div><label>নতুন পাসকোড আবার দিন</label><input id="newPass2" type="password" inputmode="numeric" autocomplete="new-password" placeholder="••••"></div>
+      <button class="btn" id="changePassBtn" type="button">🔐 পাসকোড বদলান</button>
+      <p class="note" id="changePassMsg"></p>
+    </div>
+  </div>
 </section>
 
 <!-- Seed totals (2026-11-24): মোট ব্যয় 3200, ব্যাংক উত্তোলন 9000, হাতে থাকা টাকা 5800, বাকি -3200; ক্যাটাগরি: বাজার 2795, ঔষধ 285, ব্যক্তিগত 120 -->
 <noscript><p>মোট ব্যয় ৩,২০০ টাকা, ব্যাংক উত্তোলন ৯,০০০ টাকা, হাতে থাকা টাকা ৫,৮০০ টাকা।</p></noscript>
-<footer>ডেটা লোকাল মোডে আপনার ব্রাউজারে থাকে (localStorage)। Supabase যুক্ত করলে সব ডিভাইসে সিঙ্ক হবে।</footer>
+<footer>ডেটা লোকাল মোডে আপনার ব্রাউজারে থাকে (localStorage) — পাসকোড দিয়ে সুরক্ষিত। Supabase যুক্ত করলে সব ডিভাইসে সিঙ্ক হবে।</footer>
 </div></main>
 </div>
 
@@ -335,7 +358,205 @@ footer{color:var(--muted);font-size:13px;text-align:center;margin-top:24px}
   <a data-view="report"><span class="ic">💰</span>রিপোর্ট</a>
 </nav>
 
+<!-- ===== লক স্ক্রিন (লগইন) — পাসকোড + Supabase ইমেইল লগইন ===== -->
+<div class="lock-screen" id="lockScreen" hidden>
+  <div class="lock-card">
+    <div class="lock-emoji">🔐</div>
+    <h2 id="lockTitle">হিসেবের খাতা</h2>
+    <p class="note" id="lockSub">খাতা খুলতে পাসকোড দিন</p>
+    <div id="lockPassBox">
+      <input id="lockPass" type="password" inputmode="numeric" autocomplete="current-password" placeholder="••••" maxlength="32">
+      <input id="lockPass2" type="password" inputmode="numeric" autocomplete="new-password" placeholder="আবার পাসকোড দিন" maxlength="32" style="margin-top:8px">
+      <button class="btn" id="lockBtn" type="button">🔓 খুলুন</button>
+      <div class="lock-err" id="lockErr"></div>
+      <button class="lock-link" id="forgotPass" type="button">পাসকোড ভুলে গেছেন?</button>
+    </div>
+    <div id="lockEmailBox" style="margin-top:16px;border-top:1px solid var(--line);padding-top:14px;text-align:left">
+      <div style="font-weight:700;text-align:center">📧 ইমেইল দিয়ে লগইন (Supabase)</div>
+      <p class="note" id="lockEmailNote" style="text-align:center">Supabase সেটআপ করলে চালু হবে — সিঙ্ক সেটিংসে URL ও anon key বসান।</p>
+      <div id="lockEmailForm" hidden>
+        <label>ইমেইল</label>
+        <input id="lockEmail" type="email" placeholder="you@example.com" style="letter-spacing:0;font-size:15px;text-align:left">
+        <label style="margin-top:8px">পাসওয়ার্ড</label>
+        <input id="lockEmailPass" type="password" placeholder="••••••••" style="letter-spacing:0;font-size:15px">
+        <div style="display:flex;gap:8px;margin-top:10px">
+          <button class="btn blue" id="emailSignIn" type="button" style="flex:1">সাইন ইন</button>
+          <button class="btn ghost" id="emailSignUp" type="button" style="flex:1">নতুন অ্যাকাউন্ট</button>
+        </div>
+      </div>
+      <div class="lock-err" id="lockEmailErr" style="text-align:center"></div>
+    </div>
+    <p class="lock-note">পাসকোড শুধু এই ব্রাউজারে থাকে (হ্যাশ আকারে)। প্রথমবার খুললে নিজের পাসকোড বানিয়ে নিন — কোনো ডিফল্ট পাসকোড নেই।</p>
+  </div>
+</div>
 <script>
+/* ===== লগইন (পাসকোড + Supabase Auth) =====
+   Passcode: SHA-256 hash-ই শুধু localStorage-এ থাকে — আসল পাসকোড
+   কোথাও সংরক্ষণ হয় না। সেশন sessionStorage-এ থাকে, তাই নতুন ট্যাব /
+   ব্রাউজার বন্ধ করলে আবার পাসকোড চাইবে; লগআউট করলে সেশন মুছে যায়।
+   কোনো ডিফল্ট পাসকোড নেই — প্রথমবার ব্যবহারকারী নিজে বানিয়ে নেন।
+   Supabase Auth: সিঙ্ক সেটিংসে Supabase বসানো থাকলে ইমেইল/পাসওয়ার্ড
+   দিয়েও লগইন করা যায় (সেটা না থাকলে ওই অপশন বন্ধ দেখায়)। */
+const PASS_HASH_KEY = 'hisheberKhataPassHash';
+const AUTH_SESSION_KEY = 'hisheberKhataAuthSession';
+const AUTH_SALT = 'ajkerhiseb-lock-v1';
+let appStarted = false;
+async function hashPasscode(code) {
+  const input = AUTH_SALT + '::' + code;
+  if (window.crypto && crypto.subtle && crypto.subtle.digest) {
+    const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(input));
+    return [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, '0')).join('');
+  }
+  let h1 = 0xdeadbeef, h2 = 0x41c6ce57;
+  for (let i = 0; i < input.length; i++) {
+    const ch = input.charCodeAt(i);
+    h1 = Math.imul(h1 ^ ch, 2654435761); h2 = Math.imul(h2 ^ ch, 1597334677);
+  }
+  h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507) ^ Math.imul(h2 ^ (h2 >>> 13), 3266489909);
+  h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507) ^ Math.imul(h1 ^ (h1 >>> 13), 3266489909);
+  return 'fb-' + (h2 >>> 0).toString(16) + (h1 >>> 0).toString(16);
+}
+function hasPasscode() { try { return !!localStorage.getItem(PASS_HASH_KEY); } catch (e) { return false; } }
+function isAuthed() { try { return sessionStorage.getItem(AUTH_SESSION_KEY) === '1'; } catch (e) { return false; } }
+function setAuthed() { try { sessionStorage.setItem(AUTH_SESSION_KEY, '1'); } catch (e) {} }
+function showLockMode(mode) {
+  const setup = mode === 'setup';
+  document.getElementById('lockTitle').textContent = setup ? 'প্রথমবার সেটআপ' : 'হিসেবের খাতা';
+  document.getElementById('lockSub').textContent = setup ? 'নিজের পাসকোড বানান (কমপক্ষে ৪ অক্ষর)' : 'খাতা খুলতে পাসকোড দিন';
+  document.getElementById('lockPass2').hidden = !setup;
+  document.getElementById('lockBtn').textContent = setup ? '✅ পাসকোড সেট করুন' : '🔓 খুলুন';
+  document.getElementById('forgotPass').style.display = setup ? 'none' : '';
+  document.getElementById('lockErr').textContent = '';
+  document.getElementById('lockPass').value = '';
+  document.getElementById('lockPass2').value = '';
+  document.getElementById('lockPass').focus();
+}
+function lockApp() {
+  try { sessionStorage.removeItem(AUTH_SESSION_KEY); } catch (e) {}
+  document.body.classList.add('locked');
+  const ls = document.getElementById('lockScreen');
+  if (ls) ls.hidden = false;
+  showLockMode(hasPasscode() ? 'unlock' : 'setup');
+  setupEmailLogin();
+}
+async function startApp() {
+  if (appStarted) return;
+  appStarted = true;
+  render();
+  const ok = await initSupabase();
+  if (ok) {
+    try { await syncFromRemote(); render(); }
+    catch (err) { setSync('err', 'সিঙ্কে সমস্যা: ' + err.message); }
+  }
+}
+function unlockApp() {
+  document.body.classList.remove('locked');
+  const ls = document.getElementById('lockScreen');
+  if (ls) ls.hidden = true;
+  startApp();
+  render();
+}
+async function handleLockBtn() {
+  const setup = !hasPasscode();
+  const err = document.getElementById('lockErr');
+  const p1 = document.getElementById('lockPass').value;
+  const btn = document.getElementById('lockBtn');
+  btn.disabled = true;
+  try {
+    if (p1.length < 4) { err.textContent = '❌ পাসকোড কমপক্ষে ৪ অক্ষরের হতে হবে।'; return; }
+    if (setup) {
+      const p2 = document.getElementById('lockPass2').value;
+      if (p1 !== p2) { err.textContent = '❌ দুইবারের পাসকোড মিলছে না — আবার দিন।'; return; }
+      localStorage.setItem(PASS_HASH_KEY, await hashPasscode(p1));
+      setAuthed(); unlockApp();
+    } else {
+      const stored = localStorage.getItem(PASS_HASH_KEY);
+      if ((await hashPasscode(p1)) === stored) { setAuthed(); unlockApp(); }
+      else { err.textContent = '❌ ভুল পাসকোড — আবার চেষ্টা করুন।'; document.getElementById('lockPass').value = ''; document.getElementById('lockPass').focus(); }
+    }
+  } finally { btn.disabled = false; }
+}
+document.getElementById('lockBtn').addEventListener('click', handleLockBtn);
+document.getElementById('lockPass').addEventListener('keydown', ev => { if (ev.key === 'Enter') handleLockBtn(); });
+document.getElementById('lockPass2').addEventListener('keydown', ev => { if (ev.key === 'Enter') handleLockBtn(); });
+document.getElementById('forgotPass').addEventListener('click', () => {
+  const ok = confirm('পাসকোড ভুলে গেলে খাতা খোলার একটাই উপায়: এই ব্রাউজারের সব হিসাব (এন্ট্রি, বাজেট, বাজেট লিস্ট) মুছে নতুন পাসকোড বানানো।\n\nSupabase-এ সিঙ্ক চালু থাকলে সেখানকার ডেটা থেকে যাবে — নতুন পাসকোড সেট করার পর সিঙ্ক করলে আবার ফিরে আসবে। এগোবেন?');
+  if (!ok) return;
+  try {
+    localStorage.setItem(KEY, '[]');
+    localStorage.setItem(BUDGET_KEY, '{}');
+    localStorage.setItem(BUDGET_ITEMS_KEY, '[]');
+    localStorage.removeItem(PASS_HASH_KEY);
+  } catch (e) {}
+  entries = []; budgets = {}; budgetItems = [];
+  showLockMode('setup');
+});
+async function logoutUser() {
+  try { if (sb && sb.auth) await sb.auth.signOut(); } catch (e) {}
+  lockApp();
+}
+document.getElementById('logoutBtn').addEventListener('click', logoutUser);
+document.getElementById('changePassBtn').addEventListener('click', async () => {
+  const msg = document.getElementById('changePassMsg');
+  const oldP = document.getElementById('oldPass').value;
+  const np = document.getElementById('newPass').value;
+  const np2 = document.getElementById('newPass2').value;
+  if (hasPasscode()) {
+    if ((await hashPasscode(oldP)) !== localStorage.getItem(PASS_HASH_KEY)) { msg.textContent = '❌ পুরোনো পাসকোড ভুল।'; return; }
+  }
+  if (np.length < 4) { msg.textContent = '❌ নতুন পাসকোড কমপক্ষে ৪ অক্ষরের হতে হবে।'; return; }
+  if (np !== np2) { msg.textContent = '❌ নতুন পাসকোড দুইবার মিলছে না।'; return; }
+  localStorage.setItem(PASS_HASH_KEY, await hashPasscode(np));
+  document.getElementById('oldPass').value = '';
+  document.getElementById('newPass').value = '';
+  document.getElementById('newPass2').value = '';
+  msg.textContent = '✅ পাসকোড বদলানো হয়েছে।';
+});
+/* Supabase Auth (email/password) — only when Supabase is configured. */
+async function setupEmailLogin() {
+  const note = document.getElementById('lockEmailNote');
+  const form = document.getElementById('lockEmailForm');
+  const errBox = document.getElementById('lockEmailErr');
+  if (!getSbConfig()) {
+    if (note) note.textContent = 'Supabase সেটআপ করলে চালু হবে — সিঙ্ক সেটিংসে URL ও anon key বসান।';
+    if (form) form.hidden = true;
+    return;
+  }
+  if (note) note.textContent = 'Supabase দিয়ে ইমেইল/পাসওয়ার্ডে সাইন ইন করুন — সব ডিভাইসে একই অ্যাকাউন্টে ঢুকবে।';
+  if (form) form.hidden = false;
+  try {
+    await loadSbJs();
+    if (!sb) sb = window.supabase.createClient(getSbConfig().url, getSbConfig().anonKey);
+    const { data } = await sb.auth.getSession();
+    if (data && data.session) { setAuthed(); unlockApp(); }
+  } catch (err) {
+    if (errBox) errBox.textContent = '⚠️ Supabase সংযোগ হয়নি: ' + err.message;
+  }
+}
+async function emailAuth(mode) {
+  const errBox = document.getElementById('lockEmailErr');
+  const email = document.getElementById('lockEmail').value.trim();
+  const password = document.getElementById('lockEmailPass').value;
+  if (!email || password.length < 6) { errBox.textContent = '❌ সঠিক ইমেইল আর কমপক্ষে ৬ অক্ষরের পাসওয়ার্ড দিন।'; return; }
+  errBox.textContent = '';
+  try {
+    await loadSbJs();
+    if (!sb) sb = window.supabase.createClient(getSbConfig().url, getSbConfig().anonKey);
+    if (mode === 'signin') {
+      const { error } = await sb.auth.signInWithPassword({ email, password });
+      if (error) throw error;
+      setAuthed(); unlockApp();
+    } else {
+      const { data, error } = await sb.auth.signUp({ email, password });
+      if (error) throw error;
+      if (data && data.session) { setAuthed(); unlockApp(); }
+      else errBox.textContent = '✅ অ্যাকাউন্ট তৈরি হয়েছে — ইমেইল চেক করে নিশ্চিত করুন, তারপর “সাইন ইন” চাপুন।';
+    }
+  } catch (err) { errBox.textContent = '❌ ' + err.message; }
+}
+document.getElementById('emailSignIn').addEventListener('click', () => emailAuth('signin'));
+document.getElementById('emailSignUp').addEventListener('click', () => emailAuth('signup'));
+
 /* ===== Supabase config =====
    Fill these two values to hard-code sync, OR leave empty and paste them in
    "সিঙ্ক সেটিংস" inside the app (stored only in this browser's localStorage).
@@ -972,17 +1193,11 @@ document.getElementById('sbClear').onclick = () => {
   document.getElementById('sbMsg').textContent = 'সংযোগ ছিন্ন হয়েছে — এখন শুধু লোকাল মোডে চলবে।';
 };
 
-/* ===== Init ===== */
+/* ===== Init (লগইন গেট) — লগইন না হলে খাতা রেন্ডারই হয় না ===== */
 document.getElementById('date').value = todayStr();
 document.getElementById('biMonth').value = budgetListMonth;
 fillSbForm();
-render();
-initSupabase().then(async ok => {
-  if (ok) {
-    try { await syncFromRemote(); render(); }
-    catch (err) { setSync('err', 'সিঙ্কে সমস্যা: ' + err.message); }
-  }
-});
+if (isAuthed()) { unlockApp(); } else { lockApp(); }
 </script>
 </body>
 </html>

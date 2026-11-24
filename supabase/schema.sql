@@ -72,3 +72,10 @@ create policy "budgets_all_anon" on public.budgets
 drop policy if exists "budget_items_all_anon" on public.budget_items;
 create policy "budget_items_all_anon" on public.budget_items
   for all to anon using (true) with check (true);
+
+-- লগইন (Supabase Auth): ইমেইল/পাসওয়ার্ড লগইনের জন্য আলাদা টেবিল
+-- লাগে না — Supabase-এর নিজের auth.users টেবিল ব্যবহার হয়। অ্যাপের
+-- পাসকোড লগইন আলাদাভাবে ব্রাউজারে (localStorage-এ হ্যাশ আকারে) চলে,
+-- তাই এই schema-তে Auth-এর জন্য কিছু যোগ করতে হয় না। ভবিষ্যতে শুধু
+-- লগইন করা ব্যবহারকারীর ডেটা দেখাতে চাইলে উপরের anon policy-গুলোর
+-- বদলে authenticated + auth.uid() ভিত্তিক policy বসাতে হবে।
