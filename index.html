@@ -247,6 +247,13 @@ body.locked .app,body.locked .bottomnav{display:none}
       <select id="monthFilter"><option value="all">সব মাস</option></select>
       <select id="catFilter"><option value="all">সব ক্যাটাগরি</option><option value="বাজার">বাজার</option><option value="ঔষধ">ঔষধ</option><option value="ব্যক্তিগত">ব্যক্তিগত</option><option value="যাতায়াত">যাতায়াত</option><option value="বাড়ি ভাড়া">বাড়ি ভাড়া</option><option value="বিল">বিল</option><option value="শিক্ষা">শিক্ষা</option><option value="অন্যান্য">অন্যান্য</option></select>
     </div>
+    <div class="grid4" id="listTotals" style="margin-top:14px">
+      <div class="stat"><div class="label">সব এন্ট্রির মোট</div><div class="value" id="listTotalAll">০</div></div>
+      <div class="stat income"><div class="label">মোট আয়</div><div class="value" id="listTotalIncome">০</div></div>
+      <div class="stat expense"><div class="label">মোট ব্যয়</div><div class="value" id="listTotalExpense">০</div></div>
+      <div class="stat bank"><div class="label">মোট উত্তোলন</div><div class="value" id="listTotalBank">০</div></div>
+    </div>
+    <p class="note" style="margin:8px 0 0">উপরে দেখানো এন্ট্রিগুলোর মোট — ছাঁকনি বদলালে মোটও বদলে যাবে। ব্যাংক উত্তোলন আয় বা ব্যয় নয়, শুধু দেখানো হচ্ছে; সব মোট = আয় + ব্যয় + উত্তোলন।</p>
     <ul class="list" id="list"></ul>
     <div class="empty" id="empty" hidden>কোনো এন্ট্রি পাওয়া যায়নি।</div>
   </div>
@@ -1109,6 +1116,12 @@ function render() {
   if (searchQ) list = list.filter(e => e.item.toLowerCase().includes(searchQ));
   if (filterMonth !== 'all') list = list.filter(e => monthKey(e.date) === filterMonth);
   document.getElementById('count').textContent = '(' + bn2(list.length) + 'টি)';
+  // Totals of the currently shown (filtered) entries — bank stays separate, never income/expense
+  const lt = totals(list);
+  document.getElementById('listTotalAll').textContent = bn2(lt.inc + lt.exp + lt.bank);
+  document.getElementById('listTotalIncome').textContent = bn2(lt.inc);
+  document.getElementById('listTotalExpense').textContent = bn2(lt.exp);
+  document.getElementById('listTotalBank').textContent = bn2(lt.bank);
   const ul = document.getElementById('list'); ul.innerHTML = '';
   document.getElementById('empty').hidden = list.length > 0;
   list.forEach(e => {
