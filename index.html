@@ -452,25 +452,22 @@ body.locked .app,body.locked .bottomnav{display:none}
   <div class="lock-card">
     <div class="lock-emoji">🔐</div>
     <h2 id="lockTitle">হিসেবের খাতা</h2>
-    <p class="note" id="lockSub">আপনার অ্যাকাউন্ট বেছে নিন</p>
-    <div id="acctPicker" hidden>
-      <div id="acctList" style="display:grid;gap:8px;text-align:left"></div>
-      <button class="btn blue" id="acctNewBtn" type="button" style="margin-top:12px">➕ নতুন অ্যাকাউন্ট খুলুন</button>
+    <p class="note" id="lockSub">নাম আর পিন দিয়ে লগইন করুন</p>
+    <div id="lockLoginBox">
+      <input id="lockName" type="text" placeholder="অ্যাকাউন্টের নাম" maxlength="40" autocomplete="off" style="letter-spacing:0;font-size:16px;text-align:left">
+      <input id="lockPass" type="password" inputmode="numeric" autocomplete="current-password" placeholder="পিন" maxlength="32" style="margin-top:8px">
+      <button class="btn" id="lockBtn" type="button">🔓 লগইন</button>
+      <div class="lock-err" id="lockErr"></div>
+      <button class="lock-link" id="forgotPass" type="button">পিন ভুলে গেছেন?</button>
+      <button class="lock-link" id="gotoSignup" type="button" style="display:block;margin:8px auto 0">➕ নতুন অ্যাকাউন্ট খুলুন</button>
     </div>
     <div id="acctCreateBox" hidden>
-      <input id="acctName" type="text" placeholder="আপনার নাম (যেমন: রহিম)" maxlength="40" style="letter-spacing:0;font-size:16px;text-align:left">
+      <input id="acctName" type="text" placeholder="আপনার নাম (যেমন: রহিম)" maxlength="40" autocomplete="off" style="letter-spacing:0;font-size:16px;text-align:left">
       <input id="acctPin1" type="password" inputmode="numeric" autocomplete="new-password" placeholder="পিন (কমপক্ষে ৪ অক্ষর)" maxlength="32" style="margin-top:8px">
       <input id="acctPin2" type="password" inputmode="numeric" autocomplete="new-password" placeholder="পিন আবার দিন" maxlength="32" style="margin-top:8px">
       <button class="btn" id="acctCreateBtn" type="button">✅ অ্যাকাউন্ট খুলুন</button>
       <div class="lock-err" id="acctCreateErr"></div>
-      <button class="lock-link" id="acctCreateBack" type="button">← অ্যাকাউন্টের তালিকায় ফিরুন</button>
-    </div>
-    <div id="lockPassBox" hidden>
-      <input id="lockPass" type="password" inputmode="numeric" autocomplete="current-password" placeholder="••••" maxlength="32">
-      <button class="btn" id="lockBtn" type="button">🔓 খুলুন</button>
-      <div class="lock-err" id="lockErr"></div>
-      <button class="lock-link" id="forgotPass" type="button">পিন ভুলে গেছেন?</button>
-      <button class="lock-link" id="lockBackBtn" type="button" style="display:block;margin:8px auto 0">← অন্য অ্যাকাউন্ট</button>
+      <button class="lock-link" id="acctCreateBack" type="button">← লগইনে ফিরে যান</button>
     </div>
     <div id="lockEmailBox" style="margin-top:16px;border-top:1px solid var(--line);padding-top:14px;text-align:left">
       <div style="font-weight:700;text-align:center">📧 ইমেইল দিয়ে লগইন (Supabase)</div>
@@ -514,7 +511,6 @@ const AUTH_SALT = 'ajkerhiseb-lock-v1';
 const DATA_BASE_KEYS = ['hisheberKhataV1', 'hisheberKhataBudgets', 'hisheberKhataBudgetItems', 'hisheberKhataCustomCats'];
 let appStarted = false;
 let currentAccount = null;   // { id, name, pinHash } — লগইন করা অ্যাকাউন্ট
-let selectedAccount = null;  // লক স্ক্রিনে বেছে নেওয়া অ্যাকাউন্ট
 let legacyMigrated = false;  // পুরোনো একক-পাসকোড থেকে মাইগ্রেশন হয়েছে কি না
 async function hashPasscode(code) {
   const input = AUTH_SALT + '::' + code;
@@ -578,37 +574,28 @@ function setCurrentAccount(acct) {
   const cpEl = document.getElementById('changePassAcct');
   if (cpEl) cpEl.textContent = acct ? acct.name : '—';
 }
-function clearCurrentAccountData() { currentAccount = null; selectedAccount = null; entries = []; budgets = {}; budgetItems = []; customCats = []; }
-/* লক স্ক্রিনের তিন অবস্থা: pick (তালিকা) / pin (পিন দিন) / create (নতুন অ্যাকাউন্ট)। */
+function clearCurrentAccountData() { currentAccount = null; entries = []; budgets = {}; budgetItems = []; customCats = []; }
+/* লক স্ক্রিনের দুই অবস্থা: login (নাম + পিন) / signup (নতুন অ্যাকাউন্ট)।
+   অ্যাকাউন্টের তালিকা কোথাও দেখানো হয় না — লগইনে নাম লিখে পিন দিলেই হয়। */
 function renderLockScreen(mode) {
   const accounts = loadAccounts();
-  const picker = document.getElementById('acctPicker');
+  const loginBox = document.getElementById('lockLoginBox');
   const createBox = document.getElementById('acctCreateBox');
-  const passBox = document.getElementById('lockPassBox');
   const title = document.getElementById('lockTitle');
   const sub = document.getElementById('lockSub');
   const err = document.getElementById('lockErr');
   if (err) err.textContent = '';
+  const nameInput = document.getElementById('lockName');
   const passInput = document.getElementById('lockPass');
   if (passInput) passInput.value = '';
-  if (!mode) mode = accounts.length ? 'pick' : 'create';
-  picker.hidden = mode !== 'pick';
-  createBox.hidden = mode !== 'create';
-  passBox.hidden = mode !== 'pin';
-  document.getElementById('acctCreateBack').style.display = accounts.length ? '' : 'none';
-  if (mode === 'pick') {
+  if (!mode) mode = accounts.length ? 'login' : 'signup';
+  loginBox.hidden = mode !== 'login';
+  createBox.hidden = mode !== 'signup';
+  if (mode === 'login') {
     title.textContent = 'হিসেবের খাতা';
-    sub.textContent = 'আপনার অ্যাকাউন্ট বেছে নিন';
-    const list = document.getElementById('acctList');
-    list.innerHTML = '';
-    accounts.forEach(a => {
-      const b = document.createElement('button');
-      b.type = 'button'; b.className = 'btn ghost acct-btn';
-      b.textContent = '👤 ' + a.name;
-      b.onclick = () => { selectedAccount = a; renderLockScreen('pin'); };
-      list.appendChild(b);
-    });
-  } else if (mode === 'create') {
+    sub.textContent = 'নাম আর পিন দিয়ে লগইন করুন';
+    if (nameInput) nameInput.focus();
+  } else {
     title.textContent = accounts.length ? 'নতুন অ্যাকাউন্ট' : 'প্রথমবার সেটআপ';
     sub.textContent = accounts.length ? 'নাম আর পিন দিন — নতুন খাতা খালি শুরু হবে' : 'নিজের অ্যাকাউন্ট খুলুন — নাম আর পিন দিন';
     document.getElementById('acctName').value = '';
@@ -616,10 +603,6 @@ function renderLockScreen(mode) {
     document.getElementById('acctPin2').value = '';
     document.getElementById('acctCreateErr').textContent = '';
     document.getElementById('acctName').focus();
-  } else {
-    title.textContent = 'হিসেবের খাতা';
-    sub.textContent = '“' + (selectedAccount ? selectedAccount.name : '') + '”-এর পিন দিন';
-    if (passInput) passInput.focus();
   }
   setupEmailLogin();
 }
@@ -653,22 +636,27 @@ function unlockApp() {
   startApp();
   render();
 }
+/* লগইন: নাম লিখে পিন দিন। নাম না মিললে বা পিন ভুল হলে একই বার্তা —
+   নামটা আদৌ আছে কি না তা বোঝা যায় না। */
 async function handleLockBtn() {
   const err = document.getElementById('lockErr');
+  const name = document.getElementById('lockName').value.trim();
   const p1 = document.getElementById('lockPass').value;
   const btn = document.getElementById('lockBtn');
-  if (!selectedAccount) { renderLockScreen('pick'); return; }
+  const wrong = () => {
+    err.textContent = '❌ নাম বা পিন ভুল — আবার চেষ্টা করুন।';
+    document.getElementById('lockPass').value = '';
+    document.getElementById('lockPass').focus();
+  };
   btn.disabled = true;
   try {
-    if (p1.length < 4) { err.textContent = '❌ পিন কমপক্ষে ৪ অক্ষরের হতে হবে।'; return; }
-    if ((await hashPasscode(p1)) === selectedAccount.pinHash) {
-      setCurrentAccount(selectedAccount);
+    if (!name || p1.length < 4) { wrong(); return; }
+    const acct = loadAccounts().find(a => a.name.trim().toLowerCase() === name.toLowerCase());
+    if (!acct) { wrong(); return; }
+    if ((await hashPasscode(p1)) === acct.pinHash) {
+      setCurrentAccount(acct);
       unlockApp();
-    } else {
-      err.textContent = '❌ ভুল পিন — আবার চেষ্টা করুন।';
-      document.getElementById('lockPass').value = '';
-      document.getElementById('lockPass').focus();
-    }
+    } else { wrong(); }
   } finally { btn.disabled = false; }
 }
 async function handleCreateAccount() {
@@ -696,24 +684,31 @@ async function handleCreateAccount() {
   } finally { btn.disabled = false; }
 }
 document.getElementById('lockBtn').addEventListener('click', handleLockBtn);
+document.getElementById('lockName').addEventListener('keydown', ev => { if (ev.key === 'Enter') handleLockBtn(); });
 document.getElementById('lockPass').addEventListener('keydown', ev => { if (ev.key === 'Enter') handleLockBtn(); });
-document.getElementById('lockBackBtn').addEventListener('click', () => renderLockScreen('pick'));
-document.getElementById('acctNewBtn').addEventListener('click', () => renderLockScreen('create'));
-document.getElementById('acctCreateBack').addEventListener('click', () => renderLockScreen('pick'));
+document.getElementById('gotoSignup').addEventListener('click', () => renderLockScreen('signup'));
+document.getElementById('acctCreateBack').addEventListener('click', () => renderLockScreen('login'));
 document.getElementById('acctCreateBtn').addEventListener('click', handleCreateAccount);
 document.getElementById('acctPin2').addEventListener('keydown', ev => { if (ev.key === 'Enter') handleCreateAccount(); });
-document.getElementById('forgotPass').addEventListener('click', () => {
-  if (!selectedAccount) return;
-  const name = selectedAccount.name;
+/* পিন ভুলে গেলে: নামের ঘরে নাম লিখে এখানে চাপুন। সতর্কবার্তায় হ্যাঁ বললে
+   শুধু ওই নামের অ্যাকাউন্টের লোকাল হিসাব মুছে অ্যাকাউন্টটি বাদ যাবে।
+   নামের কোনো অ্যাকাউন্ট না থাকলে লগইনের মতোই একই বার্তা দেখায় — নামটা
+   আদৌ আছে কি না তা বোঝা যায় না। */
+document.getElementById('forgotPass').addEventListener('click', async () => {
+  const err = document.getElementById('lockErr');
+  const name = document.getElementById('lockName').value.trim();
+  if (!name) { err.textContent = '❌ প্রথমে নামের ঘরে আপনার অ্যাকাউন্টের নাম লিখুন।'; document.getElementById('lockName').focus(); return; }
   const ok = confirm('“' + name + '”-এর পিন ভুলে গেলে এই অ্যাকাউন্ট খোলার একটাই উপায়: শুধু এই অ্যাকাউন্টের হিসাব (এন্ট্রি, বাজেট, বাজেট লিস্ট) এই ব্রাউজার থেকে মুছে অ্যাকাউন্টটি বাদ দেওয়া।\n\nঅন্য অ্যাকাউন্টের হিসাব মুছবে না। Supabase-এ সিঙ্ক চালু থাকলে সেখানকার ডেটা থেকে যাবে। এগোবেন?');
   if (!ok) return;
-  const id = selectedAccount.id;
+  const acct = loadAccounts().find(a => a.name.trim().toLowerCase() === name.toLowerCase());
+  if (!acct) { err.textContent = '❌ নাম বা পিন ভুল — আবার চেষ্টা করুন।'; document.getElementById('lockPass').value = ''; return; }
   try {
-    DATA_BASE_KEYS.forEach(k => localStorage.removeItem(k + ':' + id));
-    saveAccounts(loadAccounts().filter(a => a.id !== id));
+    DATA_BASE_KEYS.forEach(k => localStorage.removeItem(k + ':' + acct.id));
+    saveAccounts(loadAccounts().filter(a => a.id !== acct.id));
   } catch (e) {}
   clearCurrentAccountData();
-  renderLockScreen();
+  renderLockScreen('login');
+  document.getElementById('lockErr').textContent = '✅ অ্যাকাউন্টটি মুছে ফেলা হয়েছে — নতুন করে সাইন আপ করতে পারেন।';
 });
 async function logoutUser() {
   try { if (sb && sb.auth) await sb.auth.signOut(); } catch (e) {}
