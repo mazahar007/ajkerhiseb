@@ -132,18 +132,59 @@ footer{color:var(--muted);font-size:13px;text-align:center;margin-top:24px}
 .bottomnav a{display:flex;flex-direction:column;align-items:center;padding:8px 0 10px;color:#475569;text-decoration:none;cursor:pointer}
 .bottomnav a.active{color:var(--green);font-weight:700}
 .bottomnav .ic{font-size:18px;line-height:1.2}
-/* ---- Lock screen ---- */
+/* ---- Lock screen (full-page premium login) ---- */
 body.locked .app,body.locked .bottomnav{display:none}
-.lock-screen{position:fixed;inset:0;z-index:100;background:var(--navy);color:#fff;display:flex;align-items:center;justify-content:center;padding:20px;overflow-y:auto}
+.lock-screen{position:fixed;inset:0;z-index:100;color:#fff;display:flex;align-items:center;justify-content:center;padding:24px;overflow-y:auto;
+  background:
+    radial-gradient(640px 420px at 12% 8%, rgba(16,185,129,.38), transparent 60%),
+    radial-gradient(560px 460px at 88% 92%, rgba(37,99,235,.30), transparent 60%),
+    radial-gradient(420px 300px at 80% 12%, rgba(5,150,105,.22), transparent 60%),
+    linear-gradient(155deg,#0f172a 0%,#0c2b22 52%,#0f172a 100%)}
 .lock-screen[hidden]{display:none}
-.lock-card{background:#fff;color:var(--ink);border-radius:20px;padding:28px 24px;width:100%;max-width:420px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.4);margin:auto}
-.lock-card h2{margin:0 0 6px;font-size:22px}
-.lock-card .lock-emoji{font-size:44px}
-.lock-card input{text-align:center;font-size:20px;letter-spacing:6px}
-.lock-card .btn{width:100%;margin-top:10px}
+.lock-wrap{position:relative;z-index:1;display:flex;align-items:center;width:100%;max-width:920px;margin:auto;animation:lockIn .45s ease}
+@keyframes lockIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.lock-brand{flex:1 1 auto;color:#fff;padding:36px 40px 36px 8px;display:flex;flex-direction:column;justify-content:center}
+.lock-logo{width:72px;height:72px;border-radius:22px;background:linear-gradient(135deg,#10b981,#047857);display:flex;align-items:center;justify-content:center;font-size:36px;box-shadow:0 12px 32px rgba(16,185,129,.45);margin-bottom:20px;animation:lockFloat 4s ease-in-out infinite}
+@keyframes lockFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+.lock-brand h2{margin:0 0 8px;font-size:34px;line-height:1.2;color:#fff}
+.lock-brand .tag{font-size:16px;line-height:1.7;color:rgba(255,255,255,.82);margin:0 0 24px;max-width:340px}
+.lock-features{list-style:none;margin:0;padding:0;display:grid;gap:12px}
+.lock-features li{display:flex;gap:12px;align-items:flex-start;font-size:15px;line-height:1.5;color:rgba(255,255,255,.92)}
+.lock-features .fi{flex:0 0 28px;width:28px;height:28px;border-radius:50%;background:rgba(16,185,129,.25);border:1px solid rgba(16,185,129,.5);display:flex;align-items:center;justify-content:center;font-size:14px}
+.lock-card{flex:0 0 420px;background:#fff;color:var(--ink);border-radius:24px;padding:34px 30px 28px;text-align:center;box-shadow:0 24px 70px rgba(0,0,0,.45);position:relative;overflow:hidden}
+.lock-card::before{content:"";position:absolute;top:0;left:0;right:0;height:5px;background:linear-gradient(90deg,#10b981,#059669,#2563eb)}
+.lock-card h2{margin:0 0 6px;font-size:24px}
+.lock-card .lock-emoji{width:64px;height:64px;border-radius:18px;background:linear-gradient(135deg,#10b981,#047857);display:flex;align-items:center;justify-content:center;font-size:30px;margin:0 auto 16px;box-shadow:0 10px 26px rgba(5,150,105,.35)}
+.lock-field{text-align:left;margin-top:12px}
+.lock-field label{font-size:13px;font-weight:600;color:var(--ink);display:block;margin-bottom:6px}
+.lock-card input{width:100%;padding:13px 14px;border:1.5px solid #cbd5e1;border-radius:12px;font:inherit;background:#f8fafc;color:var(--ink);font-size:16px}
+.lock-card input:focus{outline:none;border-color:#059669;box-shadow:0 0 0 3px rgba(5,150,105,.18);background:#fff}
+#lockName,#acctName{text-align:left;font-size:16px;letter-spacing:0}
+#lockPass{text-align:center;font-size:20px;letter-spacing:6px}
+#acctPin1,#acctPin2{text-align:center;font-size:18px;letter-spacing:4px}
+#lockEmail,#lockEmailPass{text-align:left;font-size:15px;letter-spacing:0}
+#lockEmailBox{margin-top:4px;padding-top:4px;text-align:left}
+.lock-card .btn{width:100%;margin-top:16px;padding:14px;border-radius:12px;font-size:16px;background:linear-gradient(135deg,#10b981,#047857);box-shadow:0 8px 20px rgba(5,150,105,.35)}
+.lock-card .btn:hover{background:linear-gradient(135deg,#059669,#065f46)}
+.lock-card .btn:active{transform:translateY(1px)}
+.lock-card .btn:disabled{opacity:.6;box-shadow:none}
+.lock-card .btn.blue{background:linear-gradient(135deg,#3b82f6,#1d4ed8);box-shadow:0 8px 20px rgba(37,99,235,.3)}
+.lock-card .btn.ghost{background:#fff;border:1.5px solid #cbd5e1;color:var(--ink);box-shadow:none}
 .lock-link{background:none;border:0;color:var(--blue);font-size:13px;margin-top:12px;text-decoration:underline;cursor:pointer}
+.lock-link:hover{color:#1d4ed8}
 .lock-err{color:var(--red);font-size:14px;min-height:20px;margin-top:8px}
-.lock-note{font-size:13px;color:var(--muted);margin-top:10px;line-height:1.6}
+.lock-note{font-size:13px;color:var(--muted);margin-top:14px;line-height:1.6}
+.lock-divider{display:flex;align-items:center;gap:12px;margin:20px 0 0;color:var(--muted);font-size:12px}
+.lock-divider::before,.lock-divider::after{content:"";flex:1;height:1px;background:var(--line)}
+@media(max-width:860px){
+  .lock-screen{padding:16px}
+  .lock-wrap{flex-direction:column;max-width:440px}
+  .lock-brand{padding:4px 4px 0;text-align:center;align-items:center}
+  .lock-brand h2,.lock-brand .tag,.lock-features{display:none}
+  .lock-logo{width:56px;height:56px;font-size:28px;border-radius:16px;margin-bottom:14px}
+  .lock-card{flex:1 1 auto;width:100%;padding:28px 20px 24px;border-radius:20px}
+}
+@media(prefers-reduced-motion:reduce){.lock-logo{animation:none}.lock-wrap{animation:none}}
 .acct-btn{width:100%;text-align:left;padding:12px 16px;font-weight:600}
 .acct-btn:hover{background:#f1f5f9}
 /* ---- Dashboard (Shad POS style: period pills + date + range + calendar) ---- */
@@ -449,34 +490,46 @@ body.locked .app,body.locked .bottomnav{display:none}
 
 <!-- ===== লক স্ক্রিন (লগইন) — পাসকোড + Supabase ইমেইল লগইন ===== -->
 <div class="lock-screen" id="lockScreen" hidden>
-  <div class="lock-card">
+  <div class="lock-wrap">
+    <div class="lock-brand">
+      <div class="lock-logo">📒</div>
+      <h2>হিসেবের খাতা</h2>
+      <p class="tag">আয়-ব্যয়ের হিসাব — সহজ, সুরক্ষিত, সব ডিভাইসে।</p>
+      <ul class="lock-features">
+        <li><span class="fi">💰</span><span>আয়, ব্যয় আর ব্যাংক উত্তোলনের হিসাব — তারিখসহ</span></li>
+        <li><span class="fi">🔐</span><span>নিজের পিনে সুরক্ষিত — প্রত্যেকের খাতা আলাদা</span></li>
+        <li><span class="fi">🔄</span><span>Supabase সিঙ্ক-রেডি — সব ডিভাইসে একই হিসাব</span></li>
+      </ul>
+    </div>
+    <div class="lock-card">
     <div class="lock-emoji">🔐</div>
     <h2 id="lockTitle">হিসেবের খাতা</h2>
     <p class="note" id="lockSub">নাম আর পিন দিয়ে লগইন করুন</p>
     <div id="lockLoginBox">
-      <input id="lockName" type="text" placeholder="অ্যাকাউন্টের নাম" maxlength="40" autocomplete="off" style="letter-spacing:0;font-size:16px;text-align:left">
-      <input id="lockPass" type="password" inputmode="numeric" autocomplete="current-password" placeholder="পিন" maxlength="32" style="margin-top:8px">
+      <div class="lock-field"><label for="lockName">অ্যাকাউন্টের নাম</label><input id="lockName" type="text" placeholder="যেমন: mazahar" maxlength="40" autocomplete="off"></div>
+      <div class="lock-field"><label for="lockPass">পিন</label><input id="lockPass" type="password" inputmode="numeric" autocomplete="current-password" placeholder="••••" maxlength="32"></div>
       <button class="btn" id="lockBtn" type="button">🔓 লগইন</button>
       <div class="lock-err" id="lockErr"></div>
       <button class="lock-link" id="forgotPass" type="button">পিন ভুলে গেছেন?</button>
       <button class="lock-link" id="gotoSignup" type="button" style="display:block;margin:8px auto 0">➕ নতুন অ্যাকাউন্ট খুলুন</button>
     </div>
     <div id="acctCreateBox" hidden>
-      <input id="acctName" type="text" placeholder="আপনার নাম (যেমন: রহিম)" maxlength="40" autocomplete="off" style="letter-spacing:0;font-size:16px;text-align:left">
-      <input id="acctPin1" type="password" inputmode="numeric" autocomplete="new-password" placeholder="পিন (কমপক্ষে ৪ অক্ষর)" maxlength="32" style="margin-top:8px">
-      <input id="acctPin2" type="password" inputmode="numeric" autocomplete="new-password" placeholder="পিন আবার দিন" maxlength="32" style="margin-top:8px">
+      <div class="lock-field"><label for="acctName">আপনার নাম</label><input id="acctName" type="text" placeholder="যেমন: রহিম" maxlength="40" autocomplete="off"></div>
+      <div class="lock-field"><label for="acctPin1">পিন (কমপক্ষে ৪ অক্ষর)</label><input id="acctPin1" type="password" inputmode="numeric" autocomplete="new-password" placeholder="••••" maxlength="32"></div>
+      <div class="lock-field"><label for="acctPin2">পিন আবার দিন</label><input id="acctPin2" type="password" inputmode="numeric" autocomplete="new-password" placeholder="••••" maxlength="32"></div>
       <button class="btn" id="acctCreateBtn" type="button">✅ অ্যাকাউন্ট খুলুন</button>
       <div class="lock-err" id="acctCreateErr"></div>
       <button class="lock-link" id="acctCreateBack" type="button">← লগইনে ফিরে যান</button>
     </div>
-    <div id="lockEmailBox" style="margin-top:16px;border-top:1px solid var(--line);padding-top:14px;text-align:left">
+    <div class="lock-divider"><span>অথবা</span></div>
+    <div id="lockEmailBox">
       <div style="font-weight:700;text-align:center">📧 ইমেইল দিয়ে লগইন (Supabase)</div>
       <p class="note" id="lockEmailNote" style="text-align:center">Supabase সেটআপ করলে চালু হবে — সিঙ্ক সেটিংসে URL ও anon key বসান।</p>
       <div id="lockEmailForm" hidden>
         <label>ইমেইল</label>
-        <input id="lockEmail" type="email" placeholder="you@example.com" style="letter-spacing:0;font-size:15px;text-align:left">
+        <input id="lockEmail" type="email" placeholder="you@example.com">
         <label style="margin-top:8px">পাসওয়ার্ড</label>
-        <input id="lockEmailPass" type="password" placeholder="••••••••" style="letter-spacing:0;font-size:15px">
+        <input id="lockEmailPass" type="password" placeholder="••••••••">
         <div style="display:flex;gap:8px;margin-top:10px">
           <button class="btn blue" id="emailSignIn" type="button" style="flex:1">সাইন ইন</button>
           <button class="btn ghost" id="emailSignUp" type="button" style="flex:1">নতুন অ্যাকাউন্ট</button>
@@ -485,6 +538,7 @@ body.locked .app,body.locked .bottomnav{display:none}
       <div class="lock-err" id="lockEmailErr" style="text-align:center"></div>
     </div>
     <p class="lock-note">প্রত্যেকের খাতা আলাদা — নিজের পিনে শুধু নিজের হিসাব দেখা যায়। পিন শুধু এই ব্রাউজারে থাকে (হ্যাশ আকারে)। প্রথমবার নিজের অ্যাকাউন্ট খুলে পিন বানিয়ে নিন — কোনো ডিফল্ট পিন নেই।</p>
+    </div>
   </div>
 </div>
 <script>
