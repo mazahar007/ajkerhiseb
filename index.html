@@ -49,7 +49,7 @@ body::before{content:"";position:fixed;inset:0;z-index:-1;
 h1{margin:0;font-size:28px}
 .sub{color:var(--muted);margin-top:4px;font-size:14px}
 /* Page header sits on the dark gradient, so it is a light card itself */
-header{background:rgba(255,255,255,.95);border:1px solid rgba(255,255,255,.55);border-radius:16px;padding:16px 18px;box-shadow:0 10px 30px rgba(0,0,0,.28)}
+header{background:rgba(255,255,255,.95);border:1px solid rgba(255,255,255,.55);border-radius:16px;padding:16px 18px;box-shadow:0 10px 30px rgba(0,0,0,.28);display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap}
 .view{display:none}
 .view.active{display:block}
 .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px;margin-top:14px;box-shadow:0 1px 2px rgba(15,23,42,.04)}
@@ -284,6 +284,13 @@ table.rep th:nth-child(6){color:var(--navy)}
   table.rep th,table.rep td{padding:8px 6px}
 }
 @media(min-width:768px){.bottomnav{display:none}}
+/* ---- Language switcher (বাংলা / English) ---- */
+.lang-switch{display:inline-flex;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.28);border-radius:999px;padding:3px;gap:2px;flex:none}
+.lang-switch .lang-btn{border:0;background:transparent;color:rgba(255,255,255,.8);border-radius:999px;padding:6px 12px;font-weight:600;font-size:13px}
+.lang-switch .lang-btn.active{background:#fff;color:#0f172a}
+.lang-switch.light{background:#f1f5f9;border-color:#e2e8f0}
+.lang-switch.light .lang-btn{color:#475569}
+.lang-switch.light .lang-btn.active{background:#0f172a;color:#fff}
 </style>
 </head>
 <body class="locked">
@@ -303,13 +310,14 @@ table.rep th:nth-child(6){color:var(--navy)}
   <div class="side-foot">
     <div>অ্যাকাউন্ট: <b id="currentAcctName">—</b></div>
     <div>সিঙ্ক: <span class="sync-badge local" id="syncBadge">● লোকাল মোড</span></div>
+    <div class="lang-switch" style="margin-top:10px" role="group" aria-label="Language / ভাষা"><button type="button" class="lang-btn" data-lang="bn">বাংলা</button><button type="button" class="lang-btn" data-lang="en">English</button></div>
     <button class="btn ghost" id="logoutBtn" style="width:100%;margin-top:10px;background:transparent;color:#fff;border-color:rgba(255,255,255,.3)">🚪 লগআউট</button>
     <div style="margin-top:8px;opacity:.5;font-size:11px">লাইট ভার্সন • বাংলা সংখ্যা</div>
   </div>
 </aside>
 
 <main class="main"><div class="wrap">
-<header><h1>📒 হিসেবের খাতা</h1><div class="sub">আয়-ব্যয়ের হিসাব — তারিখসহ, লাইট ভার্সন</div></header>
+<header><div><h1>📒 হিসেবের খাতা</h1><div class="sub">আয়-ব্যয়ের হিসাব — তারিখসহ, লাইট ভার্সন</div></div><div class="lang-switch light" role="group" aria-label="Language / ভাষা"><button type="button" class="lang-btn" data-lang="bn">বাংলা</button><button type="button" class="lang-btn" data-lang="en">English</button></div></header>
 
 <!-- ===== ড্যাশবোর্ড ===== -->
 <section class="view active" id="view-dashboard">
@@ -322,7 +330,7 @@ table.rep th:nth-child(6){color:var(--navy)}
       <button type="button" id="pill-all" data-pill="all">সব</button>
     </div>
     <div class="dash-row">
-      <input id="dashDate" type="date" title="তারিখ বাছুন">
+      <input id="dashDate" type="date" title="তারিখ বাছুন" data-i18n-title>
       <button class="btn dark" type="button" id="dashGoDate" style="flex:none">তারিখ দেখুন</button>
     </div>
     <div class="dash-row">
@@ -330,9 +338,9 @@ table.rep th:nth-child(6){color:var(--navy)}
     </div>
     <div class="dash-row">
       <label style="margin:0;font-weight:600">রেঞ্জ:</label>
-      <input id="dashFrom" type="date" title="থেকে">
+      <input id="dashFrom" type="date" title="শুরুর তারিখ" data-i18n-title>
       <span style="color:var(--muted)">থেকে</span>
-      <input id="dashTo" type="date" title="পর্যন্ত">
+      <input id="dashTo" type="date" title="শেষের তারিখ" data-i18n-title>
       <button class="btn blue" type="button" id="dashApplyRange" style="flex:none">রেঞ্জ</button>
       <button class="btn ghost" type="button" id="dashClearRange" style="flex:none">✕ ক্লিয়ার</button>
     </div>
@@ -346,20 +354,20 @@ table.rep th:nth-child(6){color:var(--navy)}
     </div>
   </div>
   <div class="card dash-sec sec-cal">
-    <div class="cal-head"><h2 style="margin:0">📅 তারিখে ক্লিক করে হিসাব দেখুন</h2><div style="display:flex;gap:6px"><button id="dashCalPrev" type="button" aria-label="আগের মাস">‹</button><button id="dashCalNext" type="button" aria-label="পরের মাস">›</button></div></div>
+    <div class="cal-head"><h2 style="margin:0">📅 তারিখে ক্লিক করে হিসাব দেখুন</h2><div style="display:flex;gap:6px"><button id="dashCalPrev" type="button" aria-label="আগের মাস" data-i18n-aria>‹</button><button id="dashCalNext" type="button" aria-label="পরের মাস" data-i18n-aria>›</button></div></div>
     <h3 id="dashCalTitle" style="text-align:center;margin:0 0 10px"></h3>
-    <div class="cal-grid" id="dashCalGrid"></div>
+    <div class="cal-grid" id="dashCalGrid"> data-i18n-skip></div>
   </div>
   <div class="card dash-sec sec-budget" id="budgetCard"><h2>📅 মাসিক বাজেট — <span id="budgetMonthLabel"></span></h2>
-    <div id="budgetBox"></div>
+    <div id="budgetBox"> data-i18n-skip></div>
     <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
-      <input id="budgetInput" type="number" min="1" step="1" placeholder="এই মাসের বাজেট (৳)" style="flex:1;min-width:160px">
+      <input id="budgetInput" type="number" min="1" step="1" placeholder="এই মাসের বাজেট (৳)" style="flex:1;min-width:160px" data-i18n-ph>
       <button class="btn" id="budgetSave">💾 বাজেট সংরক্ষণ</button>
       <button class="btn ghost" id="budgetClear" hidden>মুছে ফেলুন</button>
     </div>
     <p class="note" id="budgetMsg"></p>
   </div>
-  <div class="card dash-sec sec-recent"><h2>🕒 সাম্প্রতিক এন্ট্রি</h2><ul class="list" id="recentList" style="margin-top:0"></ul></div>
+  <div class="card dash-sec sec-recent"><h2>🕒 সাম্প্রতিক এন্ট্রি</h2><ul class="list" id="recentList" style="margin-top:0"> data-i18n-skip></ul></div>
   <div class="card dash-sec sec-quick"><h2>🔧 দ্রুত কাজ</h2>
     <div style="display:flex;gap:8px;flex-wrap:wrap">
       <button class="btn" data-goto="entry">➕ নতুন এন্ট্রি</button>
@@ -376,11 +384,11 @@ table.rep th:nth-child(6){color:var(--navy)}
   <div class="card sec-green"><h2>নতুন এন্ট্রি যোগ করুন</h2>
   <form id="entryForm">
     <div><label>ধরন</label><select id="type"><option value="expense">ব্যয়</option><option value="income">আয়</option><option value="bank">ব্যাংক উত্তোলন</option></select></div>
-    <div><label>ক্যাটাগরি</label><input id="category" list="catList" placeholder="বেছে নিন বা নতুন লিখুন" value="বাজার" maxlength="40"><datalist id="catList"><option value="বাজার"></option><option value="ঔষধ"></option><option value="ব্যক্তিগত"></option><option value="যাতায়াত"></option><option value="বাড়ি ভাড়া"></option><option value="বিল"></option><option value="শিক্ষা"></option><option value="অন্যান্য"></option></datalist></div>
-    <div><label>আইটেম / বিবরণ</label><input id="item" required placeholder="যেমন: কলা" maxlength="80"></div>
-    <div><label>টাকার অংক (৳)</label><input id="amount" type="number" min="1" step="1" required placeholder="যেমন: ৭০"></div>
+    <div><label>ক্যাটাগরি</label><input id="category" list="catList" placeholder="বেছে নিন বা নতুন লিখুন" value="বাজার" maxlength="40" data-i18n-ph><datalist id="catList"><option value="বাজার"></option><option value="ঔষধ"></option><option value="ব্যক্তিগত"></option><option value="যাতায়াত"></option><option value="বাড়ি ভাড়া"></option><option value="বিল"></option><option value="শিক্ষা"></option><option value="অন্যান্য"></option></datalist></div>
+    <div><label>আইটেম / বিবরণ</label><input id="item" required placeholder="যেমন: কলা" maxlength="80" data-i18n-ph></div>
+    <div><label>টাকার অংক (৳)</label><input id="amount" type="number" min="1" step="1" required placeholder="যেমন: ৭০" data-i18n-ph></div>
     <div><label>তারিখ</label><input id="date" type="date" required></div>
-    <div class="full"><label>নোট (ঐচ্ছিক)</label><input id="note" placeholder="যেমন: বাজার" maxlength="120"></div>
+    <div class="full"><label>নোট (ঐচ্ছিক)</label><input id="note" placeholder="যেমন: বাজার" maxlength="120" data-i18n-ph></div>
     <div class="full"><button class="btn" type="submit" id="submitBtn">➕ যোগ করুন</button>
     <button class="btn ghost" type="button" id="cancelEdit" hidden>বাতিল</button></div>
   </form>
@@ -392,9 +400,9 @@ table.rep th:nth-child(6){color:var(--navy)}
 <section class="view" id="view-calendar">
   <div class="card sec-blue">
     <div class="cal-head"><button id="calPrev">‹ আগের মাস</button><h2 id="calTitle" style="margin:0"></h2><button id="calNext">পরের মাস ›</button></div>
-    <div class="cal-grid" id="calGrid"></div>
+    <div class="cal-grid" id="calGrid"> data-i18n-skip></div>
   </div>
-  <div class="card sec-amber"><h2 id="dayTitle">দিনের হিসাব</h2><div id="dayTotals"></div><ul class="list" id="dayList" style="margin-top:0"></ul><div class="empty" id="dayEmpty" hidden>এই দিনে কোনো এন্ট্রি নেই।</div></div>
+  <div class="card sec-amber"><h2 id="dayTitle">দিনের হিসাব</h2><div id="dayTotals"> data-i18n-skip></div><ul class="list" id="dayList" style="margin-top:0"> data-i18n-skip></ul><div class="empty" id="dayEmpty" hidden>এই দিনে কোনো এন্ট্রি নেই।</div></div>
 </section>
 
 <!-- ===== সব এন্ট্রি ===== -->
@@ -408,8 +416,8 @@ table.rep th:nth-child(6){color:var(--navy)}
         <button data-f="expense">ব্যয়</button>
         <button data-f="bank">ব্যাংক উত্তোলন</button>
       </div>
-      <input id="search" placeholder="আইটেম খুঁজুন…">
-      <input id="dateFilter" type="date" title="নির্দিষ্ট তারিখ">
+      <input id="search" placeholder="আইটেম খুঁজুন…" data-i18n-ph>
+      <input id="dateFilter" type="date" title="নির্দিষ্ট তারিখ" data-i18n-title>
       <select id="yearFilter"><option value="all">সব বছর</option></select>
       <select id="monthFilter"><option value="all">সব মাস</option></select>
       <select id="catFilter"><option value="all">সব ক্যাটাগরি</option><option value="বাজার">বাজার</option><option value="ঔষধ">ঔষধ</option><option value="ব্যক্তিগত">ব্যক্তিগত</option><option value="যাতায়াত">যাতায়াত</option><option value="বিল">বিল</option><option value="শিক্ষা">শিক্ষা</option><option value="অন্যান্য">অন্যান্য</option></select>
@@ -422,7 +430,7 @@ table.rep th:nth-child(6){color:var(--navy)}
       <div class="stat bank"><div class="label">মোট উত্তোলন</div><div class="value" id="listTotalBank">০</div></div>
     </div>
     <p class="note" style="margin:8px 0 0">উপরে দেখানো এন্ট্রিগুলোর মোট — ছাঁকনি (তারিখ, বছর, মাস, ক্যাটাগরি, খোঁজা) বদলালে মোটও বদলে যাবে। ব্যাংক উত্তোলন আয় বা ব্যয় নয়, শুধু দেখানো হচ্ছে; সব মোট = আয় + ব্যয় + উত্তোলন।</p>
-    <ul class="list" id="list"></ul>
+    <ul class="list" id="list"> data-i18n-skip></ul>
     <div class="empty" id="empty" hidden>কোনো এন্ট্রি পাওয়া যায়নি।</div>
     <p class="note" id="listShown" style="margin:10px 0 0;text-align:center"></p>
     <button class="btn" type="button" id="loadMoreBtn" style="width:100%;margin-top:10px;padding:14px;font-size:16px">আরো দেখুন</button>
@@ -432,7 +440,7 @@ table.rep th:nth-child(6){color:var(--navy)}
 <!-- ===== বাজেট লিস্ট ===== -->
 <section class="view" id="view-budgetlist">
   <div class="card sec-amber"><h2>📋 বাজেট লিস্ট — <span id="budgetListMonthLabel"></span></h2>
-    <p class="note">আলাদা বাজেটের তালিকা। প্রতিটা আইটেমের বাজেট থেকে ওই মাসের খরচ নিজে থেকেই মাইনাস হয়ে বাকি দেখাবে। খরচ ধরা হয় ওই মাসে <b>ওই নামের আইটেমের</b> মোট ব্যয় দিয়ে; নাম না মিললে ওই <b>ক্যাটাগরির</b> মোট ব্যয় দিয়ে। প্রতিটা আইটেমের নিজের <b>তারিখ</b> থাকে। ক্যাটাগরি তালিকা থেকে বেছে নেওয়া যায়, আবার নিজে লিখে নতুন ক্যাটাগরিও দেওয়া যায় — নতুন ক্যাটাগরি মনে রাখা হয়, পরের বার তালিকায় দেখাবে। “খরচে যোগ করুন” চাপলেই আইটেমটি আজকের তারিখে, বাজেটের অংকে, খরচের তালিকায় যোগ হয়ে যাবে।</p>
+    <p class="note" data-i18n-html="budgetListIntro">আলাদা বাজেটের তালিকা। প্রতিটা আইটেমের বাজেট থেকে ওই মাসের খরচ নিজে থেকেই মাইনাস হয়ে বাকি দেখাবে। খরচ ধরা হয় ওই মাসে <b>ওই নামের আইটেমের</b> মোট ব্যয় দিয়ে; নাম না মিললে ওই <b>ক্যাটাগরির</b> মোট ব্যয় দিয়ে। প্রতিটা আইটেমের নিজের <b>তারিখ</b> থাকে। ক্যাটাগরি তালিকা থেকে বেছে নেওয়া যায়, আবার নিজে লিখে নতুন ক্যাটাগরিও দেওয়া যায় — নতুন ক্যাটাগরি মনে রাখা হয়, পরের বার তালিকায় দেখাবে। “খরচে যোগ করুন” চাপলেই আইটেমটি আজকের তারিখে, বাজেটের অংকে, খরচের তালিকায় যোগ হয়ে যাবে।</p>
     <div style="display:flex;gap:8px;align-items:center;margin-bottom:10px;flex-wrap:wrap">
       <label style="margin:0">মাস:</label>
       <select id="budgetListMonth" style="width:auto;flex:1"></select>
@@ -449,12 +457,12 @@ table.rep th:nth-child(6){color:var(--navy)}
       </select>
       <button class="btn ghost" type="button" id="budgetDateClear">ছাঁকনি মুছুন</button>
     </div>
-    <div id="budgetListSummary"></div>
+    <div id="budgetListSummary"> data-i18n-skip></div>
     <form id="budgetItemForm" style="margin-top:12px">
-      <div><label>আইটেমের নাম</label><input id="biName" required placeholder="যেমন: আলু / বাজার" maxlength="80"></div>
-      <div><label>ক্যাটাগরি</label><input id="biCategory" list="biCatList" placeholder="বেছে নিন বা নতুন লিখুন" value="বাজার" maxlength="40"><datalist id="biCatList"><option value="বাজার"></option><option value="ঔষধ"></option><option value="ব্যক্তিগত"></option><option value="যাতায়াত"></option><option value="বাড়ি ভাড়া"></option><option value="বিল"></option><option value="শিক্ষা"></option><option value="অন্যান্য"></option></datalist></div>
+      <div><label>আইটেমের নাম</label><input id="biName" required placeholder="যেমন: আলু / বাজার" maxlength="80" data-i18n-ph></div>
+      <div><label>ক্যাটাগরি</label><input id="biCategory" list="biCatList" placeholder="বেছে নিন বা নতুন লিখুন" value="বাজার" maxlength="40" data-i18n-ph><datalist id="biCatList"><option value="বাজার"></option><option value="ঔষধ"></option><option value="ব্যক্তিগত"></option><option value="যাতায়াত"></option><option value="বাড়ি ভাড়া"></option><option value="বিল"></option><option value="শিক্ষা"></option><option value="অন্যান্য"></option></datalist></div>
       <div><label>তারিখ</label><input id="biDate" type="date" required></div>
-      <div><label>বাজেটের অংক (৳)</label><input id="biAmount" type="number" min="1" step="1" required placeholder="যেমন: ৫০০"></div>
+      <div><label>বাজেটের অংক (৳)</label><input id="biAmount" type="number" min="1" step="1" required placeholder="যেমন: ৫০০" data-i18n-ph></div>
       <div><label>মাস</label><input id="biMonth" type="month" required></div>
       <div class="full"><button class="btn" type="submit" id="biSubmit">➕ বাজেট লিস্টে যোগ করুন</button>
       <button class="btn ghost" type="button" id="biCancel" hidden>বাতিল</button></div>
@@ -463,7 +471,7 @@ table.rep th:nth-child(6){color:var(--navy)}
   </div>
   <div class="card sec-green"><h2>এই মাসের বাজেট লিস্ট</h2>
     <div style="display:flex;gap:8px;margin-bottom:8px;flex-wrap:wrap"><button class="btn ghost" id="budgetCsv" type="button">⬇️ বাজেট লিস্ট CSV ডাউনলোড</button></div>
-    <ul class="list" id="budgetItemList" style="margin-top:0"></ul>
+    <ul class="list" id="budgetItemList" style="margin-top:0"> data-i18n-skip></ul>
     <div class="empty" id="budgetItemEmpty" hidden>এই মাসে কোনো বাজেট আইটেম নেই — উপরে ফর্ম থেকে যোগ করুন।</div>
   </div>
 </section>
@@ -471,20 +479,20 @@ table.rep th:nth-child(6){color:var(--navy)}
 <!-- ===== রিপোর্ট ===== -->
 <section class="view" id="view-report">
   <div class="card sec-green"><h2>💰 মাসভিত্তিক আয়-ব্যয় রিপোর্ট</h2>
-    <div class="table-scroll"><table class="rep"><thead><tr><th>মাস</th><th>আয়</th><th>ব্যয়</th><th>বাজেট</th><th>ব্যাংক</th><th>বাকি</th></tr></thead><tbody id="repBody"></tbody></table></div>
+    <div class="table-scroll"><table class="rep"><thead><tr><th>মাস</th><th>আয়</th><th>ব্যয়</th><th>বাজেট</th><th>ব্যাংক</th><th>বাকি</th></tr></thead><tbody id="repBody"> data-i18n-skip></tbody></table></div>
     <p class="note" style="margin:10px 0 0">ব্যাংক উত্তোলন আয় বা ব্যয় নয় — খরচের জন্য তোলা টাকা, তাই শুধু আলাদা করে দেখানো হচ্ছে। বাকি = আয় − ব্যয়। হাতে থাকা টাকা = উত্তোলন + আয় − ব্যয়।</p>
   </div>
-  <div class="card sec-red"><h2>📊 মাসভিত্তিক ব্যয়ের চার্ট</h2><div id="barChart"></div></div>
+  <div class="card sec-red"><h2>📊 মাসভিত্তিক ব্যয়ের চার্ট</h2><div id="barChart"> data-i18n-skip></div></div>
   <div class="card sec-blue"><h2>🏷️ ক্যাটাগরি অনুযায়ী ব্যয়</h2>
     <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px"><label style="margin:0">মাস:</label><select id="catMonth" style="width:auto;flex:1"></select></div>
-    <div id="catBreakdown"></div>
+    <div id="catBreakdown"> data-i18n-skip></div>
   </div>
 </section>
 
 <!-- ===== ব্যাকআপ ===== -->
 <section class="view" id="view-backup">
   <div class="card sec-blue"><h2>📥 ব্যাকআপ</h2>
-    <p class="note">মোট এন্ট্রি: <b id="backupCount">০</b>টি। ব্যাকআপ নিলে এই অ্যাকাউন্টের পুরো হিসাব ফাইলে নেমে যাবে — ফোন বদলালেও আবার আপলোড করে ফিরিয়ে আনা যাবে।</p>
+    <p class="note"><span data-i18n>মোট এন্ট্রি:</span> <b id="backupCount">০</b><span data-i18n>টি। ব্যাকআপ নিলে এই অ্যাকাউন্টের পুরো হিসাব ফাইলে নেমে যাবে — ফোন বদলালেও আবার আপলোড করে ফিরিয়ে আনা যাবে।</span></p>
     <div style="display:flex;gap:8px;flex-wrap:wrap">
       <button class="btn blue" id="exportJson">⬇️ JSON ডাউনলোড</button>
       <button class="btn" id="exportCsv">⬇️ CSV (Excel) ডাউনলোড</button>
@@ -519,7 +527,7 @@ table.rep th:nth-child(6){color:var(--navy)}
     </div>
     <div style="margin-top:14px;border-top:1px solid var(--line);padding-top:12px">
       <p class="note"><b>Supabase প্রজেক্ট বানাতে (ফ্রি):</b></p>
-      <ol class="note">
+      <ol class="note" data-i18n-html="sbSteps">
         <li>supabase.com → New Project (ফ্রি প্ল্যান) → নাম দিন <b>ajkerhiseb</b></li>
         <li>SQL Editor → New Query → এই repo-র <b>supabase/schema.sql</b> ফাইলের পুরোটা পেস্ট → Run</li>
         <li>Project Settings → API থেকে <b>Project URL</b> আর <b>anon public</b> key কপি করুন</li>
@@ -528,7 +536,7 @@ table.rep th:nth-child(6){color:var(--navy)}
     </div>
   </div>
   <div class="card sec-amber"><h2>🔐 পিন পরিবর্তন</h2>
-    <p class="note">পিন শুধু এই ব্রাউজারে থাকে (হ্যাশ আকারে, আসল পিন কোথাও সংরক্ষণ হয় না)। এই পিন বদলাবে: <b id="changePassAcct">—</b>। বদলাতে পুরোনো পিন লাগবে।</p>
+    <p class="note"><span data-i18n>পিন শুধু এই ব্রাউজারে থাকে (হ্যাশ আকারে, আসল পিন কোথাও সংরক্ষণ হয় না)। এই পিন বদলাবে:</span> <b id="changePassAcct">—</b><span data-i18n>। বদলাতে পুরোনো পিন লাগবে।</span></p>
     <div style="display:grid;gap:10px">
       <div><label>পুরোনো পিন</label><input id="oldPass" type="password" inputmode="numeric" autocomplete="current-password" placeholder="••••"></div>
       <div><label>নতুন পিন (কমপক্ষে ৪ অক্ষর)</label><input id="newPass" type="password" inputmode="numeric" autocomplete="new-password" placeholder="••••"></div>
@@ -572,11 +580,12 @@ table.rep th:nth-child(6){color:var(--navy)}
       </ul>
     </div>
     <div class="lock-card">
+    <div class="lang-switch light" style="margin:0 auto 14px" role="group" aria-label="Language / ভাষা"><button type="button" class="lang-btn" data-lang="bn">বাংলা</button><button type="button" class="lang-btn" data-lang="en">English</button></div>
     <div class="lock-emoji">🔐</div>
     <h2 id="lockTitle">হিসেবের খাতা</h2>
     <p class="note" id="lockSub">নাম আর পিন দিয়ে লগইন করুন</p>
     <div id="lockLoginBox">
-      <div class="lock-field"><label for="lockName">অ্যাকাউন্টের নাম</label><input id="lockName" type="text" placeholder="যেমন: mazahar" maxlength="40" autocomplete="off"></div>
+      <div class="lock-field"><label for="lockName">অ্যাকাউন্টের নাম</label><input id="lockName" type="text" placeholder="যেমন: mazahar" maxlength="40" autocomplete="off" data-i18n-ph></div>
       <div class="lock-field"><label for="lockPass">পিন</label><input id="lockPass" type="password" inputmode="numeric" autocomplete="current-password" placeholder="••••" maxlength="32"></div>
       <button class="btn" id="lockBtn" type="button">🔓 লগইন</button>
       <div class="lock-err" id="lockErr"></div>
@@ -584,7 +593,7 @@ table.rep th:nth-child(6){color:var(--navy)}
       <button class="lock-link" id="gotoSignup" type="button" style="display:block;margin:8px auto 0">➕ নতুন অ্যাকাউন্ট খুলুন</button>
     </div>
     <div id="acctCreateBox" hidden>
-      <div class="lock-field"><label for="acctName">আপনার নাম</label><input id="acctName" type="text" placeholder="যেমন: রহিম" maxlength="40" autocomplete="off"></div>
+      <div class="lock-field"><label for="acctName">আপনার নাম</label><input id="acctName" type="text" placeholder="যেমন: রহিম" maxlength="40" autocomplete="off" data-i18n-ph></div>
       <div class="lock-field"><label for="acctPin1">পিন (কমপক্ষে ৪ অক্ষর)</label><input id="acctPin1" type="password" inputmode="numeric" autocomplete="new-password" placeholder="••••" maxlength="32"></div>
       <div class="lock-field"><label for="acctPin2">পিন আবার দিন</label><input id="acctPin2" type="password" inputmode="numeric" autocomplete="new-password" placeholder="••••" maxlength="32"></div>
       <button class="btn" id="acctCreateBtn" type="button">✅ অ্যাকাউন্ট খুলুন</button>
@@ -628,6 +637,112 @@ table.rep th:nth-child(6){color:var(--navy)}
    আর কখনো সিড বসে না — ভরা খাতা কখনো ওভাররাইট হয় না।
    Supabase Auth: সিঙ্ক সেটিংসে Supabase বসানো থাকলে ইমেইল/পাসওয়ার্ড
    দিয়েও লগইন করা যায় (সেটা না থাকলে ওই অপশন বন্ধ দেখায়)। */
+/* ===== ভাষা (বাংলা / English) =====
+   Default বাংলা — the app as it is today. The switcher (lock screen,
+   sidebar footer, page header) toggles to English; the choice is saved
+   per device in localStorage and re-applied on the next open.
+   How it works:
+   - t('বাংলা লেখা') looks the string up in I18N.en; in বাংলা mode it
+     returns the string as-is. tf() does the same for templates with
+     {placeholders}.
+   - Numbers/dates follow the language: bn2()/bnPlain() print Bengali
+     digits in বাংলা mode and Western digits in English mode; monthLabel()
+     uses Bengali or English month names; fmtDate() stays DD/MM/YYYY.
+   - Static HTML is translated by applyI18n(), which walks the DOM and
+     translates text nodes / placeholders / titles by dictionary lookup.
+     User data is NEVER translated: dynamic containers that hold item
+     names, notes and categories carry data-i18n-skip, and category names
+     are data, not dictionary keys.
+   - JS-rendered strings use t()/tf() at render time. */
+const LANG_KEY = 'hisheberKhataLang';
+let lang = 'bn';
+function loadLang() { try { const v = localStorage.getItem(LANG_KEY); return v === 'en' ? 'en' : 'bn'; } catch (e) { return 'bn'; } }
+lang = loadLang();
+const I18N = { en: {"+ খরচে যোগ করুন": "+ Add to expenses", "Supabase দিয়ে ইমেইল/পাসওয়ার্ডে সাইন ইন করুন — সব ডিভাইসে একই অ্যাকাউন্টে ঢুকবে।": "Sign in with email/password via Supabase — the same account on all devices.", "Supabase প্রজেক্ট বানাতে (ফ্রি):": "To create a Supabase project (free):", "Supabase লাইব্রেরি লোড হয়নি": "Supabase library failed to load", "Supabase সিঙ্ক-রেডি — সব ডিভাইসে একই হিসাব": "Supabase sync-ready — the same ledger on every device", "Supabase সেটআপ করলে চালু হবে — সিঙ্ক সেটিংসে URL ও anon key বসান।": "Will turn on once Supabase is set up — add the URL and anon key in Sync Settings.", "{month} মাসের বাজেট মুছে ফেলবেন?": "Delete the budget for {month}?", "{n} টি এন্ট্রি": "{n} entries", "{n}টি": "{n} entries", "{shown}টি দেখাচ্ছে, মোট {total}টি": "Showing {shown} of {total}", "। বদলাতে পুরোনো পিন লাগবে।": ". You will need the old PIN to change it.", "অংক: বেশি → কম": "Amount: high → low", "অথবা": "or", "অবস্থা:": "Status:", "অ্যাকাউন্ট:": "Account:", "অ্যাকাউন্টের নাম": "Account name", "আইটেম": "Item", "আইটেম / বিবরণ": "Item / details", "আইটেম খুঁজুন…": "Search items…", "আইটেমের নাম": "Item name", "আগের মাস": "Previous month", "আজকে": "Today", "আপনার নাম": "Your name", "আয়": "Income", "আয় (৳)": "Income (৳)", "আয়, ব্যয় আর ব্যাংক উত্তোলনের হিসাব — তারিখসহ": "Income, expense and bank withdrawals — with dates", "আয়-ব্যয় রিপোর্ট": "Income-expense report", "আয়-ব্যয়ের বাইরে — শুধু দেখানো হচ্ছে": "Outside income & expense — shown only", "আয়-ব্যয়ের হিসাব — তারিখসহ, লাইট ভার্সন": "Income & expense ledger — with dates, light version", "আয়-ব্যয়ের হিসাব — সহজ, সুরক্ষিত, সব ডিভাইসে।": "Income & expense ledger — simple, secure, on every device.", "আয়-ব্যয়ের হিসাব • Supabase সিঙ্ক-রেডি": "Income & expense ledger • Supabase sync-ready", "আরো দেখুন": "Load more", "ইমেইল": "Email", "উত্তোলন": "Withdrawal", "উত্তোলন + আয় − ব্যয় (এই সময় পর্যন্ত)": "Withdrawal + income − expense (up to this period)", "উপরে দেখানো এন্ট্রিগুলোর মোট — ছাঁকনি (তারিখ, বছর, মাস, ক্যাটাগরি, খোঁজা) বদলালে মোটও বদলে যাবে। ব্যাংক উত্তোলন আয় বা ব্যয় নয়, শুধু দেখানো হচ্ছে; সব মোট = আয় + ব্যয় + উত্তোলন।": "Totals for the entries shown above — changing a filter (date, year, month, category, search) changes the totals too. Bank withdrawals are not income or expense, only shown; total = income + expense + withdrawals.", "এই এন্ট্রিটি মুছে ফেলবেন?": "Delete this entry?", "এই দিনে কোনো এন্ট্রি নেই।": "No entries on this day.", "এই মাস": "This month", "এই মাসে এখনো বাজেট নির্ধারণ করা হয়নি। উপরে অংক বসিয়ে “বাজেট সংরক্ষণ” চাপুন — তাহলে খরচের অগ্রগতি আর সতর্কতা দেখাবে।": "No budget set for this month yet. Enter an amount above and press “Save budget” to see spending progress and warnings.", "এই মাসে কোনো বাজেট আইটেম নেই — উপরে ফর্ম থেকে যোগ করুন।": "No budget items this month — add one from the form above.", "এই মাসে কোনো ব্যয় নেই।": "No expenses this month.", "এই মাসে ব্যয়": "Spent this month", "এই মাসে ব্যয় হয়েছে": "Spent this month", "এই মাসে মোট খরচ (লিস্ট অনুযায়ী)": "Total spent this month (per list)", "এই মাসে মোট বাজেট": "Total budget this month", "এই মাসের বাজেট (৳)": "This month’s budget (৳)", "এই মাসের বাজেট লিস্ট": "This month's budget list", "এন্ট্রি": "Add", "কোনো এন্ট্রি নেই।": "No entries yet.", "কোনো এন্ট্রি পাওয়া যায়নি।": "No entries found.", "কোনো ডেটা নেই।": "No data.", "কোনো ব্যয়ের ডেটা নেই।": "No expense data.", "ক্যাটাগরি": "Category", "খরচ": "Spent", "খরচ (৳)": "Spent (৳)", "খাতা থেকে বের হয়ে যাবেন — আবার খুলতে পাসকোড লাগবে। আপনার হিসাব মুছবে না।": "You will sign out of the ledger — you will need your passcode to open it again. Your ledger will not be deleted.", "গত ৭ দিন": "Last 7 days", "গতকাল": "Yesterday", "ছাঁকনি মুছুন": "Clear filters", "টাকার অংক (৳)": "Amount (৳)", "টি। ব্যাকআপ নিলে এই অ্যাকাউন্টের পুরো হিসাব ফাইলে নেমে যাবে — ফোন বদলালেও আবার আপলোড করে ফিরিয়ে আনা যাবে।": " entries. Taking a backup downloads this account’s full ledger to a file — you can upload it again to restore, even on a new phone.", "ড্যাশ": "Dash", "ড্যাশবোর্ড": "Dashboard", "তারিখ": "Date", "তারিখ ক্যালেন্ডার": "Date calendar", "তারিখ দেখুন": "Show date", "তারিখ বাছুন": "Choose a date", "তারিখ:": "Date:", "তারিখ: নতুন → পুরোনো": "Date: newest → oldest", "তারিখ: পুরোনো → নতুন": "Date: oldest → newest", "থেকে": "to", "দিনের হিসাব": "Day's ledger", "ধরন": "Type", "নতুন অ্যাকাউন্ট": "New account", "নতুন এন্ট্রি": "New entry", "নতুন এন্ট্রি যোগ করুন": "Add a new entry", "নতুন পিন (কমপক্ষে ৪ অক্ষর)": "New PIN (at least 4 characters)", "নতুন পিন আবার দিন": "Repeat new PIN", "নাম (A–অ)": "Name (A–Z)", "নাম আর পিন দিন — নতুন খাতা খালি শুরু হবে": "Enter a name and PIN — a new ledger starts empty", "নাম আর পিন দিয়ে লগইন করুন": "Log in with your name and PIN", "নিজের অ্যাকাউন্ট খুলুন — নাম আর পিন দিন": "Create your account — enter a name and PIN", "নিজের পিনে সুরক্ষিত — প্রত্যেকের খাতা আলাদা": "Protected by your own PIN — everyone's ledger is separate", "নির্দিষ্ট তারিখ": "Specific date", "নোট": "Note", "নোট (ঐচ্ছিক)": "Note (optional)", "পরীক্ষা চলছে…": "Testing…", "পরের মাস": "Next month", "পরের মাস ›": "Next month ›", "পাসওয়ার্ড": "Password", "পিন": "PIN", "পিন (কমপক্ষে ৪ অক্ষর)": "PIN (at least 4 characters)", "পিন আবার দিন": "Repeat PIN", "পিন ভুলে গেছেন?": "Forgot your PIN?", "পিন শুধু এই ব্রাউজারে থাকে (হ্যাশ আকারে, আসল পিন কোথাও সংরক্ষণ হয় না)। এই পিন বদলাবে:": "The PIN stays only in this browser (as a hash — the real PIN is never stored). This will change the PIN for:", "পুরোনো পিন": "Old PIN", "প্রতিটা অ্যাকাউন্টের ডেটা আলাদাভাবে এই ব্রাউজারে থাকে (localStorage) — পিন দিয়ে সুরক্ষিত। Supabase যুক্ত করলে সব ডিভাইসে সিঙ্ক হবে।": "Each account's data stays separately in this browser (localStorage) — protected by PIN. Add Supabase to sync across all devices.", "প্রত্যেকের খাতা আলাদা — নিজের পিনে শুধু নিজের হিসাব দেখা যায়। পিন শুধু এই ব্রাউজারে থাকে (হ্যাশ আকারে)। প্রথমবার নিজের অ্যাকাউন্ট খুলে পিন বানিয়ে নিন — কোনো ডিফল্ট পিন নেই।": "Everyone's ledger is separate — your PIN shows only your own ledger. The PIN stays in this browser only (as a hash). First time? Create your account and set a PIN — there is no default PIN.", "প্রথমবার সেটআপ": "First-time setup", "ফাইলটি এন্ট্রির তালিকা নয়": "The file is not a list of entries", "বদলান": "Edit", "বাকি": "Balance", "বাকি (৳)": "Remaining (৳)", "বাকি আছে": "Remaining", "বাজেট": "Budget", "বাজেট (৳)": "Budget (৳)", "বাজেট মোছা হয়েছে।": "Budget deleted.", "বাজেট লিস্ট": "Budget list", "বাজেটের অংক (৳)": "Budget amount (৳)", "বাতিল": "Cancel", "বেছে নিন বা নতুন লিখুন": "Choose or type a new one", "ব্যয়": "Expense", "ব্যয় (৳)": "Expense (৳)", "ব্যাংক উত্তোলন": "Bank withdrawal", "ব্যাংক উত্তোলন (৳)": "Bank withdrawal (৳)", "ব্যাংক উত্তোলন আয় বা ব্যয় নয় — খরচের জন্য তোলা টাকা, তাই শুধু আলাদা করে দেখানো হচ্ছে। বাকি = আয় − ব্যয়। হাতে থাকা টাকা = উত্তোলন + আয় − ব্যয়।": "Bank withdrawals are not income or expense — money withdrawn for spending, shown separately. Balance = income − expense. Cash in hand = withdrawal + income − expense.", "ব্যাকআপ": "Backup", "ব্যাকআপ ফাইল থেকে ফিরিয়ে আনুন (JSON)": "Restore from a backup file (JSON)", "মাস": "Month", "মাস:": "Month:", "মাসিক বাজেট": "Monthly budget", "মুছুন": "Delete", "মুছে ফেলুন": "Delete", "মোছা লোকালে হয়েছে, Supabase-এ হয়নি": "Deleted locally, but not from Supabase", "মোট আয়": "Total income", "মোট উত্তোলন": "Total withdrawals", "মোট এন্ট্রি:": "Total entries:", "মোট বাকি আছে": "Total remaining", "মোট ব্যয়": "Total expenses", "যেমন: mazahar": "e.g. mazahar", "যেমন: আলু / বাজার": "e.g. Potato / Market", "যেমন: কলা": "e.g. Banana", "যেমন: বাজার": "e.g. Market", "যেমন: রহিম": "e.g. Rahim", "যেমন: ৫০০": "e.g. 500", "যেমন: ৭০": "e.g. 70", "রিপোর্ট": "Report", "রেঞ্জ": "Range", "রেঞ্জ:": "Range:", "লাইট ভার্সন • বাংলা সংখ্যা": "Light version • Western numerals", "লিস্ট": "List", "লোকাল মুছেছে, Supabase মোছা যায়নি": "Deleted locally, but not from Supabase", "লোকাল মোডে ডেটা শুধু এই ব্রাউজারেই থাকে। Supabase যুক্ত করলে সব ডিভাইসে একই হিসাব সিঙ্ক হবে। চাবি দুটো শুধু এই ব্রাউজারে থাকে, কোথাও পাঠানো হয় না। লোকাল অ্যাকাউন্টগুলো এই ব্রাউজারেই থাকে — অন্য ডিভাইসে আবার অ্যাকাউন্ট খুলতে হবে, যতক্ষণ না Supabase সিঙ্ক চালু হয়।": "In local mode the data stays only in this browser. Add Supabase and the same ledger will sync to all devices. The two keys stay only in this browser and are never sent anywhere. Local accounts stay in this browser — you will need to create the account again on another device until Supabase sync is on.", "লোকালে আনা হয়েছে, Supabase-এ আপলোড হয়নি": "Imported locally, but not uploaded to Supabase", "শুরুর তারিখ": "Start date", "শেষের তারিখ": "End date", "সংযোগ ছিন্ন করুন": "Disconnect", "সংযোগ ছিন্ন হয়েছে — এখন শুধু লোকাল মোডে চলবে।": "Disconnected — now running in local mode only.", "সংযোগ পরীক্ষা চলছে…": "Testing connection…", "সত্যিই সব ডেটা মুছে ফেলবেন? আগে ব্যাকআপ নিয়ে নিন।": "Really delete all data? Take a backup first.", "সব": "All", "সব এন্ট্রি": "All entries", "সব এন্ট্রির মোট": "Total of all entries", "সব ক্যাটাগরি": "All categories", "সব বছর": "All years", "সব মাস": "All months", "সব সময়ের হিসাব": "All-time ledger", "সাইন ইন": "Sign in", "সাজান:": "Sort:", "সাবধান: এটা এই অ্যাকাউন্টের সব এন্ট্রি মুছে দেবে (Supabase চালু থাকলে সেখান থেকেও)। আগে ব্যাকআপ নিয়ে নিন। অন্য অ্যাকাউন্টের হিসাব মুছবে না।": "Warning: this deletes all entries of this account (from Supabase too, if sync is on). Take a backup first. Other accounts will not be affected.", "সিঙ্ক চলছে…": "Syncing…", "সিঙ্ক সেটিংস": "Sync settings", "সিঙ্ক:": "Sync:", "সিঙ্কে সমস্যা": "Sync problem", "হাতে থাকা টাকা": "Cash in hand", "হিসেবের খাতা": "Hisheber Khata", "হিসেবের খাতা — আয়-ব্যয়ের হিসাব": "Hisheber Khata — Income & Expense Ledger", "৭ দিন": "7 days", "“{name}” বাজেট আইটেমটি মুছে ফেলবেন? (খরচের এন্ট্রিগুলো থাকবে।)": "Delete budget item “{name}”? (Expense entries will stay.)", "“{name}”-এর জন্য খরচের অংক কত? (৳)": "How much is the expense for “{name}”? (৳)", "“{name}”-এর পিন ভুলে গেলে এই অ্যাকাউন্ট খোলার একটাই উপায়: শুধু এই অ্যাকাউন্টের হিসাব (এন্ট্রি, বাজেট, বাজেট লিস্ট) এই ব্রাউজার থেকে মুছে অ্যাকাউন্টটি বাদ দেওয়া।\n\nঅন্য অ্যাকাউন্টের হিসাব মুছবে না। Supabase-এ সিঙ্ক চালু থাকলে সেখানকার ডেটা থেকে যাবে। এগোবেন?": "If you forgot the PIN for “{name}”, there is only one way to open this account: delete this account’s ledger (entries, budget, budget list) from this browser and remove the account.\n\nOther accounts will not be affected. If Supabase sync is on, the data there will stay. Continue?", "‹ আগের মাস": "‹ Previous month", "← লগইনে ফিরে যান": "← Back to login", "● Supabase সিঙ্ক চালু": "● Supabase sync on", "● লোকাল মোড": "● Local mode", "● সিঙ্ক সমস্যা": "● Sync problem", "⚙️ সিঙ্ক সেটিংস": "⚙️ Sync settings", "⚙️ সিঙ্ক সেটিংস — Supabase": "⚙️ Sync Settings — Supabase", "⚠️ Supabase সংযোগ হয়নি": "⚠️ Supabase did not connect", "⚠️ বাজেট ছাড়িয়ে গেছে!": "⚠️ Over budget!", "⚠️ বাজেট ছাড়িয়ে গেছে! ব্যয় বাজেটের {pct}%।": "⚠️ Over budget! Spending is {pct}% of the budget.", "⚠️ বাজেটের {pct}% খরচ হয়ে গেছে।": "⚠️ {pct}% of the budget spent.", "⚠️ লোকালে যোগ হয়েছে, Supabase-এ হয়নি": "⚠️ Added locally, but not to Supabase", "⚠️ লোকালে সংরক্ষণ হয়েছে, Supabase-এ হয়নি": "⚠️ Saved locally, but not to Supabase", "⚠️ সংযোগ হয়েছে, কিন্তু সিঙ্কে সমস্যা": "⚠️ Connected, but sync failed", "⚠️ সতর্কতা: বাজেটের {pct}% খরচ হয়ে গেছে।": "⚠️ Warning: {pct}% of the budget spent.", "✅ Supabase সিঙ্ক চালু হয়েছে — সব ডিভাইসে একই হিসাব দেখাবে।": "✅ Supabase sync is on — the same ledger will show on all devices.", "✅ {month} মাসের বাজেট ৳{val} সংরক্ষণ হয়েছে।": "✅ Budget of ৳{val} saved for {month}.", "✅ {n}টি এন্ট্রি যোগ হয়েছে।": "✅ {n} entries added.", "✅ অ্যাকাউন্ট খুলুন": "✅ Create account", "✅ অ্যাকাউন্ট তৈরি হয়েছে — ইমেইল চেক করে নিশ্চিত করুন, তারপর “সাইন ইন” চাপুন।": "✅ Account created — check your email to confirm, then press “Sign in”.", "✅ অ্যাকাউন্টটি মুছে ফেলা হয়েছে — নতুন করে সাইন আপ করতে পারেন।": "✅ Account deleted — you can sign up again.", "✅ পিন বদলানো হয়েছে।": "✅ PIN changed.", "✅ বাজেট আইটেম সংরক্ষণ হয়েছে।": "✅ Budget item saved.", "✅ বাজেট লিস্টে যোগ হয়েছে।": "✅ Added to the budget list.", "✅ যোগ হয়েছে।": "✅ Added.", "✅ সংযোগ ঠিক আছে — transactions টেবিল পাওয়া গেছে।": "✅ Connection OK — transactions table found.", "✅ সংরক্ষণ হয়েছে।": "✅ Saved.", "✅ সিঙ্ক সম্পন্ন হয়েছে।": "✅ Sync complete.", "✅ “{name}” ৳{amount} আজকের খরচে যোগ হয়েছে — বাজেট থেকে কেটে গেছে।": "✅ “{name}” ৳{amount} added to today’s expenses — deducted from the budget.", "✕ ক্লিয়ার": "✕ Clear", "❌ URL আর anon key দুটোই দিন।": "❌ Please enter both the URL and the anon key.", "❌ আগে URL আর anon key দিন।": "❌ Enter the URL and anon key first.", "❌ আগে লগইন করুন।": "❌ Please log in first.", "❌ এই নামে অ্যাকাউন্ট আছে — অন্য নাম দিন।": "❌ An account with this name exists — choose another name.", "❌ দুইবারের পিন মিলছে না — আবার দিন।": "❌ The two PINs don't match — enter them again.", "❌ নতুন পিন কমপক্ষে ৪ অক্ষরের হতে হবে।": "❌ New PIN must be at least 4 characters.", "❌ নতুন পিন দুইবার মিলছে না।": "❌ The new PINs don't match.", "❌ নাম দিন।": "❌ Please enter a name.", "❌ নাম বা পিন ভুল — আবার চেষ্টা করুন।": "❌ Wrong name or PIN — try again.", "❌ নাম, সঠিক অংক, তারিখ আর মাস — সবগুলোই দিন।": "❌ Please give the name, a valid amount, date and month.", "❌ পিন কমপক্ষে ৪ অক্ষরের হতে হবে।": "❌ PIN must be at least 4 characters.", "❌ পুরোনো পিন ভুল।": "❌ Old PIN is wrong.", "❌ প্রথমে নামের ঘরে আপনার অ্যাকাউন্টের নাম লিখুন।": "❌ First type your account name in the name field.", "❌ ফাইল পড়া যায়নি": "❌ Could not read the file", "❌ সংযোগ ব্যর্থ": "❌ Connection failed", "❌ সংযোগ হয়নি — URL/key আর schema.sql (transactions টেবিল) ঠিক আছে কি না দেখুন।": "❌ Could not connect — check the URL/key and schema.sql (transactions table).", "❌ সঠিক অংক দিন (১ টাকার বেশি)।": "❌ Enter a valid amount (more than ৳1).", "❌ সঠিক অংক দিন।": "❌ Enter a valid amount.", "❌ সঠিক ইমেইল আর কমপক্ষে ৬ অক্ষরের পাসওয়ার্ড দিন।": "❌ Enter a valid email and a password of at least 6 characters.", "❌ সিঙ্ক চালু নেই — আগে URL/key সংরক্ষণ করুন।": "❌ Sync is not on — save the URL/key first.", "❌ সিঙ্ক ব্যর্থ": "❌ Sync failed", "➕ নতুন অ্যাকাউন্ট খুলুন": "➕ Create a new account", "➕ বাজেট লিস্টে যোগ করুন": "➕ Add to budget list", "➕ যোগ করুন": "➕ Add", "⬇️ CSV (Excel) ডাউনলোড": "⬇️ Download CSV (Excel)", "⬇️ JSON ডাউনলোড": "⬇️ Download JSON", "⬇️ বাজেট লিস্ট CSV ডাউনলোড": "⬇️ Download budget list CSV", "🏷️ ক্যাটাগরি অনুযায়ী ব্যয়": "🏷️ Expenses by category", "👉 আজকের হিসাব": "👉 Today's ledger", "💡 ক্যালেন্ডারের যেকোনো তারিখে ক্লিক করুন → ওই দিনের হিসাব দেখাবে।": "💡 Click any date on the calendar → it will show that day's ledger.", "💰 মাসভিত্তিক আয়-ব্যয় রিপোর্ট": "💰 Monthly income-expense report", "💾 বাজেট সংরক্ষণ": "💾 Save budget", "💾 সংরক্ষণ ও সিঙ্ক চালু করুন": "💾 Save & turn on sync", "💾 সংরক্ষণ করুন": "💾 Save", "📅 তারিখে ক্লিক করে হিসাব দেখুন": "📅 Click a date to see its ledger", "📅 মাসিক বাজেট —": "📅 Monthly budget —", "📊 মাসভিত্তিক ব্যয়ের চার্ট": "📊 Monthly expense chart", "📋 বাজেট লিস্ট": "📋 Budget list", "📋 বাজেট লিস্ট —": "📋 Budget list —", "📥 ব্যাকআপ": "📥 Backup", "📧 ইমেইল দিয়ে লগইন (Supabase)": "📧 Log in with email (Supabase)", "🔄 এখনই সিঙ্ক করুন": "🔄 Sync now", "🔍 সংযোগ পরীক্ষা": "🔍 Test connection", "🔐 পিন পরিবর্তন": "🔐 Change PIN", "🔐 পিন বদলান": "🔐 Change PIN", "🔓 লগইন": "🔓 Log in", "🔧 দ্রুত কাজ": "🔧 Quick actions", "🕒 সাম্প্রতিক এন্ট্রি": "🕒 Recent entries", "🗑️ সব ডেটা মুছে ফেলুন": "🗑️ Delete all data", "🚪 লগআউট": "🚪 Log out", "ব্যাংক": "Bank", "➕ নতুন এন্ট্রি": "➕ New entry", "📒 হিসেবের খাতা": "📒 Hisheber Khata"} };
+const I18N_HTML = { en: {"budgetListIntro": "A separate budget list. Each item’s budget automatically subtracts that month’s spending to show the remaining amount. Spending is counted from that month’s expenses with the <b>same item name</b>; if no name matches, from that <b>category’s</b> total spending. Each item has its own <b>date</b>. You can pick a category from the list or type a new one — new categories are remembered and will show in the list next time. Press “Add to expenses” and the item is added to today’s expenses at the budgeted amount.", "sbSteps": "<li>supabase.com → New Project (free plan) → name it <b>ajkerhiseb</b></li><li>SQL Editor → New Query → paste the whole <b>supabase/schema.sql</b> file from this repo → Run</li><li>From Project Settings → API, copy the <b>Project URL</b> and the <b>anon public</b> key</li><li>Paste them above and press “Save &amp; turn on sync” — on the first sync, this browser’s ledger is uploaded to Supabase</li>"} };
+function t(s) { return lang === 'en' ? (I18N.en[s] !== undefined ? I18N.en[s] : s) : s; }
+function tf(template, vars) { let s = t(template); if (vars) for (const k in vars) s = s.split('{' + k + '}').join(vars[k]); return s; }
+function countLabel(n) { return lang === 'en' ? bn2(n) + (n === 1 ? ' entry' : ' entries') : bn2(n) + ' টি'; }
+function monthNames() { return lang === 'en' ? ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'] : ['জানুয়ারি', 'ফেব্রুয়ারি', 'মার্চ', 'এপ্রিল', 'মে', 'জুন', 'জুলাই', 'আগস্ট', 'সেপ্টেম্বর', 'অক্টোবর', 'নভেম্বর', 'ডিসেম্বর']; }
+function weekdayNames() { return lang === 'en' ? ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'] : ['রবি', 'সোম', 'মঙ্গল', 'বুধ', 'বৃহ', 'শুক্র', 'শনি']; }
+/* Static-HTML translation: walk the DOM, translate each text node /
+   placeholder / title / aria-label by dictionary lookup (Bengali string
+   as key). Originals are stored on the node on first pass, so switching
+   back to বাংলা restores them exactly. Elements with data-i18n hold a
+   whole textContent unit; data-i18n-html holds a whole innerHTML unit
+   (ID key in I18N_HTML); data-i18n-skip subtrees are user data and are
+   never touched. */
+function applyI18n() {
+  const dict = I18N.en;
+  const root = document.body;
+  if (!root) return;
+  const skipTags = { SCRIPT: 1, STYLE: 1, NOSCRIPT: 1 };
+  function walk(el) {
+    if (!el || el.nodeType !== 1) return;
+    if (el.hasAttribute && el.hasAttribute('data-i18n-skip')) return;
+    if (skipTags[el.tagName]) return;
+    if (el.hasAttribute && el.hasAttribute('data-i18n-html')) {
+      const key = el.getAttribute('data-i18n-html');
+      if (el._i18nOrigHtml === undefined) el._i18nOrigHtml = el.innerHTML;
+      el.innerHTML = lang === 'en' ? (I18N_HTML.en[key] || el._i18nOrigHtml) : el._i18nOrigHtml;
+      return;
+    }
+    if (el.hasAttribute && el.hasAttribute('data-i18n')) {
+      if (el._i18nOrig === undefined) el._i18nOrig = el.textContent;
+      el.textContent = t(el._i18nOrig);
+      return;
+    }
+    if (el.hasAttribute && el.hasAttribute('data-i18n-ph')) {
+      if (el._i18nOrigPh === undefined) el._i18nOrigPh = el.getAttribute('placeholder') || '';
+      el.setAttribute('placeholder', t(el._i18nOrigPh));
+    }
+    if (el.hasAttribute && el.hasAttribute('data-i18n-title')) {
+      if (el._i18nOrigTitle === undefined) el._i18nOrigTitle = el.getAttribute('title') || '';
+      el.setAttribute('title', t(el._i18nOrigTitle));
+    }
+    if (el.hasAttribute && el.hasAttribute('data-i18n-aria')) {
+      if (el._i18nOrigAria === undefined) el._i18nOrigAria = el.getAttribute('aria-label') || '';
+      el.setAttribute('aria-label', t(el._i18nOrigAria));
+    }
+    const nodes = el.childNodes || [];
+    for (let i = 0; i < nodes.length; i++) {
+      const n = nodes[i];
+      if (n.nodeType === 3) {
+        const txt = n.nodeValue;
+        if (!txt || !txt.trim()) continue;
+        if (n._i18nOrig === undefined) n._i18nOrig = txt;
+        const key = n._i18nOrig.trim();
+        const val = lang === 'en' ? (dict[key] !== undefined ? dict[key] : key) : key;
+        const lead = n._i18nOrig.match(/^\s*/)[0];
+        const trail = n._i18nOrig.match(/\s*$/)[0];
+        n.nodeValue = lead + val + trail;
+      } else if (n.nodeType === 1) {
+        walk(n);
+      }
+    }
+  }
+  walk(root);
+}
+function setLang(l, opts) {
+  lang = (l === 'en') ? 'en' : 'bn';
+  try { localStorage.setItem(LANG_KEY, lang); } catch (e) {}
+  if (document.documentElement) document.documentElement.lang = lang;
+  TYPE_LABEL = { income: t('আয়'), expense: t('ব্যয়'), bank: t('ব্যাংক উত্তোলন') };
+  document.title = t('হিসেবের খাতা — আয়-ব্যয়ের হিসাব');
+  applyI18n();
+  const cn = document.getElementById('currentAcctName'); if (cn) cn.textContent = currentAccount ? currentAccount.name : '—';
+  const cp = document.getElementById('changePassAcct'); if (cp) cp.textContent = currentAccount ? currentAccount.name : '—';
+  const bc = document.getElementById('backupCount'); if (bc) bc.textContent = bn2(entries.length);
+  document.querySelectorAll('.lang-btn').forEach(b => b.classList.toggle('active', b.dataset.lang === lang));
+  if (opts && opts.initial) return;
+  if (document.body.classList.contains('locked')) renderLockScreen();
+  else render();
+}
+document.addEventListener('click', ev => {
+  const b = ev.target && ev.target.closest ? ev.target.closest('[data-lang]') : null;
+  if (b) setLang(b.dataset.lang);
+});
+
 const PASS_HASH_KEY = 'hisheberKhataPassHash'; // শুধু পুরোনো একক-পাসকোড মাইগ্রেশনের জন্য
 const ACCOUNTS_KEY = 'hisheberKhataAccounts';
 const AUTH_SESSION_KEY = 'hisheberKhataAuthSession';
@@ -717,12 +832,12 @@ function renderLockScreen(mode) {
   loginBox.hidden = mode !== 'login';
   createBox.hidden = mode !== 'signup';
   if (mode === 'login') {
-    title.textContent = 'হিসেবের খাতা';
-    sub.textContent = 'নাম আর পিন দিয়ে লগইন করুন';
+    title.textContent = t('হিসেবের খাতা');
+    sub.textContent = t('নাম আর পিন দিয়ে লগইন করুন');
     if (nameInput) nameInput.focus();
   } else {
-    title.textContent = accounts.length ? 'নতুন অ্যাকাউন্ট' : 'প্রথমবার সেটআপ';
-    sub.textContent = accounts.length ? 'নাম আর পিন দিন — নতুন খাতা খালি শুরু হবে' : 'নিজের অ্যাকাউন্ট খুলুন — নাম আর পিন দিন';
+    title.textContent = accounts.length ? t('নতুন অ্যাকাউন্ট') : t('প্রথমবার সেটআপ');
+    sub.textContent = accounts.length ? t('নাম আর পিন দিন — নতুন খাতা খালি শুরু হবে') : t('নিজের অ্যাকাউন্ট খুলুন — নাম আর পিন দিন');
     document.getElementById('acctName').value = '';
     document.getElementById('acctPin1').value = '';
     document.getElementById('acctPin2').value = '';
@@ -746,7 +861,7 @@ async function startApp() {
   const ok = await initSupabase();
   if (ok) {
     try { await syncFromRemote(); render(); }
-    catch (err) { setSync('err', 'সিঙ্কে সমস্যা: ' + err.message); }
+    catch (err) { setSync('err', t('সিঙ্কে সমস্যা') + ': ' + err.message); }
   }
 }
 function unlockApp() {
@@ -769,7 +884,7 @@ async function handleLockBtn() {
   const p1 = document.getElementById('lockPass').value;
   const btn = document.getElementById('lockBtn');
   const wrong = () => {
-    err.textContent = '❌ নাম বা পিন ভুল — আবার চেষ্টা করুন।';
+    err.textContent = t('❌ নাম বা পিন ভুল — আবার চেষ্টা করুন।');
     document.getElementById('lockPass').value = '';
     document.getElementById('lockPass').focus();
   };
@@ -791,11 +906,11 @@ async function handleCreateAccount() {
   const p2 = document.getElementById('acctPin2').value;
   const btn = document.getElementById('acctCreateBtn');
   err.textContent = '';
-  if (!name) { err.textContent = '❌ নাম দিন।'; return; }
+  if (!name) { err.textContent = t('❌ নাম দিন।'); return; }
   const accounts = loadAccounts();
-  if (accounts.some(a => a.name.trim().toLowerCase() === name.toLowerCase())) { err.textContent = '❌ এই নামে অ্যাকাউন্ট আছে — অন্য নাম দিন।'; return; }
-  if (p1.length < 4) { err.textContent = '❌ পিন কমপক্ষে ৪ অক্ষরের হতে হবে।'; return; }
-  if (p1 !== p2) { err.textContent = '❌ দুইবারের পিন মিলছে না — আবার দিন।'; return; }
+  if (accounts.some(a => a.name.trim().toLowerCase() === name.toLowerCase())) { err.textContent = t('❌ এই নামে অ্যাকাউন্ট আছে — অন্য নাম দিন।'); return; }
+  if (p1.length < 4) { err.textContent = t('❌ পিন কমপক্ষে ৪ অক্ষরের হতে হবে।'); return; }
+  if (p1 !== p2) { err.textContent = t('❌ দুইবারের পিন মিলছে না — আবার দিন।'); return; }
   btn.disabled = true;
   try {
     const acct = { id: 'acct-' + Date.now(), name, pinHash: await hashPasscode(p1), created: Date.now() };
@@ -822,18 +937,18 @@ document.getElementById('acctPin2').addEventListener('keydown', ev => { if (ev.k
 document.getElementById('forgotPass').addEventListener('click', async () => {
   const err = document.getElementById('lockErr');
   const name = document.getElementById('lockName').value.trim();
-  if (!name) { err.textContent = '❌ প্রথমে নামের ঘরে আপনার অ্যাকাউন্টের নাম লিখুন।'; document.getElementById('lockName').focus(); return; }
-  const ok = confirm('“' + name + '”-এর পিন ভুলে গেলে এই অ্যাকাউন্ট খোলার একটাই উপায়: শুধু এই অ্যাকাউন্টের হিসাব (এন্ট্রি, বাজেট, বাজেট লিস্ট) এই ব্রাউজার থেকে মুছে অ্যাকাউন্টটি বাদ দেওয়া।\n\nঅন্য অ্যাকাউন্টের হিসাব মুছবে না। Supabase-এ সিঙ্ক চালু থাকলে সেখানকার ডেটা থেকে যাবে। এগোবেন?');
+  if (!name) { err.textContent = t('❌ প্রথমে নামের ঘরে আপনার অ্যাকাউন্টের নাম লিখুন।'); document.getElementById('lockName').focus(); return; }
+  const ok = confirm(tf('“{name}”-এর পিন ভুলে গেলে এই অ্যাকাউন্ট খোলার একটাই উপায়: শুধু এই অ্যাকাউন্টের হিসাব (এন্ট্রি, বাজেট, বাজেট লিস্ট) এই ব্রাউজার থেকে মুছে অ্যাকাউন্টটি বাদ দেওয়া।\n\nঅন্য অ্যাকাউন্টের হিসাব মুছবে না। Supabase-এ সিঙ্ক চালু থাকলে সেখানকার ডেটা থেকে যাবে। এগোবেন?', { name }));
   if (!ok) return;
   const acct = loadAccounts().find(a => a.name.trim().toLowerCase() === name.toLowerCase());
-  if (!acct) { err.textContent = '❌ নাম বা পিন ভুল — আবার চেষ্টা করুন।'; document.getElementById('lockPass').value = ''; return; }
+  if (!acct) { err.textContent = t('❌ নাম বা পিন ভুল — আবার চেষ্টা করুন।'); document.getElementById('lockPass').value = ''; return; }
   try {
     DATA_BASE_KEYS.forEach(k => localStorage.removeItem(k + ':' + acct.id));
     saveAccounts(loadAccounts().filter(a => a.id !== acct.id));
   } catch (e) {}
   clearCurrentAccountData();
   renderLockScreen('login');
-  document.getElementById('lockErr').textContent = '✅ অ্যাকাউন্টটি মুছে ফেলা হয়েছে — নতুন করে সাইন আপ করতে পারেন।';
+  document.getElementById('lockErr').textContent = t('✅ অ্যাকাউন্টটি মুছে ফেলা হয়েছে — নতুন করে সাইন আপ করতে পারেন।');
 });
 async function logoutUser() {
   try { if (sb && sb.auth) await sb.auth.signOut(); } catch (e) {}
@@ -850,17 +965,17 @@ document.getElementById('changePassBtn').addEventListener('click', async () => {
   const oldP = document.getElementById('oldPass').value;
   const np = document.getElementById('newPass').value;
   const np2 = document.getElementById('newPass2').value;
-  if (!currentAccount) { msg.textContent = '❌ আগে লগইন করুন।'; return; }
-  if ((await hashPasscode(oldP)) !== currentAccount.pinHash) { msg.textContent = '❌ পুরোনো পিন ভুল।'; return; }
-  if (np.length < 4) { msg.textContent = '❌ নতুন পিন কমপক্ষে ৪ অক্ষরের হতে হবে।'; return; }
-  if (np !== np2) { msg.textContent = '❌ নতুন পিন দুইবার মিলছে না।'; return; }
+  if (!currentAccount) { msg.textContent = t('❌ আগে লগইন করুন।'); return; }
+  if ((await hashPasscode(oldP)) !== currentAccount.pinHash) { msg.textContent = t('❌ পুরোনো পিন ভুল।'); return; }
+  if (np.length < 4) { msg.textContent = t('❌ নতুন পিন কমপক্ষে ৪ অক্ষরের হতে হবে।'); return; }
+  if (np !== np2) { msg.textContent = t('❌ নতুন পিন দুইবার মিলছে না।'); return; }
   const accounts = loadAccounts();
   const acct = accounts.find(a => a.id === currentAccount.id);
   if (acct) { acct.pinHash = await hashPasscode(np); saveAccounts(accounts); currentAccount.pinHash = acct.pinHash; }
   document.getElementById('oldPass').value = '';
   document.getElementById('newPass').value = '';
   document.getElementById('newPass2').value = '';
-  msg.textContent = '✅ পিন বদলানো হয়েছে।';
+  msg.textContent = t('✅ পিন বদলানো হয়েছে।');
 });
 /* Supabase Auth (email/password) — only when Supabase is configured. */
 async function setupEmailLogin() {
@@ -868,11 +983,11 @@ async function setupEmailLogin() {
   const form = document.getElementById('lockEmailForm');
   const errBox = document.getElementById('lockEmailErr');
   if (!getSbConfig()) {
-    if (note) note.textContent = 'Supabase সেটআপ করলে চালু হবে — সিঙ্ক সেটিংসে URL ও anon key বসান।';
+    if (note) note.textContent = t('Supabase সেটআপ করলে চালু হবে — সিঙ্ক সেটিংসে URL ও anon key বসান।');
     if (form) form.hidden = true;
     return;
   }
-  if (note) note.textContent = 'Supabase দিয়ে ইমেইল/পাসওয়ার্ডে সাইন ইন করুন — সব ডিভাইসে একই অ্যাকাউন্টে ঢুকবে।';
+  if (note) note.textContent = t('Supabase দিয়ে ইমেইল/পাসওয়ার্ডে সাইন ইন করুন — সব ডিভাইসে একই অ্যাকাউন্টে ঢুকবে।');
   if (form) form.hidden = false;
   try {
     await loadSbJs();
@@ -880,14 +995,14 @@ async function setupEmailLogin() {
     const { data } = await sb.auth.getSession();
     if (data && data.session) { unlockApp(); }
   } catch (err) {
-    if (errBox) errBox.textContent = '⚠️ Supabase সংযোগ হয়নি: ' + err.message;
+    if (errBox) errBox.textContent = t('⚠️ Supabase সংযোগ হয়নি') + ': ' + err.message;
   }
 }
 async function emailAuth(mode) {
   const errBox = document.getElementById('lockEmailErr');
   const email = document.getElementById('lockEmail').value.trim();
   const password = document.getElementById('lockEmailPass').value;
-  if (!email || password.length < 6) { errBox.textContent = '❌ সঠিক ইমেইল আর কমপক্ষে ৬ অক্ষরের পাসওয়ার্ড দিন।'; return; }
+  if (!email || password.length < 6) { errBox.textContent = t('❌ সঠিক ইমেইল আর কমপক্ষে ৬ অক্ষরের পাসওয়ার্ড দিন।'); return; }
   errBox.textContent = '';
   try {
     await loadSbJs();
@@ -900,7 +1015,7 @@ async function emailAuth(mode) {
       const { data, error } = await sb.auth.signUp({ email, password });
       if (error) throw error;
       if (data && data.session) { unlockApp(); }
-      else errBox.textContent = '✅ অ্যাকাউন্ট তৈরি হয়েছে — ইমেইল চেক করে নিশ্চিত করুন, তারপর “সাইন ইন” চাপুন।';
+      else errBox.textContent = t('✅ অ্যাকাউন্ট তৈরি হয়েছে — ইমেইল চেক করে নিশ্চিত করুন, তারপর “সাইন ইন” চাপুন।');
     }
   } catch (err) { errBox.textContent = '❌ ' + err.message; }
 }
@@ -917,7 +1032,7 @@ const SB_STORE_KEY = 'hisheberKhataSupabase';
    setCurrentAccount() অ্যাকাউন্ট-আইডি দিয়ে সাফিক্স বসিয়ে দেয় — প্রতিটা
    অ্যাকাউন্টের ডেটা আলাদা চাবিতে থাকে। */
 let KEY = 'hisheberKhataV1';
-const TYPE_LABEL = { income: 'আয়', expense: 'ব্যয়', bank: 'ব্যাংক উত্তোলন' };
+let TYPE_LABEL = { income: t('আয়'), expense: t('ব্যয়'), bank: t('ব্যাংক উত্তোলন') }; /* rebuilt on language switch in setLang() */
 const CATEGORIES = ['বাজার', 'ঔষধ', 'ব্যক্তিগত', 'যাতায়াত', 'বাড়ি ভাড়া', 'বিল', 'শিক্ষা', 'অন্যান্য'];
 /* Custom categories: typed by the user in the category box (datalist combo).
    Saved in localStorage and offered as suggestions next time, in both forms
@@ -939,7 +1054,7 @@ function rebuildCatDatalists() {
   const cf = document.getElementById('catFilter');
   if (cf) {
     const cur = cf.value;
-    cf.innerHTML = '<option value="all">সব ক্যাটাগরি</option>' + allCategories().map(c => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join('');
+    cf.innerHTML = '<option value="all">' + t('সব ক্যাটাগরি') + '</option>' + allCategories().map(c => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join('');
     cf.value = allCategories().includes(cur) ? cur : 'all';
     filterCat = cf.value;
   }
@@ -1007,9 +1122,9 @@ function renderBudgetList() {
   const totalRem = totalBudget - totalSpent;
   const sum = document.getElementById('budgetListSummary');
   if (sum) sum.innerHTML = items.length ? `
-    <div class="mini-row"><span>এই মাসে মোট বাজেট</span><b>৳${bn2(totalBudget)}</b></div>
-    <div class="mini-row"><span>এই মাসে মোট খরচ (লিস্ট অনুযায়ী)</span><b style="color:var(--red)">৳${bn2(totalSpent)}</b></div>
-    <div class="mini-row"><span>মোট বাকি আছে</span><b style="color:${totalRem < 0 ? 'var(--red)' : 'var(--green)'}">৳${bn2(totalRem)}</b></div>` : '';
+    <div class="mini-row"><span>${t('এই মাসে মোট বাজেট')}</span><b>৳${bn2(totalBudget)}</b></div>
+    <div class="mini-row"><span>${t('এই মাসে মোট খরচ (লিস্ট অনুযায়ী)')}</span><b style="color:var(--red)">৳${bn2(totalSpent)}</b></div>
+    <div class="mini-row"><span>${t('মোট বাকি আছে')}</span><b style="color:${totalRem < 0 ? 'var(--red)' : 'var(--green)'}">৳${bn2(totalRem)}</b></div>` : '';
   const ul = document.getElementById('budgetItemList');
   const empty = document.getElementById('budgetItemEmpty');
   if (!ul) return;
@@ -1020,22 +1135,22 @@ function renderBudgetList() {
     const remaining = it.amount - spent;
     const pct = it.amount ? Math.round(spent / it.amount * 100) : 0;
     const cls = pct >= 100 ? 'over' : pct >= 80 ? 'warn' : '';
-    const warn = pct >= 100 ? '<div class="budget-over">⚠️ বাজেট ছাড়িয়ে গেছে!</div>' : pct >= 80 ? '<div class="budget-warn">⚠️ বাজেটের ' + bn2(pct) + '% খরচ হয়ে গেছে।</div>' : '';
+    const warn = pct >= 100 ? '<div class="budget-over">' + t('⚠️ বাজেট ছাড়িয়ে গেছে!') + '</div>' : pct >= 80 ? '<div class="budget-warn">' + tf('⚠️ বাজেটের {pct}% খরচ হয়ে গেছে।', { pct: bn2(pct) }) + '</div>' : '';
     const li = document.createElement('li');
     li.innerHTML = `<div style="flex:1;min-width:0">
       <div class="item-name">${escapeHtml(it.name)}<span class="cat-chip">🏷️ ${escapeHtml(it.category)}</span></div>
-      <div class="item-meta">📅 ${fmtDate(it.date || (it.month + '-01'))} • ${monthLabel(it.month)} • বাজেট ৳${bn2(it.amount)} • খরচ ৳${bn2(spent)} • বাকি <b style="color:${remaining < 0 ? 'var(--red)' : 'var(--green)'}">৳${bn2(remaining)}</b></div>
+      <div class="item-meta">📅 ${fmtDate(it.date || (it.month + '-01'))} • ${monthLabel(it.month)} • ${t('বাজেট')} ৳${bn2(it.amount)} • ${t('খরচ')} ৳${bn2(spent)} • ${t('বাকি আছে')} <b style="color:${remaining < 0 ? 'var(--red)' : 'var(--green)'}">৳${bn2(remaining)}</b></div>
       <div class="budget-track"><div class="budget-fill ${cls}" style="width:${Math.min(100, pct)}%"></div></div>${warn}
     </div>
     <div class="actions" style="flex-wrap:wrap;justify-content:flex-end">
-      <button data-act="quick" style="background:var(--green);color:#fff;border-color:var(--green)">+ খরচে যোগ করুন</button>
-      <button data-act="edit">বদলান</button>
-      <button data-act="del" class="danger">মুছুন</button>
+      <button data-act="quick" style="background:var(--green);color:#fff;border-color:var(--green)">${t('+ খরচে যোগ করুন')}</button>
+      <button data-act="edit">${t('বদলান')}</button>
+      <button data-act="del" class="danger">${t('মুছুন')}</button>
     </div>`;
     li.querySelector('[data-act="quick"]').onclick = () => quickAddBudgetItem(it);
     li.querySelector('[data-act="edit"]').onclick = () => startEditBudgetItem(it.id);
     li.querySelector('[data-act="del"]').onclick = async () => {
-      if (!confirm('“' + it.name + '” বাজেট আইটেমটি মুছে ফেলবেন? (খরচের এন্ট্রিগুলো থাকবে।)')) return;
+      if (!confirm(tf('“{name}” বাজেট আইটেমটি মুছে ফেলবেন? (খরচের এন্ট্রিগুলো থাকবে।)', { name: it.name }))) return;
       budgetItems = budgetItems.filter(x => x.id !== it.id); saveBudgetItems();
       if (sbMode) { try { await sbDeleteBudgetItem(it.id); } catch (err) {} }
       render(); renderBudgetList();
@@ -1051,7 +1166,7 @@ function startEditBudgetItem(id) {
   document.getElementById('biAmount').value = it.amount;
   document.getElementById('biDate').value = it.date || (it.month + '-01');
   document.getElementById('biMonth').value = it.month;
-  document.getElementById('biSubmit').textContent = '💾 সংরক্ষণ করুন';
+  document.getElementById('biSubmit').textContent = t('💾 সংরক্ষণ করুন');
   document.getElementById('biCancel').hidden = false;
 }
 function cancelEditBudgetItem() {
@@ -1059,7 +1174,7 @@ function cancelEditBudgetItem() {
   document.getElementById('budgetItemForm').reset();
   document.getElementById('biDate').value = todayStr();
   document.getElementById('biMonth').value = budgetListMonth;
-  document.getElementById('biSubmit').textContent = '➕ বাজেট লিস্টে যোগ করুন';
+  document.getElementById('biSubmit').textContent = t('➕ বাজেট লিস্টে যোগ করুন');
   document.getElementById('biCancel').hidden = true;
   document.getElementById('biMsg').textContent = '';
 }
@@ -1067,15 +1182,15 @@ async function quickAddBudgetItem(it) {
   const msg = document.getElementById('biMsg');
   let amount = +it.amount;
   if (!amount || amount <= 0) {
-    const ans = prompt('“' + it.name + '”-এর জন্য খরচের অংক কত? (৳)', '');
+    const ans = prompt(tf('“{name}”-এর জন্য খরচের অংক কত? (৳)', { name: it.name }), '');
     if (ans === null) return;
     amount = +ans;
-    if (!amount || amount <= 0) { if (msg) msg.textContent = '❌ সঠিক অংক দিন।'; return; }
+    if (!amount || amount <= 0) { if (msg) msg.textContent = t('❌ সঠিক অংক দিন।'); return; }
   }
   const e = { id: 'e' + Date.now(), type: 'expense', item: it.name, amount, date: todayStr(), note: 'বাজেট লিস্ট থেকে', category: it.category, created: Date.now() };
   entries.push(e); saveLocal();
-  try { if (sbMode) await sbInsert(e); } catch (err) { if (msg) msg.textContent = '⚠️ লোকালে যোগ হয়েছে, Supabase-এ হয়নি: ' + err.message; render(); renderBudgetList(); return; }
-  if (msg) msg.textContent = '✅ “' + it.name + '” ৳' + bn2(amount) + ' আজকের খরচে যোগ হয়েছে — বাজেট থেকে কেটে গেছে।';
+  try { if (sbMode) await sbInsert(e); } catch (err) { if (msg) msg.textContent = t('⚠️ লোকালে যোগ হয়েছে, Supabase-এ হয়নি') + ': ' + err.message; render(); renderBudgetList(); return; }
+  if (msg) msg.textContent = tf('✅ “{name}” ৳{amount} আজকের খরচে যোগ হয়েছে — বাজেট থেকে কেটে গেছে।', { name: it.name, amount: bn2(amount) });
   render(); renderBudgetList();
 }
 document.getElementById('budgetItemForm').addEventListener('submit', async ev => {
@@ -1087,22 +1202,22 @@ document.getElementById('budgetItemForm').addEventListener('submit', async ev =>
   const month = date.slice(0, 7);
   document.getElementById('biMonth').value = month;
   const msg = document.getElementById('biMsg');
-  if (!name || !amount || amount <= 0 || !month || !date) { msg.textContent = '❌ নাম, সঠিক অংক, তারিখ আর মাস — সবগুলোই দিন।'; return; }
+  if (!name || !amount || amount <= 0 || !month || !date) { msg.textContent = t('❌ নাম, সঠিক অংক, তারিখ আর মাস — সবগুলোই দিন।'); return; }
   try {
     if (editingBudgetId) {
       const it = budgetItems.find(x => x.id === editingBudgetId);
       Object.assign(it, { name, category, amount, month, date });
       saveBudgetItems();
       if (sbMode) await sbUpsertBudgetItem(it);
-      msg.textContent = '✅ বাজেট আইটেম সংরক্ষণ হয়েছে।';
+      msg.textContent = t('✅ বাজেট আইটেম সংরক্ষণ হয়েছে।');
     } else {
       const it = { id: 'bi' + Date.now(), name, category, amount, month, date };
       budgetItems.push(it); saveBudgetItems();
       if (sbMode) await sbUpsertBudgetItem(it);
-      msg.textContent = '✅ বাজেট লিস্টে যোগ হয়েছে।';
+      msg.textContent = t('✅ বাজেট লিস্টে যোগ হয়েছে।');
     }
     cancelEditBudgetItem(); renderBudgetList();
-  } catch (err) { msg.textContent = '⚠️ লোকালে সংরক্ষণ হয়েছে, Supabase-এ হয়নি: ' + err.message; renderBudgetList(); }
+  } catch (err) { msg.textContent = t('⚠️ লোকালে সংরক্ষণ হয়েছে, Supabase-এ হয়নি') + ': ' + err.message; renderBudgetList(); }
 });
 document.getElementById('biCancel').onclick = cancelEditBudgetItem;
 document.getElementById('budgetListMonth').addEventListener('change', ev => { budgetListMonth = ev.target.value; renderBudgetList(); });
@@ -1112,7 +1227,7 @@ document.getElementById('budgetSort').addEventListener('change', ev => { budgetS
 document.getElementById('budgetDateClear').addEventListener('click', () => { budgetDateFilter = ''; document.getElementById('budgetDateFilter').value = ''; renderBudgetList(); });
 document.getElementById('budgetCsv').addEventListener('click', () => {
   const q = s => '"' + String(s == null ? '' : s).replace(/"/g, '""') + '"';
-  const rows = [['তারিখ', 'আইটেম', 'ক্যাটাগরি', 'বাজেট (৳)', 'খরচ (৳)', 'বাকি (৳)', 'মাস'].join(',')];
+  const rows = [['তারিখ', 'আইটেম', 'ক্যাটাগরি', 'বাজেট (৳)', 'খরচ (৳)', 'বাকি (৳)', 'মাস'].map(t).join(',')];
   budgetItems.filter(b => b.month === budgetListMonth).slice().sort((a, b) => (a.date || '').localeCompare(b.date || '')).forEach(it => {
     const spent = spentForBudgetItem(it);
     rows.push([it.date || '', q(it.name), q(it.category || 'অন্যান্য'), it.amount, spent, it.amount - spent, it.month].join(','));
@@ -1185,7 +1300,7 @@ function loadSbJs() {
     if (window.supabase) return res();
     const s = document.createElement('script');
     s.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js';
-    s.onload = res; s.onerror = () => rej(new Error('Supabase লাইব্রেরি লোড হয়নি'));
+    s.onload = res; s.onerror = () => rej(new Error(t('Supabase লাইব্রেরি লোড হয়নি')));
     document.head.appendChild(s);
   });
 }
@@ -1235,18 +1350,18 @@ async function sbUpdate(e) { const { error } = await sb.from('transactions').upd
 async function sbDelete(id) { const { error } = await sb.from('transactions').delete().eq('id', id); if (error) throw error; }
 function setSync(mode, msg) {
   sbStatus = mode;
-  const txt = mode === 'live' ? '● Supabase সিঙ্ক চালু' : mode === 'err' ? '● সিঙ্ক সমস্যা' : '● লোকাল মোড';
+  const txt = mode === 'live' ? t('● Supabase সিঙ্ক চালু') : mode === 'err' ? t('● সিঙ্ক সমস্যা') : t('● লোকাল মোড');
   document.querySelectorAll('#syncBadge, #syncBadge2').forEach(b => { b.textContent = txt; b.className = 'sync-badge ' + (mode === 'live' ? 'live' : mode === 'err' ? 'err' : 'local'); });
   const m = document.getElementById('sbMsg');
   if (m && msg) m.textContent = msg;
 }
 
 /* ===== Helpers ===== */
-function bn2(n) { const neg = n < 0; let s = Math.abs(Math.round(n)).toLocaleString('en-US'); return (neg ? '−' : '') + s.replace(/\d/g, d => '০১২৩৪৫৬৭৮৯'[d]); }
-function bnPlain(n) { return String(n).replace(/\d/g, d => '০১২৩৪৫৬৭৮৯'[d]); } /* সালের মতো সংখ্যায় হাজারের কমা বসে না — bn2(2026) "২,০২৬" দিত */
+function bn2(n) { const neg = n < 0; const s = Math.abs(Math.round(n)).toLocaleString('en-US'); if (lang === 'en') return (neg ? '-' : '') + s; return (neg ? '−' : '') + s.replace(/\d/g, d => '০১২৩৪৫৬৭৮৯'[d]); } /* language-aware: Bengali digits in বাংলা mode, Western digits in English mode */
+function bnPlain(n) { const s = String(n); if (lang === 'en') return s; return s.replace(/\d/g, d => '০১২৩৪৫৬৭৮৯'[d]); } /* সালের মতো সংখ্যায় হাজারের কমা বসে না — bn2(2026) "২,০২৬" দিত; English mode-এ Western digit */
 function fmtDate(d) { if (!d) return ''; const p = d.split('-'); if (p.length !== 3) return d; return bn2(+p[2]) + '/' + bn2(+p[1]) + '/' + bnPlain(+p[0]); }
 function monthKey(d) { return d ? d.slice(0, 7) : ''; }
-function monthLabel(k) { const p = k.split('-'); const months = ['জানুয়ারি', 'ফেব্রুয়ারি', 'মার্চ', 'এপ্রিল', 'মে', 'জুন', 'জুলাই', 'আগস্ট', 'সেপ্টেম্বর', 'অক্টোবর', 'নভেম্বর', 'ডিসেম্বর']; return months[+p[1] - 1] + ' ' + bnPlain(+p[0]); }
+function monthLabel(k) { const p = k.split('-'); return monthNames()[+p[1] - 1] + ' ' + bnPlain(+p[0]); }
 function todayStr() { const t = new Date(); return t.getFullYear() + '-' + String(t.getMonth() + 1).padStart(2, '0') + '-' + String(t.getDate()).padStart(2, '0'); }
 function totals(list) { let inc = 0, exp = 0, bank = 0; (list || entries).forEach(e => { if (e.type === 'income') inc += e.amount; else if (e.type === 'expense') exp += e.amount; else if (e.type === 'bank') bank += e.amount; }); return { inc, exp, bank, balance: inc - exp, hand: bank + inc - exp }; }
 function escapeHtml(s) { return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
@@ -1265,13 +1380,13 @@ function addDaysStr(iso, n) { const d = new Date(iso + 'T00:00:00'); d.setDate(d
 function monthEndStr(mk) { const p = mk.split('-'); const d = new Date(+p[0], +p[1], 0); return mk + '-' + String(d.getDate()).padStart(2, '0'); }
 function dashRange() {
   const today = todayStr();
-  if (dashMode === 'today') return { from: today, to: today, label: 'আজকে — ' + fmtDate(today) };
-  if (dashMode === 'yesterday') { const y = addDaysStr(today, -1); return { from: y, to: y, label: 'গতকাল — ' + fmtDate(y) }; }
-  if (dashMode === '7d') { const f = addDaysStr(today, -6); return { from: f, to: today, label: 'গত ৭ দিন — ' + fmtDate(f) + ' থেকে ' + fmtDate(today) }; }
-  if (dashMode === 'month') { const mk = monthKey(today); return { from: mk + '-01', to: monthEndStr(mk), label: 'এই মাস — ' + monthLabel(mk) }; }
-  if (dashMode === 'all') return { from: '', to: '', label: 'সব সময়ের হিসাব' };
-  if (dashMode === 'day') return { from: dashDay, to: dashDay, label: fmtDate(dashDay) + ' — দিনের হিসাব' };
-  return { from: dashFrom, to: dashTo, label: fmtDate(dashFrom) + ' থেকে ' + fmtDate(dashTo) };
+  if (dashMode === 'today') return { from: today, to: today, label: t('আজকে') + ' — ' + fmtDate(today) };
+  if (dashMode === 'yesterday') { const y = addDaysStr(today, -1); return { from: y, to: y, label: t('গতকাল') + ' — ' + fmtDate(y) }; }
+  if (dashMode === '7d') { const f = addDaysStr(today, -6); return { from: f, to: today, label: t('গত ৭ দিন') + ' — ' + fmtDate(f) + ' ' + t('থেকে') + ' ' + fmtDate(today) }; }
+  if (dashMode === 'month') { const mk = monthKey(today); return { from: mk + '-01', to: monthEndStr(mk), label: t('এই মাস') + ' — ' + monthLabel(mk) }; }
+  if (dashMode === 'all') return { from: '', to: '', label: t('সব সময়ের হিসাব') };
+  if (dashMode === 'day') return { from: dashDay, to: dashDay, label: fmtDate(dashDay) + ' — ' + t('দিনের হিসাব') };
+  return { from: dashFrom, to: dashTo, label: fmtDate(dashFrom) + ' ' + t('থেকে') + ' ' + fmtDate(dashTo) };
 }
 function renderDash() {
   const r = dashRange();
@@ -1284,10 +1399,10 @@ function renderDash() {
   document.getElementById('dashBank').textContent = bn2(t.bank);
   const handEl = document.getElementById('dashHand');
   handEl.textContent = bn2(hand); handEl.classList.toggle('neg', hand < 0);
-  document.getElementById('dashIncCount').textContent = bn2(cnt('income')) + ' টি';
-  document.getElementById('dashExpCount').textContent = bn2(cnt('expense')) + ' টি';
-  document.getElementById('dashBankCount').textContent = bn2(cnt('bank')) + ' টি';
-  document.getElementById('dashPeriodLabel').textContent = r.label + ' • ' + bn2(list.length) + ' টি এন্ট্রি';
+  document.getElementById('dashIncCount').textContent = countLabel(cnt('income'));
+  document.getElementById('dashExpCount').textContent = countLabel(cnt('expense'));
+  document.getElementById('dashBankCount').textContent = countLabel(cnt('bank'));
+  document.getElementById('dashPeriodLabel').textContent = r.label + ' • ' + tf('{n} টি এন্ট্রি', { n: bn2(list.length) });
   ['today', 'yesterday', '7d', 'month', 'all'].forEach(m => {
     const b = document.getElementById('pill-' + m);
     if (b) b.classList.toggle('active', m === dashMode);
@@ -1295,13 +1410,13 @@ function renderDash() {
   renderDashCal();
 }
 function renderDashCal() {
-  const months = ['জানুয়ারি', 'ফেব্রুয়ারি', 'মার্চ', 'এপ্রিল', 'মে', 'জুন', 'জুলাই', 'আগস্ট', 'সেপ্টেম্বর', 'অক্টোবর', 'নভেম্বর', 'ডিসেম্বর'];
+  const months = monthNames();
   document.getElementById('dashCalTitle').textContent = months[dashCalMonth] + ' ' + bnPlain(dashCalYear);
   const first = new Date(dashCalYear, dashCalMonth, 1).getDay();
   const days = new Date(dashCalYear, dashCalMonth + 1, 0).getDate();
   const today = todayStr();
   const grid = document.getElementById('dashCalGrid');
-  let html = ['রবি', 'সোম', 'মঙ্গল', 'বুধ', 'বৃহ', 'শুক্র', 'শনি'].map(d => `<div class="cal-dow">${d}</div>`).join('');
+  let html = weekdayNames().map(d => `<div class="cal-dow">${d}</div>`).join('');
   for (let i = 0; i < first; i++) html += '<div class="cal-day other"></div>';
   for (let d = 1; d <= days; d++) {
     const ds = dashCalYear + '-' + String(dashCalMonth + 1).padStart(2, '0') + '-' + String(d).padStart(2, '0');
@@ -1348,16 +1463,16 @@ function render() {
   document.getElementById('recentList').innerHTML = recent.map(e => {
     const sign = e.type === 'income' ? '+' : (e.type === 'expense' ? '−' : '');
     return `<li><div><div class="item-name">${escapeHtml(e.item)}<span class="badge ${e.type}">${TYPE_LABEL[e.type]}</span><span class="cat-chip">🏷️ ${escapeHtml(e.category || 'অন্যান্য')}</span></div><div class="item-meta">${fmtDate(e.date)}</div></div><span class="amt ${e.type}">${sign} ৳${bn2(e.amount)}</span></li>`;
-  }).join('') || '<div class="empty">কোনো এন্ট্রি নেই।</div>';
+  }).join('') || '<div class="empty">' + t('কোনো এন্ট্রি নেই।') + '</div>';
   // Year filter options (years present in the entries)
   const years = [...new Set(entries.map(e => (e.date || '').slice(0, 4)).filter(Boolean))].sort().reverse();
   const ysel = document.getElementById('yearFilter'); const ycur = ysel.value;
-  ysel.innerHTML = '<option value="all">সব বছর</option>' + years.map(y => `<option value="${y}">${y.replace(/\d/g, d => '০১২৩৪৫৬৭৮৯'[d])}</option>`).join('');
+  ysel.innerHTML = '<option value="all">' + t('সব বছর') + '</option>' + years.map(y => `<option value="${y}">${bnPlain(y)}</option>`).join('');
   ysel.value = years.includes(ycur) ? ycur : 'all'; filterYear = ysel.value;
   // Month filter options — scoped to the picked year (a year pick narrows the months)
   const months = [...new Set(entries.map(e => monthKey(e.date)).filter(Boolean))].filter(m => filterYear === 'all' || m.startsWith(filterYear + '-')).sort().reverse();
   const sel = document.getElementById('monthFilter'); const cur = sel.value;
-  sel.innerHTML = '<option value="all">সব মাস</option>' + months.map(m => `<option value="${m}">${monthLabel(m)}</option>`).join('');
+  sel.innerHTML = '<option value="all">' + t('সব মাস') + '</option>' + months.map(m => `<option value="${m}">${monthLabel(m)}</option>`).join('');
   sel.value = months.includes(cur) ? cur : 'all'; filterMonth = sel.value;
   // List
   let list = entries.slice().sort((a, b) => (b.date || '').localeCompare(a.date || '') || (b.created || 0) - (a.created || 0));
@@ -1367,7 +1482,7 @@ function render() {
   if (filterYear !== 'all') list = list.filter(e => (e.date || '').slice(0, 4) === filterYear);
   if (filterMonth !== 'all') list = list.filter(e => monthKey(e.date) === filterMonth);
   if (filterDate) list = list.filter(e => e.date === filterDate);
-  document.getElementById('count').textContent = '(' + bn2(list.length) + 'টি)';
+  document.getElementById('count').textContent = '(' + tf('{n}টি', { n: bn2(list.length) }) + ')';
   // Totals of the currently shown (filtered) entries — bank stays separate, never income/expense
   const lt = totals(list);
   document.getElementById('listTotalAll').textContent = bn2(lt.inc + lt.exp + lt.bank);
@@ -1385,7 +1500,7 @@ function render() {
   const visibleCount = Math.min(listVisible, list.length);
   const shownEl = document.getElementById('listShown');
   shownEl.hidden = list.length === 0;
-  shownEl.textContent = list.length ? bn2(visibleCount) + 'টি দেখাচ্ছে, মোট ' + bn2(list.length) + 'টি' : '';
+  shownEl.textContent = list.length ? tf('{shown}টি দেখাচ্ছে, মোট {total}টি', { shown: bn2(visibleCount), total: bn2(list.length) }) : '';
   const lmBtn = document.getElementById('loadMoreBtn');
   lmBtn.hidden = list.length === 0 || visibleCount >= list.length;
   list.slice(0, visibleCount).forEach(e => {
@@ -1393,12 +1508,12 @@ function render() {
     const sign = e.type === 'income' ? '+' : (e.type === 'expense' ? '−' : '');
     li.innerHTML = `<div><div class="item-name">${escapeHtml(e.item)}<span class="badge ${e.type}">${TYPE_LABEL[e.type]}</span><span class="cat-chip">🏷️ ${escapeHtml(e.category || 'অন্যান্য')}</span></div><div class="item-meta">${fmtDate(e.date)}${e.note ? ' • ' + escapeHtml(e.note) : ''}</div></div>
     <div style="display:flex;align-items:center;gap:10px"><span class="amt ${e.type}">${sign} ৳${bn2(e.amount)}</span>
-    <span class="actions"><button data-act="edit">বদলান</button><button data-act="del" class="danger">মুছুন</button></span></div>`;
+    <span class="actions"><button data-act="edit">${t('বদলান')}</button><button data-act="del" class="danger">${t('মুছুন')}</button></span></div>`;
     li.querySelector('[data-act="edit"]').onclick = () => startEdit(e.id);
     li.querySelector('[data-act="del"]').onclick = async () => {
-      if (!confirm('এই এন্ট্রিটি মুছে ফেলবেন?')) return;
+      if (!confirm(t('এই এন্ট্রিটি মুছে ফেলবেন?'))) return;
       entries = entries.filter(x => x.id !== e.id); saveLocal();
-      if (sbMode) { try { await sbDelete(e.id); } catch (err) { setSync('err', 'মোছা লোকালে হয়েছে, Supabase-এ হয়নি: ' + err.message); } }
+      if (sbMode) { try { await sbDelete(e.id); } catch (err) { setSync('err', t('মোছা লোকালে হয়েছে, Supabase-এ হয়নি') + ': ' + err.message); } }
       render(); if (currentView === 'calendar') renderCalendar(); if (currentView === 'report') renderReport();
     };
     ul.appendChild(li);
@@ -1422,36 +1537,36 @@ function renderBudget() {
   if (document.activeElement !== input) input.value = budget ? budget : '';
   if (clearBtn) clearBtn.hidden = !budget;
   if (!budget) {
-    box.innerHTML = `<div class="mini-row"><span>এই মাসে ব্যয় হয়েছে</span><b style="color:var(--red)">৳${bn2(spent)}</b></div>
-      <p class="note" style="margin:8px 0 0">এই মাসে এখনো বাজেট নির্ধারণ করা হয়নি। উপরে অংক বসিয়ে “বাজেট সংরক্ষণ” চাপুন — তাহলে খরচের অগ্রগতি আর সতর্কতা দেখাবে।</p>`;
+    box.innerHTML = `<div class="mini-row"><span>${t('এই মাসে ব্যয় হয়েছে')}</span><b style="color:var(--red)">৳${bn2(spent)}</b></div>
+      <p class="note" style="margin:8px 0 0">${t('এই মাসে এখনো বাজেট নির্ধারণ করা হয়নি। উপরে অংক বসিয়ে “বাজেট সংরক্ষণ” চাপুন — তাহলে খরচের অগ্রগতি আর সতর্কতা দেখাবে।')}</p>`;
     return;
   }
   const pct = Math.round(spent / budget * 100);
   const remaining = budget - spent;
   const cls = pct >= 100 ? 'over' : pct >= 80 ? 'warn' : '';
-  const warn = pct >= 100 ? '<div class="budget-over">⚠️ বাজেট ছাড়িয়ে গেছে! ব্যয় বাজেটের ' + bn2(pct) + '%।</div>'
-    : pct >= 80 ? '<div class="budget-warn">⚠️ সতর্কতা: বাজেটের ' + bn2(pct) + '% খরচ হয়ে গেছে।</div>' : '';
-  box.innerHTML = `<div class="mini-row"><span>মাসিক বাজেট</span><b>৳${bn2(budget)}</b></div>
-    <div class="mini-row"><span>এই মাসে ব্যয়</span><b style="color:var(--red)">৳${bn2(spent)} (${bn2(pct)}%)</b></div>
-    <div class="mini-row"><span>বাকি আছে</span><b style="color:${remaining < 0 ? 'var(--red)' : 'var(--green)'}">৳${bn2(remaining)}</b></div>
+  const warn = pct >= 100 ? '<div class="budget-over">' + tf('⚠️ বাজেট ছাড়িয়ে গেছে! ব্যয় বাজেটের {pct}%।', { pct: bn2(pct) }) + '</div>'
+    : pct >= 80 ? '<div class="budget-warn">' + tf('⚠️ সতর্কতা: বাজেটের {pct}% খরচ হয়ে গেছে।', { pct: bn2(pct) }) + '</div>' : '';
+  box.innerHTML = `<div class="mini-row"><span>${t('মাসিক বাজেট')}</span><b>৳${bn2(budget)}</b></div>
+    <div class="mini-row"><span>${t('এই মাসে ব্যয়')}</span><b style="color:var(--red)">৳${bn2(spent)} (${bn2(pct)}%)</b></div>
+    <div class="mini-row"><span>${t('বাকি আছে')}</span><b style="color:${remaining < 0 ? 'var(--red)' : 'var(--green)'}">৳${bn2(remaining)}</b></div>
     <div class="budget-track"><div class="budget-fill ${cls}" style="width:${Math.min(100, pct)}%"></div></div>${warn}`;
 }
 async function saveBudget() {
   const mk = monthKey(todayStr());
   const val = +document.getElementById('budgetInput').value;
   const msg = document.getElementById('budgetMsg');
-  if (!val || val <= 0) { msg.textContent = '❌ সঠিক অংক দিন (১ টাকার বেশি)।'; return; }
+  if (!val || val <= 0) { msg.textContent = t('❌ সঠিক অংক দিন (১ টাকার বেশি)।'); return; }
   budgets[mk] = val; saveBudgets();
-  if (sbMode) { try { await sbSaveBudget(mk, val); } catch (err) { msg.textContent = '⚠️ লোকালে সংরক্ষণ হয়েছে, Supabase-এ হয়নি: ' + err.message; render(); return; } }
-  msg.textContent = '✅ ' + monthLabel(mk) + ' মাসের বাজেট ৳' + bn2(val) + ' সংরক্ষণ হয়েছে।';
+  if (sbMode) { try { await sbSaveBudget(mk, val); } catch (err) { msg.textContent = t('⚠️ লোকালে সংরক্ষণ হয়েছে, Supabase-এ হয়নি') + ': ' + err.message; render(); return; } }
+  msg.textContent = tf('✅ {month} মাসের বাজেট ৳{val} সংরক্ষণ হয়েছে।', { month: monthLabel(mk), val: bn2(val) });
   render();
 }
 async function clearBudget() {
   const mk = monthKey(todayStr());
-  if (!confirm(monthLabel(mk) + ' মাসের বাজেট মুছে ফেলবেন?')) return;
+  if (!confirm(tf('{month} মাসের বাজেট মুছে ফেলবেন?', { month: monthLabel(mk) }))) return;
   delete budgets[mk]; saveBudgets();
   if (sbMode) { try { await sbDeleteBudget(mk); } catch (err) {} }
-  document.getElementById('budgetMsg').textContent = 'বাজেট মোছা হয়েছে।';
+  document.getElementById('budgetMsg').textContent = t('বাজেট মোছা হয়েছে।');
   render();
 }
 
@@ -1468,7 +1583,7 @@ function renderCatBreakdown() {
   else if (months.length) sel.value = months[0];
   catMonthSel = sel.value;
   const mk = sel.value;
-  if (!mk) { box.innerHTML = '<div class="empty">কোনো ব্যয়ের ডেটা নেই।</div>'; return; }
+  if (!mk) { box.innerHTML = '<div class="empty">' + t('কোনো ব্যয়ের ডেটা নেই।') + '</div>'; return; }
   const byCat = {};
   entries.filter(e => e.type === 'expense' && monthKey(e.date) === mk).forEach(e => {
     const c = e.category || 'অন্যান্য';
@@ -1476,12 +1591,12 @@ function renderCatBreakdown() {
   });
   const rows = Object.entries(byCat).sort((a, b) => b[1] - a[1]);
   const total = rows.reduce((s, r) => s + r[1], 0);
-  if (!rows.length) { box.innerHTML = '<div class="empty">এই মাসে কোনো ব্যয় নেই।</div>'; return; }
+  if (!rows.length) { box.innerHTML = '<div class="empty">' + t('এই মাসে কোনো ব্যয় নেই।') + '</div>'; return; }
   const max = Math.max(1, ...rows.map(r => r[1]));
   box.innerHTML = rows.map(([c, amt]) => {
     const pct = total ? Math.round(amt / total * 100) : 0;
     return `<div class="bar-row"><span>🏷️ ${escapeHtml(c)}</span><div class="bar-track"><div class="bar-fill" style="width:${Math.round(amt / max * 100)}%"></div></div><b style="color:var(--red);text-align:right">৳${bn2(amt)} (${bn2(pct)}%)</b></div>`;
-  }).join('') + `<div class="mini-row" style="margin-top:6px"><span>মোট ব্যয়</span><b style="color:var(--red)">৳${bn2(total)}</b></div>`;
+  }).join('') + `<div class="mini-row" style="margin-top:6px"><span>${t('মোট ব্যয়')}</span><b style="color:var(--red)">৳${bn2(total)}</b></div>`;
 }
 
 /* ===== Add / edit ===== */
@@ -1491,14 +1606,14 @@ function startEdit(id) {
   document.getElementById('type').value = e.type; document.getElementById('category').value = e.category || autoCategory(e.item, e.type); document.getElementById('item').value = e.item;
   document.getElementById('amount').value = e.amount; document.getElementById('date').value = e.date;
   document.getElementById('note').value = e.note || '';
-  document.getElementById('submitBtn').textContent = '💾 সংরক্ষণ করুন';
+  document.getElementById('submitBtn').textContent = t('💾 সংরক্ষণ করুন');
   document.getElementById('cancelEdit').hidden = false;
   showView('entry');
 }
 function cancelEdit() {
   editingId = null; document.getElementById('entryForm').reset();
   document.getElementById('date').value = todayStr();
-  document.getElementById('submitBtn').textContent = '➕ যোগ করুন';
+  document.getElementById('submitBtn').textContent = t('➕ যোগ করুন');
   document.getElementById('cancelEdit').hidden = true;
   document.getElementById('formMsg').textContent = '';
 }
@@ -1520,18 +1635,18 @@ document.getElementById('entryForm').addEventListener('submit', async ev => {
       Object.assign(e, { type, item, amount, date, note, category });
       saveLocal();
       if (sbMode) await sbUpdate(e);
-      msg.textContent = '✅ সংরক্ষণ হয়েছে।';
+      msg.textContent = t('✅ সংরক্ষণ হয়েছে।');
     } else {
       const e = { id: 'e' + Date.now(), type, item, amount, date, note, category, created: Date.now() };
       entries.push(e); saveLocal();
       savedId = e.id;
       if (sbMode) await sbInsert(e);
-      msg.textContent = '✅ যোগ হয়েছে।';
+      msg.textContent = t('✅ যোগ হয়েছে।');
     }
     ensureVisibleId = savedId;
     cancelEdit(); render(); showView('dashboard');
   } catch (err) {
-    msg.textContent = '⚠️ লোকালে সংরক্ষণ হয়েছে, Supabase-এ হয়নি: ' + err.message;
+    msg.textContent = t('⚠️ লোকালে সংরক্ষণ হয়েছে, Supabase-এ হয়নি') + ': ' + err.message;
     ensureVisibleId = savedId;
     render();
   } finally { btn.disabled = false; }
@@ -1613,13 +1728,13 @@ let calYear, calMonth, calSelected = null;
   const p = latest.split('-'); calYear = +p[0]; calMonth = +p[1] - 1; calSelected = latest;
 })();
 function renderCalendar() {
-  const months = ['জানুয়ারি', 'ফেব্রুয়ারি', 'মার্চ', 'এপ্রিল', 'মে', 'জুন', 'জুলাই', 'আগস্ট', 'সেপ্টেম্বর', 'অক্টোবর', 'নভেম্বর', 'ডিসেম্বর'];
+  const months = monthNames();
   document.getElementById('calTitle').textContent = months[calMonth] + ' ' + bnPlain(calYear);
   const first = new Date(calYear, calMonth, 1).getDay();
   const days = new Date(calYear, calMonth + 1, 0).getDate();
   const today = todayStr();
   const grid = document.getElementById('calGrid');
-  let html = ['রবি', 'সোম', 'মঙ্গল', 'বুধ', 'বৃহ', 'শুক্র', 'শনি'].map(d => `<div class="cal-dow">${d}</div>`).join('');
+  let html = weekdayNames().map(d => `<div class="cal-dow">${d}</div>`).join('');
   for (let i = 0; i < first; i++) html += '<div class="cal-day other"></div>';
   for (let d = 1; d <= days; d++) {
     const ds = calYear + '-' + String(calMonth + 1).padStart(2, '0') + '-' + String(d).padStart(2, '0');
@@ -1633,11 +1748,11 @@ function renderCalendar() {
   // Selected day detail
   const dayEntries = entries.filter(e => e.date === calSelected).sort((a, b) => (b.created || 0) - (a.created || 0));
   const t = totals(dayEntries);
-  document.getElementById('dayTitle').textContent = fmtDate(calSelected) + ' — দিনের হিসাব';
+  document.getElementById('dayTitle').textContent = fmtDate(calSelected) + ' — ' + t('দিনের হিসাব');
   document.getElementById('dayTotals').innerHTML =
-    `<div class="mini-row"><span>আয়</span><b style="color:var(--green)">+ ৳${bn2(t.inc)}</b></div>
-     <div class="mini-row"><span>ব্যয়</span><b style="color:var(--red)">− ৳${bn2(t.exp)}</b></div>
-     <div class="mini-row"><span>ব্যাংক উত্তোলন</span><b style="color:var(--blue)">৳${bn2(t.bank)}</b></div>`;
+    `<div class="mini-row"><span>${t('আয়')}</span><b style="color:var(--green)">+ ৳${bn2(t.inc)}</b></div>
+     <div class="mini-row"><span>${t('ব্যয়')}</span><b style="color:var(--red)">− ৳${bn2(t.exp)}</b></div>
+     <div class="mini-row"><span>${t('ব্যাংক উত্তোলন')}</span><b style="color:var(--blue)">৳${bn2(t.bank)}</b></div>`;
   document.getElementById('dayEmpty').hidden = dayEntries.length > 0;
   document.getElementById('dayList').innerHTML = dayEntries.map(e => {
     const sign = e.type === 'income' ? '+' : (e.type === 'expense' ? '−' : '');
@@ -1656,13 +1771,13 @@ function renderReport() {
     const t = totals(byMonth[k]);
     const b = getBudget(k);
     return `<tr><td>${monthLabel(k)}</td><td>৳${bn2(t.inc)}</td><td style="color:var(--red)">৳${bn2(t.exp)}</td><td>${b ? '৳' + bn2(b) : '—'}</td><td style="color:var(--blue)">৳${bn2(t.bank)}</td><td>${bn2(t.balance)}</td></tr>`;
-  }).join('') || '<tr><td colspan="6" class="empty">কোনো ডেটা নেই।</td></tr>';
+  }).join('') || '<tr><td colspan="6" class="empty">' + t('কোনো ডেটা নেই।') + '</td></tr>';
   renderCatBreakdown();
   const maxExp = Math.max(1, ...keys.map(k => totals(byMonth[k]).exp));
   document.getElementById('barChart').innerHTML = keys.map(k => {
     const t = totals(byMonth[k]);
     return `<div class="bar-row"><span>${monthLabel(k)}</span><div class="bar-track"><div class="bar-fill" style="width:${Math.round(t.exp / maxExp * 100)}%"></div></div><b style="color:var(--red);text-align:right">৳${bn2(t.exp)}</b></div>`;
-  }).join('') || '<div class="empty">কোনো ডেটা নেই।</div>';
+  }).join('') || '<div class="empty">' + t('কোনো ডেটা নেই।') + '</div>';
 }
 
 /* ===== Backup: export / import / clear ===== */
@@ -1677,7 +1792,7 @@ document.getElementById('exportCsv').onclick = () => {
   // টাকার কলাম তিন ভাগে: আয় / ব্যয় / ব্যাংক উত্তোলন। ব্যাংক উত্তোলন আয়-ব্যয়
   // নয় — ওর টাকা শুধু নিজের কলামে থাকে, আয় বা ব্যয়ের কলামে কখনো নয়,
   // যাতে Excel-এ কলাম যোগ করলেও উত্তোলন আয়-ব্যয়ে না ঢোকে।
-  const rows = [['তারিখ', 'আইটেম', 'ক্যাটাগরি', 'ধরন', 'আয় (৳)', 'ব্যয় (৳)', 'ব্যাংক উত্তোলন (৳)', 'নোট'].join(',')];
+  const rows = [['তারিখ', 'আইটেম', 'ক্যাটাগরি', 'ধরন', 'আয় (৳)', 'ব্যয় (৳)', 'ব্যাংক উত্তোলন (৳)', 'নোট'].map(t).join(',')];
   entries.slice().sort((a, b) => (a.date || '').localeCompare(b.date || '')).forEach(e =>
     rows.push([e.date, q(e.item), q(e.category || 'অন্যান্য'), TYPE_LABEL[e.type] || e.type, e.type === 'income' ? e.amount : '', e.type === 'expense' ? e.amount : '', e.type === 'bank' ? e.amount : '', q(e.note || '')].join(',')));
   download('hisheber-khata-backup.csv', '\uFEFF' + rows.join('\n'), 'text/csv');
@@ -1687,7 +1802,7 @@ document.getElementById('importFile').addEventListener('change', async ev => {
   const msg = document.getElementById('importMsg');
   try {
     const data = JSON.parse(await f.text());
-    if (!Array.isArray(data)) throw new Error('ফাইলটি এন্ট্রির তালিকা নয়');
+    if (!Array.isArray(data)) throw new Error(t('ফাইলটি এন্ট্রির তালিকা নয়'));
     const valid = data.filter(e => e && e.item && +e.amount > 0 && e.date);
     const ids = new Set(entries.map(e => e.id));
     let added = 0;
@@ -1696,16 +1811,16 @@ document.getElementById('importFile').addEventListener('change', async ev => {
       entries.push(en); ids.add(en.id); added++;
     });
     saveLocal();
-    if (sbMode) { try { await sb.from('transactions').upsert(entries.map(entryToRow)); } catch (err) { setSync('err', 'লোকালে আনা হয়েছে, Supabase-এ আপলোড হয়নি: ' + err.message); } }
-    msg.textContent = '✅ ' + bn2(added) + 'টি এন্ট্রি যোগ হয়েছে।';
+    if (sbMode) { try { await sb.from('transactions').upsert(entries.map(entryToRow)); } catch (err) { setSync('err', t('লোকালে আনা হয়েছে, Supabase-এ আপলোড হয়নি') + ': ' + err.message); } }
+    msg.textContent = tf('✅ {n}টি এন্ট্রি যোগ হয়েছে।', { n: bn2(added) });
     render();
-  } catch (err) { msg.textContent = '❌ ফাইল পড়া যায়নি: ' + err.message; }
+  } catch (err) { msg.textContent = t('❌ ফাইল পড়া যায়নি') + ': ' + err.message; }
   ev.target.value = '';
 });
 document.getElementById('clearAll').onclick = async () => {
-  if (!confirm('সত্যিই সব ডেটা মুছে ফেলবেন? আগে ব্যাকআপ নিয়ে নিন।')) return;
+  if (!confirm(t('সত্যিই সব ডেটা মুছে ফেলবেন? আগে ব্যাকআপ নিয়ে নিন।'))) return;
   entries = []; saveLocal();
-  if (sbMode) { try { await sb.from('transactions').delete().neq('id', ''); } catch (err) { setSync('err', 'লোকাল মুছেছে, Supabase মোছা যায়নি: ' + err.message); } }
+  if (sbMode) { try { await sb.from('transactions').delete().neq('id', ''); } catch (err) { setSync('err', t('লোকাল মুছেছে, Supabase মোছা যায়নি') + ': ' + err.message); } }
   render();
 };
 
@@ -1719,41 +1834,41 @@ document.getElementById('sbSave').onclick = async () => {
   const url = document.getElementById('sbUrl').value.trim();
   const anonKey = document.getElementById('sbKey').value.trim();
   const msg = document.getElementById('sbMsg');
-  if (!url || !anonKey) { msg.textContent = '❌ URL আর anon key দুটোই দিন।'; return; }
+  if (!url || !anonKey) { msg.textContent = t('❌ URL আর anon key দুটোই দিন।'); return; }
   localStorage.setItem(SB_STORE_KEY, JSON.stringify({ url, anonKey }));
-  msg.textContent = 'সংযোগ পরীক্ষা চলছে…';
+  msg.textContent = t('সংযোগ পরীক্ষা চলছে…');
   const ok = await initSupabase();
   if (ok) {
-    try { await syncFromRemote(); msg.textContent = '✅ Supabase সিঙ্ক চালু হয়েছে — সব ডিভাইসে একই হিসাব দেখাবে।'; }
-    catch (err) { msg.textContent = '⚠️ সংযোগ হয়েছে, কিন্তু সিঙ্কে সমস্যা: ' + err.message; setSync('err', err.message); }
+    try { await syncFromRemote(); msg.textContent = t('✅ Supabase সিঙ্ক চালু হয়েছে — সব ডিভাইসে একই হিসাব দেখাবে।'); }
+    catch (err) { msg.textContent = t('⚠️ সংযোগ হয়েছে, কিন্তু সিঙ্কে সমস্যা') + ': ' + err.message; setSync('err', err.message); }
     render();
-  } else { msg.textContent = '❌ সংযোগ হয়নি — URL/key আর schema.sql (transactions টেবিল) ঠিক আছে কি না দেখুন।'; }
+  } else { msg.textContent = t('❌ সংযোগ হয়নি — URL/key আর schema.sql (transactions টেবিল) ঠিক আছে কি না দেখুন।'); }
 };
 document.getElementById('sbTest').onclick = async () => {
   const url = document.getElementById('sbUrl').value.trim();
   const anonKey = document.getElementById('sbKey').value.trim();
   const msg = document.getElementById('sbMsg');
-  if (!url || !anonKey) { msg.textContent = '❌ আগে URL আর anon key দিন।'; return; }
-  msg.textContent = 'পরীক্ষা চলছে…';
+  if (!url || !anonKey) { msg.textContent = t('❌ আগে URL আর anon key দিন।'); return; }
+  msg.textContent = t('পরীক্ষা চলছে…');
   try {
     await loadSbJs();
     const c = window.supabase.createClient(url, anonKey);
     const { error } = await c.from('transactions').select('id', { count: 'exact', head: true });
-    msg.textContent = error ? '❌ সংযোগ ব্যর্থ: ' + error.message : '✅ সংযোগ ঠিক আছে — transactions টেবিল পাওয়া গেছে।';
+    msg.textContent = error ? t('❌ সংযোগ ব্যর্থ') + ': ' + error.message : t('✅ সংযোগ ঠিক আছে — transactions টেবিল পাওয়া গেছে।');
   } catch (err) { msg.textContent = '❌ সংযোগ ব্যর্থ: ' + err.message; }
 };
 document.getElementById('sbSync').onclick = async () => {
   const msg = document.getElementById('sbMsg');
-  if (!sbMode) { msg.textContent = '❌ সিঙ্ক চালু নেই — আগে URL/key সংরক্ষণ করুন।'; return; }
-  msg.textContent = 'সিঙ্ক চলছে…';
-  try { await syncFromRemote(); render(); msg.textContent = '✅ সিঙ্ক সম্পন্ন হয়েছে।'; }
-  catch (err) { msg.textContent = '❌ সিঙ্ক ব্যর্থ: ' + err.message; setSync('err', err.message); }
+  if (!sbMode) { msg.textContent = t('❌ সিঙ্ক চালু নেই — আগে URL/key সংরক্ষণ করুন।'); return; }
+  msg.textContent = t('সিঙ্ক চলছে…');
+  try { await syncFromRemote(); render(); msg.textContent = t('✅ সিঙ্ক সম্পন্ন হয়েছে।'); }
+  catch (err) { msg.textContent = t('❌ সিঙ্ক ব্যর্থ') + ': ' + err.message; setSync('err', err.message); }
 };
 document.getElementById('sbClear').onclick = () => {
   localStorage.removeItem(SB_STORE_KEY);
   sb = null; sbMode = false; setSync('local');
   fillSbForm();
-  document.getElementById('sbMsg').textContent = 'সংযোগ ছিন্ন হয়েছে — এখন শুধু লোকাল মোডে চলবে।';
+  document.getElementById('sbMsg').textContent = t('সংযোগ ছিন্ন হয়েছে — এখন শুধু লোকাল মোডে চলবে।');
 };
 
 /* ===== Init (লগইন গেট) — লগইন না হলে খাতা রেন্ডারই হয় না ===== */
@@ -1763,6 +1878,7 @@ document.getElementById('biDate').value = todayStr();
 rebuildCatDatalists();
 fillSbForm();
 migrateLegacyAccount();
+setLang(loadLang(), { initial: true });
 (function restoreSession() {
   const sid = getSessionAccountId();
   if (sid) {
