@@ -244,8 +244,11 @@ body.locked .app,body.locked .bottomnav{display:none}
         <button data-f="bank">ব্যাংক উত্তোলন</button>
       </div>
       <input id="search" placeholder="আইটেম খুঁজুন…">
+      <input id="dateFilter" type="date" title="নির্দিষ্ট তারিখ">
+      <select id="yearFilter"><option value="all">সব বছর</option></select>
       <select id="monthFilter"><option value="all">সব মাস</option></select>
-      <select id="catFilter"><option value="all">সব ক্যাটাগরি</option><option value="বাজার">বাজার</option><option value="ঔষধ">ঔষধ</option><option value="ব্যক্তিগত">ব্যক্তিগত</option><option value="যাতায়াত">যাতায়াত</option><option value="বাড়ি ভাড়া">বাড়ি ভাড়া</option><option value="বিল">বিল</option><option value="শিক্ষা">শিক্ষা</option><option value="অন্যান্য">অন্যান্য</option></select>
+      <select id="catFilter"><option value="all">সব ক্যাটাগরি</option><option value="বাজার">বাজার</option><option value="ঔষধ">ঔষধ</option><option value="ব্যক্তিগত">ব্যক্তিগত</option><option value="যাতায়াত">যাতায়াত</option><option value="বিল">বিল</option><option value="শিক্ষা">শিক্ষা</option><option value="অন্যান্য">অন্যান্য</option></select>
+      <button class="btn ghost" type="button" id="listClearFilters" style="width:auto;flex:none">ছাঁকনি মুছুন</button>
     </div>
     <div class="grid4" id="listTotals" style="margin-top:14px">
       <div class="stat"><div class="label">সব এন্ট্রির মোট</div><div class="value" id="listTotalAll">০</div></div>
@@ -253,7 +256,7 @@ body.locked .app,body.locked .bottomnav{display:none}
       <div class="stat expense"><div class="label">মোট ব্যয়</div><div class="value" id="listTotalExpense">০</div></div>
       <div class="stat bank"><div class="label">মোট উত্তোলন</div><div class="value" id="listTotalBank">০</div></div>
     </div>
-    <p class="note" style="margin:8px 0 0">উপরে দেখানো এন্ট্রিগুলোর মোট — ছাঁকনি বদলালে মোটও বদলে যাবে। ব্যাংক উত্তোলন আয় বা ব্যয় নয়, শুধু দেখানো হচ্ছে; সব মোট = আয় + ব্যয় + উত্তোলন।</p>
+    <p class="note" style="margin:8px 0 0">উপরে দেখানো এন্ট্রিগুলোর মোট — ছাঁকনি (তারিখ, বছর, মাস, ক্যাটাগরি, খোঁজা) বদলালে মোটও বদলে যাবে। ব্যাংক উত্তোলন আয় বা ব্যয় নয়, শুধু দেখানো হচ্ছে; সব মোট = আয় + ব্যয় + উত্তোলন।</p>
     <ul class="list" id="list"></ul>
     <div class="empty" id="empty" hidden>কোনো এন্ট্রি পাওয়া যায়নি।</div>
   </div>
@@ -1076,7 +1079,7 @@ document.querySelectorAll('[data-view]').forEach(a => a.addEventListener('click'
 document.querySelectorAll('[data-goto]').forEach(b => b.addEventListener('click', () => showView(b.dataset.goto)));
 
 /* ===== Render: totals + dashboard + list ===== */
-let editingId = null, filterType = 'all', searchQ = '', filterMonth = 'all', filterCat = 'all', catMonthSel = '';
+let editingId = null, filterType = 'all', searchQ = '', filterMonth = 'all', filterCat = 'all', filterDate = '', filterYear = 'all', catMonthSel = '';
 function render() {
   const t = totals();
   document.getElementById('totalIncome').textContent = bn2(t.inc);
@@ -1104,8 +1107,13 @@ function render() {
     const sign = e.type === 'income' ? '+' : (e.type === 'expense' ? '−' : '');
     return `<li><div><div class="item-name">${escapeHtml(e.item)}<span class="badge ${e.type}">${TYPE_LABEL[e.type]}</span><span class="cat-chip">🏷️ ${escapeHtml(e.category || 'অন্যান্য')}</span></div><div class="item-meta">${fmtDate(e.date)}</div></div><span class="amt ${e.type}">${sign} ৳${bn2(e.amount)}</span></li>`;
   }).join('') || '<div class="empty">কোনো এন্ট্রি নেই।</div>';
-  // Month filter options
-  const months = [...new Set(entries.map(e => monthKey(e.date)).filter(Boolean))].sort().reverse();
+  // Year filter options (years present in the entries)
+  const years = [...new Set(entries.map(e => (e.date || '').slice(0, 4)).filter(Boolean))].sort().reverse();
+  const ysel = document.getElementById('yearFilter'); const ycur = ysel.value;
+  ysel.innerHTML = '<option value="all">সব বছর</option>' + years.map(y => `<option value="${y}">${y.replace(/\d/g, d => '০১২৩৪৫৬৭৮৯'[d])}</option>`).join('');
+  ysel.value = years.includes(ycur) ? ycur : 'all'; filterYear = ysel.value;
+  // Month filter options — scoped to the picked year (a year pick narrows the months)
+  const months = [...new Set(entries.map(e => monthKey(e.date)).filter(Boolean))].filter(m => filterYear === 'all' || m.startsWith(filterYear + '-')).sort().reverse();
   const sel = document.getElementById('monthFilter'); const cur = sel.value;
   sel.innerHTML = '<option value="all">সব মাস</option>' + months.map(m => `<option value="${m}">${monthLabel(m)}</option>`).join('');
   sel.value = months.includes(cur) ? cur : 'all'; filterMonth = sel.value;
@@ -1114,7 +1122,9 @@ function render() {
   if (filterType !== 'all') list = list.filter(e => e.type === filterType);
   if (filterCat !== 'all') list = list.filter(e => (e.category || 'অন্যান্য') === filterCat);
   if (searchQ) list = list.filter(e => e.item.toLowerCase().includes(searchQ));
+  if (filterYear !== 'all') list = list.filter(e => (e.date || '').slice(0, 4) === filterYear);
   if (filterMonth !== 'all') list = list.filter(e => monthKey(e.date) === filterMonth);
+  if (filterDate) list = list.filter(e => e.date === filterDate);
   document.getElementById('count').textContent = '(' + bn2(list.length) + 'টি)';
   // Totals of the currently shown (filtered) entries — bank stays separate, never income/expense
   const lt = totals(list);
@@ -1276,8 +1286,20 @@ document.getElementById('typeFilters').addEventListener('click', ev => {
   render();
 });
 document.getElementById('search').addEventListener('input', ev => { searchQ = ev.target.value.trim().toLowerCase(); render(); });
+document.getElementById('dateFilter').addEventListener('change', ev => { filterDate = ev.target.value; render(); });
+document.getElementById('yearFilter').addEventListener('change', ev => { filterYear = ev.target.value; render(); });
 document.getElementById('monthFilter').addEventListener('change', ev => { filterMonth = ev.target.value; render(); });
 document.getElementById('catFilter').addEventListener('change', ev => { filterCat = ev.target.value; render(); });
+document.getElementById('listClearFilters').addEventListener('click', () => {
+  filterType = 'all'; searchQ = ''; filterMonth = 'all'; filterCat = 'all'; filterDate = ''; filterYear = 'all';
+  document.getElementById('search').value = '';
+  document.getElementById('dateFilter').value = '';
+  document.getElementById('yearFilter').value = 'all';
+  document.getElementById('monthFilter').value = 'all';
+  document.getElementById('catFilter').value = 'all';
+  document.querySelectorAll('#typeFilters button').forEach(x => x.classList.toggle('active', x.dataset.f === 'all'));
+  render();
+});
 document.getElementById('catMonth').addEventListener('change', ev => { catMonthSel = ev.target.value; renderCatBreakdown(); });
 document.getElementById('type').addEventListener('change', ev => {
   document.getElementById('category').value = ev.target.value === 'expense' ? 'বাজার' : 'অন্যান্য';
