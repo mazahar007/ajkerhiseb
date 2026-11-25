@@ -424,6 +424,8 @@ table.rep th:nth-child(6){color:var(--navy)}
     <p class="note" style="margin:8px 0 0">উপরে দেখানো এন্ট্রিগুলোর মোট — ছাঁকনি (তারিখ, বছর, মাস, ক্যাটাগরি, খোঁজা) বদলালে মোটও বদলে যাবে। ব্যাংক উত্তোলন আয় বা ব্যয় নয়, শুধু দেখানো হচ্ছে; সব মোট = আয় + ব্যয় + উত্তোলন।</p>
     <ul class="list" id="list"></ul>
     <div class="empty" id="empty" hidden>কোনো এন্ট্রি পাওয়া যায়নি।</div>
+    <p class="note" id="listShown" style="margin:10px 0 0;text-align:center"></p>
+    <button class="btn" type="button" id="loadMoreBtn" style="width:100%;margin-top:10px;padding:14px;font-size:16px">আরো দেখুন</button>
   </div>
 </section>
 
@@ -689,6 +691,7 @@ function setCurrentAccount(acct) {
   customCats = loadCustomCats();
   editingId = null; editingBudgetId = null;
   filterType = 'all'; searchQ = ''; filterMonth = 'all'; filterCat = 'all';
+  listVisible = LIST_PAGE_SIZE;
   budgetListMonth = monthKey(todayStr());
   rebuildCatDatalists();
   const nameEl = document.getElementById('currentAcctName');
@@ -1333,6 +1336,8 @@ document.querySelectorAll('[data-goto]').forEach(b => b.addEventListener('click'
 
 /* ===== Render: totals + dashboard + list ===== */
 let editingId = null, filterType = 'all', searchQ = '', filterMonth = 'all', filterCat = 'all', filterDate = '', filterYear = 'all', catMonthSel = '';
+/* সব এন্ট্রি পেজিনেশন: একবারে ১৫টা, “আরো দেখুন” চাপলে পরের ১৫টা। ensureVisibleId — নতুন/বদলানো এন্ট্রি যাতে তালিকায় দেখা যায়। */
+const LIST_PAGE_SIZE = 15; let listVisible = LIST_PAGE_SIZE, ensureVisibleId = null;
 function render() {
   // Dashboard (period pills / date / range / calendar)
   renderDash();
@@ -1371,7 +1376,19 @@ function render() {
   document.getElementById('listTotalBank').textContent = bn2(lt.bank);
   const ul = document.getElementById('list'); ul.innerHTML = '';
   document.getElementById('empty').hidden = list.length > 0;
-  list.forEach(e => {
+  // পেজিনেশন: প্রথম listVisible টা দেখাও; নতুন/বদলানো এন্ট্রি ছাঁকনির ভেতরে থাকলে সেটা যাতে দেখা যায়, দরকার হলে আরো খুলে দাও।
+  if (ensureVisibleId) {
+    const idx = list.findIndex(e => e.id === ensureVisibleId);
+    if (idx >= listVisible) listVisible = idx + 1;
+    ensureVisibleId = null;
+  }
+  const visibleCount = Math.min(listVisible, list.length);
+  const shownEl = document.getElementById('listShown');
+  shownEl.hidden = list.length === 0;
+  shownEl.textContent = list.length ? bn2(visibleCount) + 'টি দেখাচ্ছে, মোট ' + bn2(list.length) + 'টি' : '';
+  const lmBtn = document.getElementById('loadMoreBtn');
+  lmBtn.hidden = list.length === 0 || visibleCount >= list.length;
+  list.slice(0, visibleCount).forEach(e => {
     const li = document.createElement('li');
     const sign = e.type === 'income' ? '+' : (e.type === 'expense' ? '−' : '');
     li.innerHTML = `<div><div class="item-name">${escapeHtml(e.item)}<span class="badge ${e.type}">${TYPE_LABEL[e.type]}</span><span class="cat-chip">🏷️ ${escapeHtml(e.category || 'অন্যান্য')}</span></div><div class="item-meta">${fmtDate(e.date)}${e.note ? ' • ' + escapeHtml(e.note) : ''}</div></div>
@@ -1496,6 +1513,7 @@ document.getElementById('entryForm').addEventListener('submit', async ev => {
   const msg = document.getElementById('formMsg');
   if (!item || !amount || !date) return;
   const btn = document.getElementById('submitBtn'); btn.disabled = true;
+  let savedId = editingId;
   try {
     if (editingId) {
       const e = entries.find(x => x.id === editingId);
@@ -1506,12 +1524,15 @@ document.getElementById('entryForm').addEventListener('submit', async ev => {
     } else {
       const e = { id: 'e' + Date.now(), type, item, amount, date, note, category, created: Date.now() };
       entries.push(e); saveLocal();
+      savedId = e.id;
       if (sbMode) await sbInsert(e);
       msg.textContent = '✅ যোগ হয়েছে।';
     }
+    ensureVisibleId = savedId;
     cancelEdit(); render(); showView('dashboard');
   } catch (err) {
     msg.textContent = '⚠️ লোকালে সংরক্ষণ হয়েছে, Supabase-এ হয়নি: ' + err.message;
+    ensureVisibleId = savedId;
     render();
   } finally { btn.disabled = false; }
 });
@@ -1520,13 +1541,15 @@ document.getElementById('typeFilters').addEventListener('click', ev => {
   const b = ev.target.closest('button'); if (!b) return;
   filterType = b.dataset.f;
   document.querySelectorAll('#typeFilters button').forEach(x => x.classList.toggle('active', x === b));
+  listVisible = LIST_PAGE_SIZE;
   render();
 });
-document.getElementById('search').addEventListener('input', ev => { searchQ = ev.target.value.trim().toLowerCase(); render(); });
-document.getElementById('dateFilter').addEventListener('change', ev => { filterDate = ev.target.value; render(); });
-document.getElementById('yearFilter').addEventListener('change', ev => { filterYear = ev.target.value; render(); });
-document.getElementById('monthFilter').addEventListener('change', ev => { filterMonth = ev.target.value; render(); });
-document.getElementById('catFilter').addEventListener('change', ev => { filterCat = ev.target.value; render(); });
+document.getElementById('search').addEventListener('input', ev => { searchQ = ev.target.value.trim().toLowerCase(); listVisible = LIST_PAGE_SIZE; render(); });
+document.getElementById('dateFilter').addEventListener('change', ev => { filterDate = ev.target.value; listVisible = LIST_PAGE_SIZE; render(); });
+document.getElementById('yearFilter').addEventListener('change', ev => { filterYear = ev.target.value; listVisible = LIST_PAGE_SIZE; render(); });
+document.getElementById('monthFilter').addEventListener('change', ev => { filterMonth = ev.target.value; listVisible = LIST_PAGE_SIZE; render(); });
+document.getElementById('catFilter').addEventListener('change', ev => { filterCat = ev.target.value; listVisible = LIST_PAGE_SIZE; render(); });
+document.getElementById('loadMoreBtn').addEventListener('click', () => { listVisible += LIST_PAGE_SIZE; render(); });
 
 /* ===== Dashboard period controls (pills / date / range / calendar nav) ===== */
 function dashResetInputs() {
@@ -1563,6 +1586,7 @@ document.getElementById('dashCalPrev').onclick = () => { dashCalMonth--; if (das
 document.getElementById('dashCalNext').onclick = () => { dashCalMonth++; if (dashCalMonth > 11) { dashCalMonth = 0; dashCalYear++; } renderDashCal(); };
 document.getElementById('listClearFilters').addEventListener('click', () => {
   filterType = 'all'; searchQ = ''; filterMonth = 'all'; filterCat = 'all'; filterDate = ''; filterYear = 'all';
+  listVisible = LIST_PAGE_SIZE;
   document.getElementById('search').value = '';
   document.getElementById('dateFilter').value = '';
   document.getElementById('yearFilter').value = 'all';
