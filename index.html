@@ -15,10 +15,20 @@
 --navy:#0f172a;--green:#059669;--green-bg:#ecfdf5;--red:#dc2626;--red-bg:#fef2f2;
 --blue:#2563eb;--blue-bg:#eff6ff;--amber:#d97706;--amber-bg:#fffbeb}
 *{box-sizing:border-box}
-body{margin:0;font-family:"Noto Sans Bengali",system-ui,-apple-system,"Hind Siliguri",sans-serif;background:var(--bg);color:var(--ink)}
+html{background:#0f172a}
+body{margin:0;font-family:"Noto Sans Bengali",system-ui,-apple-system,"Hind Siliguri",sans-serif;background:transparent;color:var(--ink)}
+/* ---- Full-page background (login-page style): a fixed gradient layer, so the
+   gradient covers the whole scroll height on desktop and mobile, with the
+   light content cards sitting on top of it ---- */
+body::before{content:"";position:fixed;inset:0;z-index:-1;
+  background:
+    radial-gradient(640px 420px at 12% 8%, rgba(16,185,129,.38), transparent 60%),
+    radial-gradient(560px 460px at 88% 92%, rgba(37,99,235,.30), transparent 60%),
+    radial-gradient(420px 300px at 80% 12%, rgba(5,150,105,.22), transparent 60%),
+    linear-gradient(155deg,#0f172a 0%,#0c2b22 52%,#0f172a 100%)}
 .app{display:flex;min-height:100vh}
 /* ---- Sidebar (desktop) ---- */
-.sidebar{display:none;width:260px;background:var(--navy);color:#fff;flex-direction:column;position:fixed;top:0;bottom:0;left:0;z-index:30}
+.sidebar{display:none;width:260px;background:linear-gradient(180deg,#0f172a 0%,#0c2b22 100%);color:#fff;flex-direction:column;position:fixed;top:0;bottom:0;left:0;z-index:30;border-right:1px solid rgba(255,255,255,.08)}
 @media(min-width:768px){.sidebar{display:flex}}
 .brand{padding:20px;border-bottom:1px solid rgba(255,255,255,.1)}
 .brand .name{font-weight:700;font-size:18px}
@@ -38,6 +48,8 @@ body{margin:0;font-family:"Noto Sans Bengali",system-ui,-apple-system,"Hind Sili
 .wrap{max-width:860px;margin:0 auto}
 h1{margin:0;font-size:28px}
 .sub{color:var(--muted);margin-top:4px;font-size:14px}
+/* Page header sits on the dark gradient, so it is a light card itself */
+header{background:rgba(255,255,255,.95);border:1px solid rgba(255,255,255,.55);border-radius:16px;padding:16px 18px;box-shadow:0 10px 30px rgba(0,0,0,.28)}
 .view{display:none}
 .view.active{display:block}
 .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px;margin-top:14px;box-shadow:0 1px 2px rgba(15,23,42,.04)}
@@ -126,11 +138,11 @@ table.rep th{color:var(--muted);font-weight:600}
 .empty{color:var(--muted);text-align:center;padding:20px 0}
 .note{font-size:13px;color:var(--muted);line-height:1.6}
 .note ol{margin:6px 0;padding-left:20px}
-footer{color:var(--muted);font-size:13px;text-align:center;margin-top:24px}
+footer{color:rgba(255,255,255,.75);font-size:13px;text-align:center;margin-top:24px}
 /* ---- Mobile bottom nav ---- */
-.bottomnav{display:grid;grid-template-columns:repeat(6,1fr);background:#fff;border-top:1px solid var(--line);position:fixed;bottom:0;left:0;right:0;z-index:30;font-size:10px}
-.bottomnav a{display:flex;flex-direction:column;align-items:center;padding:8px 0 10px;color:#475569;text-decoration:none;cursor:pointer}
-.bottomnav a.active{color:var(--green);font-weight:700}
+.bottomnav{display:grid;grid-template-columns:repeat(6,1fr);background:#0f172a;border-top:1px solid rgba(255,255,255,.12);box-shadow:0 -4px 16px rgba(0,0,0,.3);position:fixed;bottom:0;left:0;right:0;z-index:30;font-size:10px}
+.bottomnav a{display:flex;flex-direction:column;align-items:center;padding:8px 0 10px;color:rgba(255,255,255,.65);text-decoration:none;cursor:pointer}
+.bottomnav a.active{color:#34d399;font-weight:700}
 .bottomnav .ic{font-size:18px;line-height:1.2}
 /* ---- Lock screen (full-page premium login) ---- */
 body.locked .app,body.locked .bottomnav{display:none}
@@ -223,12 +235,40 @@ table.rep td:nth-child(2){color:var(--green);font-weight:600}
 table.rep th:nth-child(3){color:var(--red)}
 table.rep th:nth-child(5){color:var(--blue)}
 .bar-fill{background:linear-gradient(90deg,#f87171,#dc2626)}
+/* ---- Colour integration on every page (same language as the dashboard) ----
+   .sec-* : own soft tint + coloured top strip, with an 18px coloured gap
+   between sections. One colour per money type everywhere: আয় green, ব্যয় red,
+   উত্তোলন blue, হাতে থাকা amber. Cards lift a little more on the dark page
+   background so they stay clearly readable. */
+.view .card{margin-top:18px}
+.card{box-shadow:0 8px 24px rgba(0,0,0,.22)}
+.sec-green{border-top:4px solid var(--green);background:#f6fef9}
+.sec-red{border-top:4px solid var(--red);background:#fff7f7}
+.sec-blue{border-top:4px solid var(--blue);background:#f6f9ff}
+.sec-amber{border-top:4px solid var(--amber);background:#fffdf5}
+.sec-navy{border-top:4px solid var(--navy);background:#fff}
+.sec-slate{border-top:4px solid #64748b;background:#f8fafc}
+/* সব এন্ট্রি: "সব মোট" কার্ড — নেভি রঙের, ড্যাশবোর্ডের হাতে-থাকা কার্ডের মতো */
+.stat.all{background:#f1f5f9;border-color:#cbd5e1;border-top:3px solid var(--navy)}
+.stat.all .label{color:#334155}
+.stat.all .value{color:var(--navy)}
+/* সব এন্ট্রি: ধরনের ছাঁকনি বোতাম — চালু বোতামটা তার ধরনের রঙে */
+.type-row button[data-f="income"].active{background:var(--green);border-color:var(--green);color:#fff}
+.type-row button[data-f="expense"].active{background:var(--red);border-color:var(--red);color:#fff}
+.type-row button[data-f="bank"].active{background:var(--blue);border-color:var(--blue);color:#fff}
+.type-row button[data-f="all"].active{background:var(--navy);border-color:var(--navy);color:#fff}
+/* রিপোর্ট: বাজেট কলাম অ্যাম্বার, বাকি কলাম নেভি */
+table.rep th:nth-child(4){color:var(--amber)}
+table.rep th:nth-child(6){color:var(--navy)}
+/* ব্যাকআপ: বিপজ্জনক জোন — লাল হালকা রঙের ব্লক */
+.danger-zone{background:#fff7f7;border:1px solid #fecaca;border-radius:12px;padding:14px;margin-top:14px}
 /* ---- Report table: scroll inside the card on narrow screens, never the page ---- */
 .table-scroll{overflow-x:auto;margin:0 -4px;padding:0 4px}
 .table-scroll table.rep{min-width:430px}
 /* ---- Mobile (≤640px): stack dashboard rows, tighter cards/calendar, bigger tap targets ---- */
 @media(max-width:640px){
   h1{font-size:24px}
+  header{padding:14px}
   .card{padding:16px 14px}
   .stat{padding:12px 8px}
   .stat .value{font-size:20px}
@@ -333,7 +373,7 @@ table.rep th:nth-child(5){color:var(--blue)}
 
 <!-- ===== নতুন এন্ট্রি ===== -->
 <section class="view" id="view-entry">
-  <div class="card"><h2>নতুন এন্ট্রি যোগ করুন</h2>
+  <div class="card sec-green"><h2>নতুন এন্ট্রি যোগ করুন</h2>
   <form id="entryForm">
     <div><label>ধরন</label><select id="type"><option value="expense">ব্যয়</option><option value="income">আয়</option><option value="bank">ব্যাংক উত্তোলন</option></select></div>
     <div><label>ক্যাটাগরি</label><input id="category" list="catList" placeholder="বেছে নিন বা নতুন লিখুন" value="বাজার" maxlength="40"><datalist id="catList"><option value="বাজার"></option><option value="ঔষধ"></option><option value="ব্যক্তিগত"></option><option value="যাতায়াত"></option><option value="বাড়ি ভাড়া"></option><option value="বিল"></option><option value="শিক্ষা"></option><option value="অন্যান্য"></option></datalist></div>
@@ -350,16 +390,16 @@ table.rep th:nth-child(5){color:var(--blue)}
 
 <!-- ===== তারিখ ক্যালেন্ডার ===== -->
 <section class="view" id="view-calendar">
-  <div class="card">
+  <div class="card sec-blue">
     <div class="cal-head"><button id="calPrev">‹ আগের মাস</button><h2 id="calTitle" style="margin:0"></h2><button id="calNext">পরের মাস ›</button></div>
     <div class="cal-grid" id="calGrid"></div>
   </div>
-  <div class="card"><h2 id="dayTitle">দিনের হিসাব</h2><div id="dayTotals"></div><ul class="list" id="dayList" style="margin-top:0"></ul><div class="empty" id="dayEmpty" hidden>এই দিনে কোনো এন্ট্রি নেই।</div></div>
+  <div class="card sec-amber"><h2 id="dayTitle">দিনের হিসাব</h2><div id="dayTotals"></div><ul class="list" id="dayList" style="margin-top:0"></ul><div class="empty" id="dayEmpty" hidden>এই দিনে কোনো এন্ট্রি নেই।</div></div>
 </section>
 
 <!-- ===== সব এন্ট্রি ===== -->
 <section class="view" id="view-list">
-  <div class="card">
+  <div class="card sec-navy">
     <h2>সব এন্ট্রি <span id="count" style="color:var(--muted);font-size:14px"></span></h2>
     <div class="filters">
       <div class="type-row" id="typeFilters">
@@ -376,7 +416,7 @@ table.rep th:nth-child(5){color:var(--blue)}
       <button class="btn ghost" type="button" id="listClearFilters" style="width:auto;flex:none">ছাঁকনি মুছুন</button>
     </div>
     <div class="grid4" id="listTotals" style="margin-top:14px">
-      <div class="stat"><div class="label">সব এন্ট্রির মোট</div><div class="value" id="listTotalAll">০</div></div>
+      <div class="stat all"><div class="label">সব এন্ট্রির মোট</div><div class="value" id="listTotalAll">০</div></div>
       <div class="stat income"><div class="label">মোট আয়</div><div class="value" id="listTotalIncome">০</div></div>
       <div class="stat expense"><div class="label">মোট ব্যয়</div><div class="value" id="listTotalExpense">০</div></div>
       <div class="stat bank"><div class="label">মোট উত্তোলন</div><div class="value" id="listTotalBank">০</div></div>
@@ -389,7 +429,7 @@ table.rep th:nth-child(5){color:var(--blue)}
 
 <!-- ===== বাজেট লিস্ট ===== -->
 <section class="view" id="view-budgetlist">
-  <div class="card"><h2>📋 বাজেট লিস্ট — <span id="budgetListMonthLabel"></span></h2>
+  <div class="card sec-amber"><h2>📋 বাজেট লিস্ট — <span id="budgetListMonthLabel"></span></h2>
     <p class="note">আলাদা বাজেটের তালিকা। প্রতিটা আইটেমের বাজেট থেকে ওই মাসের খরচ নিজে থেকেই মাইনাস হয়ে বাকি দেখাবে। খরচ ধরা হয় ওই মাসে <b>ওই নামের আইটেমের</b> মোট ব্যয় দিয়ে; নাম না মিললে ওই <b>ক্যাটাগরির</b> মোট ব্যয় দিয়ে। প্রতিটা আইটেমের নিজের <b>তারিখ</b> থাকে। ক্যাটাগরি তালিকা থেকে বেছে নেওয়া যায়, আবার নিজে লিখে নতুন ক্যাটাগরিও দেওয়া যায় — নতুন ক্যাটাগরি মনে রাখা হয়, পরের বার তালিকায় দেখাবে। “খরচে যোগ করুন” চাপলেই আইটেমটি আজকের তারিখে, বাজেটের অংকে, খরচের তালিকায় যোগ হয়ে যাবে।</p>
     <div style="display:flex;gap:8px;align-items:center;margin-bottom:10px;flex-wrap:wrap">
       <label style="margin:0">মাস:</label>
@@ -419,7 +459,7 @@ table.rep th:nth-child(5){color:var(--blue)}
     </form>
     <p class="note" id="biMsg"></p>
   </div>
-  <div class="card"><h2>এই মাসের বাজেট লিস্ট</h2>
+  <div class="card sec-green"><h2>এই মাসের বাজেট লিস্ট</h2>
     <div style="display:flex;gap:8px;margin-bottom:8px;flex-wrap:wrap"><button class="btn ghost" id="budgetCsv" type="button">⬇️ বাজেট লিস্ট CSV ডাউনলোড</button></div>
     <ul class="list" id="budgetItemList" style="margin-top:0"></ul>
     <div class="empty" id="budgetItemEmpty" hidden>এই মাসে কোনো বাজেট আইটেম নেই — উপরে ফর্ম থেকে যোগ করুন।</div>
@@ -428,12 +468,12 @@ table.rep th:nth-child(5){color:var(--blue)}
 
 <!-- ===== রিপোর্ট ===== -->
 <section class="view" id="view-report">
-  <div class="card"><h2>💰 মাসভিত্তিক আয়-ব্যয় রিপোর্ট</h2>
+  <div class="card sec-green"><h2>💰 মাসভিত্তিক আয়-ব্যয় রিপোর্ট</h2>
     <div class="table-scroll"><table class="rep"><thead><tr><th>মাস</th><th>আয়</th><th>ব্যয়</th><th>বাজেট</th><th>ব্যাংক</th><th>বাকি</th></tr></thead><tbody id="repBody"></tbody></table></div>
     <p class="note" style="margin:10px 0 0">ব্যাংক উত্তোলন আয় বা ব্যয় নয় — খরচের জন্য তোলা টাকা, তাই শুধু আলাদা করে দেখানো হচ্ছে। বাকি = আয় − ব্যয়। হাতে থাকা টাকা = উত্তোলন + আয় − ব্যয়।</p>
   </div>
-  <div class="card"><h2>📊 মাসভিত্তিক ব্যয়ের চার্ট</h2><div id="barChart"></div></div>
-  <div class="card"><h2>🏷️ ক্যাটাগরি অনুযায়ী ব্যয়</h2>
+  <div class="card sec-red"><h2>📊 মাসভিত্তিক ব্যয়ের চার্ট</h2><div id="barChart"></div></div>
+  <div class="card sec-blue"><h2>🏷️ ক্যাটাগরি অনুযায়ী ব্যয়</h2>
     <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px"><label style="margin:0">মাস:</label><select id="catMonth" style="width:auto;flex:1"></select></div>
     <div id="catBreakdown"></div>
   </div>
@@ -441,7 +481,7 @@ table.rep th:nth-child(5){color:var(--blue)}
 
 <!-- ===== ব্যাকআপ ===== -->
 <section class="view" id="view-backup">
-  <div class="card"><h2>📥 ব্যাকআপ</h2>
+  <div class="card sec-blue"><h2>📥 ব্যাকআপ</h2>
     <p class="note">মোট এন্ট্রি: <b id="backupCount">০</b>টি। ব্যাকআপ নিলে এই অ্যাকাউন্টের পুরো হিসাব ফাইলে নেমে যাবে — ফোন বদলালেও আবার আপলোড করে ফিরিয়ে আনা যাবে।</p>
     <div style="display:flex;gap:8px;flex-wrap:wrap">
       <button class="btn blue" id="exportJson">⬇️ JSON ডাউনলোড</button>
@@ -452,7 +492,7 @@ table.rep th:nth-child(5){color:var(--blue)}
       <input type="file" id="importFile" accept=".json,application/json">
       <p class="note" id="importMsg"></p>
     </div>
-    <div style="margin-top:14px;border-top:1px solid var(--line);padding-top:14px">
+    <div class="danger-zone">
       <button class="btn ghost" id="clearAll" style="color:var(--red);border-color:#fecaca">🗑️ সব ডেটা মুছে ফেলুন</button>
       <p class="note">সাবধান: এটা এই অ্যাকাউন্টের সব এন্ট্রি মুছে দেবে (Supabase চালু থাকলে সেখান থেকেও)। আগে ব্যাকআপ নিয়ে নিন। অন্য অ্যাকাউন্টের হিসাব মুছবে না।</p>
     </div>
@@ -461,7 +501,7 @@ table.rep th:nth-child(5){color:var(--blue)}
 
 <!-- ===== সিঙ্ক সেটিংস (Supabase) ===== -->
 <section class="view" id="view-settings">
-  <div class="card"><h2>⚙️ সিঙ্ক সেটিংস — Supabase</h2>
+  <div class="card sec-blue"><h2>⚙️ সিঙ্ক সেটিংস — Supabase</h2>
     <p class="note">অবস্থা: <span class="sync-badge local" id="syncBadge2">● লোকাল মোড</span></p>
     <p class="note">লোকাল মোডে ডেটা শুধু এই ব্রাউজারেই থাকে। Supabase যুক্ত করলে সব ডিভাইসে একই হিসাব সিঙ্ক হবে। চাবি দুটো শুধু এই ব্রাউজারে থাকে, কোথাও পাঠানো হয় না। লোকাল অ্যাকাউন্টগুলো এই ব্রাউজারেই থাকে — অন্য ডিভাইসে আবার অ্যাকাউন্ট খুলতে হবে, যতক্ষণ না Supabase সিঙ্ক চালু হয়।</p>
     <div style="display:grid;gap:10px">
@@ -485,7 +525,7 @@ table.rep th:nth-child(5){color:var(--blue)}
       </ol>
     </div>
   </div>
-  <div class="card"><h2>🔐 পিন পরিবর্তন</h2>
+  <div class="card sec-amber"><h2>🔐 পিন পরিবর্তন</h2>
     <p class="note">পিন শুধু এই ব্রাউজারে থাকে (হ্যাশ আকারে, আসল পিন কোথাও সংরক্ষণ হয় না)। এই পিন বদলাবে: <b id="changePassAcct">—</b>। বদলাতে পুরোনো পিন লাগবে।</p>
     <div style="display:grid;gap:10px">
       <div><label>পুরোনো পিন</label><input id="oldPass" type="password" inputmode="numeric" autocomplete="current-password" placeholder="••••"></div>
@@ -495,7 +535,7 @@ table.rep th:nth-child(5){color:var(--blue)}
       <p class="note" id="changePassMsg"></p>
     </div>
   </div>
-  <div class="card"><h2>🚪 লগআউট</h2>
+  <div class="card sec-red"><h2>🚪 লগআউট</h2>
     <p class="note">খাতা থেকে বের হয়ে যাবেন — আবার খুলতে পাসকোড লাগবে। আপনার হিসাব মুছবে না।</p>
     <button class="btn ghost" id="logoutBtnSettings" type="button" style="color:var(--red);border-color:#fecaca">🚪 লগআউট</button>
   </div>
