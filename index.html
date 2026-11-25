@@ -195,6 +195,34 @@ body.locked .app,body.locked .bottomnav{display:none}
 .dash-row input{width:auto;flex:1;min-width:150px}
 .stat .count{font-size:13px;color:var(--muted);margin-top:2px}
 .stat .sub2{font-size:11px;color:var(--muted);margin-top:2px}
+/* ---- Dashboard colour language: green=আয়, red=ব্যয়, blue=উত্তোলন, amber=হাতে থাকা ----
+   Each dashboard section is its own tinted block with a coloured top strip and a
+   wider coloured gap to the next section, so sections read as distinct blocks at
+   a glance. Light theme kept throughout; login page untouched. */
+.stat.income{background:var(--green-bg);border-color:#a7f3d0;border-top:3px solid var(--green)}
+.stat.income .label{color:#047857}
+.stat.expense{background:var(--red-bg);border-color:#fecaca;border-top:3px solid var(--red)}
+.stat.expense .label{color:#b91c1c}
+.stat.bank{background:var(--blue-bg);border-color:#bfdbfe;border-top:3px solid var(--blue)}
+.stat.bank .label{color:#1d4ed8}
+.stat.hand{background:var(--amber-bg);border-color:#fde68a;border-top:3px solid var(--amber)}
+.stat.hand .label{color:#b45309}
+.stat.hand .value{color:var(--amber)}
+.stat.hand .value.neg{color:var(--red)}
+#view-dashboard .card{margin-top:18px}
+.dash-sec{border-top:4px solid var(--line)}
+.dash-sec.sec-period{border-top-color:var(--green);background:#f6fef9}
+.dash-sec.sec-cal{border-top-color:var(--blue);background:#f6f9ff}
+.dash-sec.sec-budget{border-top-color:var(--amber);background:#fffdf5}
+.dash-sec.sec-recent{border-top-color:var(--navy);background:#fff}
+.dash-sec.sec-quick{border-top-color:#64748b;background:#f8fafc}
+.badge{font-weight:700}
+/* Report: same colour language in the monthly table + bars (CSS only) */
+table.rep th:nth-child(2){color:var(--green)}
+table.rep td:nth-child(2){color:var(--green);font-weight:600}
+table.rep th:nth-child(3){color:var(--red)}
+table.rep th:nth-child(5){color:var(--blue)}
+.bar-fill{background:linear-gradient(90deg,#f87171,#dc2626)}
 /* ---- Report table: scroll inside the card on narrow screens, never the page ---- */
 .table-scroll{overflow-x:auto;margin:0 -4px;padding:0 4px}
 .table-scroll table.rep{min-width:430px}
@@ -245,7 +273,7 @@ body.locked .app,body.locked .bottomnav{display:none}
 
 <!-- ===== ড্যাশবোর্ড ===== -->
 <section class="view active" id="view-dashboard">
-  <div class="card">
+  <div class="card dash-sec sec-period">
     <div class="pill-row" id="dashPills">
       <button type="button" id="pill-today" data-pill="today">আজকে</button>
       <button type="button" id="pill-yesterday" data-pill="yesterday">গতকাল</button>
@@ -274,15 +302,15 @@ body.locked .app,body.locked .bottomnav{display:none}
       <div class="stat income"><div class="icon">💰</div><div class="label">আয়</div><div class="value" id="dashInc">০</div><div class="count" id="dashIncCount">০ টি</div></div>
       <div class="stat expense"><div class="icon">💸</div><div class="label">ব্যয়</div><div class="value" id="dashExp">০</div><div class="count" id="dashExpCount">০ টি</div></div>
       <div class="stat bank"><div class="icon">🏦</div><div class="label">উত্তোলন</div><div class="value" id="dashBank">০</div><div class="count" id="dashBankCount">০ টি</div><div class="sub2">আয়-ব্যয়ের বাইরে — শুধু দেখানো হচ্ছে</div></div>
-      <div class="stat"><div class="icon">🤲</div><div class="label">হাতে থাকা টাকা</div><div class="value" id="dashHand">০</div><div class="sub2">উত্তোলন + আয় − ব্যয় (এই সময় পর্যন্ত)</div></div>
+      <div class="stat hand"><div class="icon">🤲</div><div class="label">হাতে থাকা টাকা</div><div class="value" id="dashHand">০</div><div class="sub2">উত্তোলন + আয় − ব্যয় (এই সময় পর্যন্ত)</div></div>
     </div>
   </div>
-  <div class="card">
+  <div class="card dash-sec sec-cal">
     <div class="cal-head"><h2 style="margin:0">📅 তারিখে ক্লিক করে হিসাব দেখুন</h2><div style="display:flex;gap:6px"><button id="dashCalPrev" type="button" aria-label="আগের মাস">‹</button><button id="dashCalNext" type="button" aria-label="পরের মাস">›</button></div></div>
     <h3 id="dashCalTitle" style="text-align:center;margin:0 0 10px"></h3>
     <div class="cal-grid" id="dashCalGrid"></div>
   </div>
-  <div class="card" id="budgetCard"><h2>📅 মাসিক বাজেট — <span id="budgetMonthLabel"></span></h2>
+  <div class="card dash-sec sec-budget" id="budgetCard"><h2>📅 মাসিক বাজেট — <span id="budgetMonthLabel"></span></h2>
     <div id="budgetBox"></div>
     <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
       <input id="budgetInput" type="number" min="1" step="1" placeholder="এই মাসের বাজেট (৳)" style="flex:1;min-width:160px">
@@ -291,8 +319,8 @@ body.locked .app,body.locked .bottomnav{display:none}
     </div>
     <p class="note" id="budgetMsg"></p>
   </div>
-  <div class="card"><h2>🕒 সাম্প্রতিক এন্ট্রি</h2><ul class="list" id="recentList" style="margin-top:0"></ul></div>
-  <div class="card"><h2>🔧 দ্রুত কাজ</h2>
+  <div class="card dash-sec sec-recent"><h2>🕒 সাম্প্রতিক এন্ট্রি</h2><ul class="list" id="recentList" style="margin-top:0"></ul></div>
+  <div class="card dash-sec sec-quick"><h2>🔧 দ্রুত কাজ</h2>
     <div style="display:flex;gap:8px;flex-wrap:wrap">
       <button class="btn" data-goto="entry">➕ নতুন এন্ট্রি</button>
       <button class="btn ghost" data-goto="budgetlist">📋 বাজেট লিস্ট</button>
