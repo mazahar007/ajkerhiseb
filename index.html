@@ -144,6 +144,14 @@ body.locked .app,body.locked .bottomnav{display:none}
 .lock-note{font-size:13px;color:var(--muted);margin-top:10px;line-height:1.6}
 .acct-btn{width:100%;text-align:left;padding:12px 16px;font-weight:600}
 .acct-btn:hover{background:#f1f5f9}
+/* ---- Dashboard (Shad POS style: period pills + date + range + calendar) ---- */
+.pill-row{display:flex;gap:6px;background:#f1f5f9;border-radius:999px;padding:5px;width:fit-content;max-width:100%;flex-wrap:wrap}
+.pill-row button{border:0;background:transparent;border-radius:999px;padding:8px 16px;font-weight:600;color:var(--ink)}
+.pill-row button.active{background:var(--green);color:#fff}
+.dash-row{display:flex;gap:8px;align-items:center;margin-top:12px;flex-wrap:wrap}
+.dash-row input{width:auto;flex:1;min-width:150px}
+.stat .count{font-size:13px;color:var(--muted);margin-top:2px}
+.stat .sub2{font-size:11px;color:var(--muted);margin-top:2px}
 @media(min-width:768px){.bottomnav{display:none}}
 </style>
 </head>
@@ -174,12 +182,42 @@ body.locked .app,body.locked .bottomnav{display:none}
 
 <!-- ===== ড্যাশবোর্ড ===== -->
 <section class="view active" id="view-dashboard">
-  <div class="card hand"><div class="label">হাতে থাকা টাকা</div><div class="value" id="handCash">০</div><div class="sub">উত্তোলন + আয় − ব্যয়</div></div>
-  <div class="grid4" style="margin-top:12px">
-    <div class="stat income"><div class="icon">💰</div><div class="label">মোট আয়</div><div class="value" id="totalIncome">০</div></div>
-    <div class="stat expense"><div class="icon">💸</div><div class="label">মোট ব্যয়</div><div class="value" id="totalExpense">০</div></div>
-    <div class="stat bank"><div class="icon">🏦</div><div class="label">ব্যাংক উত্তোলন</div><div class="value" id="totalBank">০</div><div style="font-size:11px;color:var(--muted)">আয়-ব্যয়ের বাইরে — শুধু দেখানো হচ্ছে</div></div>
-    <div class="stat"><div class="icon">⚖️</div><div class="label">বাকি (আয় − ব্যয়)</div><div class="value" id="balance">০</div></div>
+  <div class="card">
+    <div class="pill-row" id="dashPills">
+      <button type="button" id="pill-today" data-pill="today">আজকে</button>
+      <button type="button" id="pill-yesterday" data-pill="yesterday">গতকাল</button>
+      <button type="button" id="pill-7d" data-pill="7d">৭ দিন</button>
+      <button type="button" id="pill-month" data-pill="month" class="active">এই মাস</button>
+      <button type="button" id="pill-all" data-pill="all">সব</button>
+    </div>
+    <div class="dash-row">
+      <input id="dashDate" type="date" title="তারিখ বাছুন">
+      <button class="btn dark" type="button" id="dashGoDate" style="flex:none">তারিখ দেখুন</button>
+    </div>
+    <div class="dash-row">
+      <button class="btn dark" type="button" id="dashTodayBtn">👉 আজকের হিসাব</button>
+    </div>
+    <div class="dash-row">
+      <label style="margin:0;font-weight:600">রেঞ্জ:</label>
+      <input id="dashFrom" type="date" title="থেকে">
+      <span style="color:var(--muted)">থেকে</span>
+      <input id="dashTo" type="date" title="পর্যন্ত">
+      <button class="btn blue" type="button" id="dashApplyRange" style="flex:none">রেঞ্জ</button>
+      <button class="btn ghost" type="button" id="dashClearRange" style="flex:none">✕ ক্লিয়ার</button>
+    </div>
+    <p class="note" id="dashPeriodLabel" style="margin:10px 0 0;font-weight:600"></p>
+    <p class="note" style="margin:4px 0 0">💡 ক্যালেন্ডারের যেকোনো তারিখে ক্লিক করুন → ওই দিনের হিসাব দেখাবে।</p>
+    <div class="grid4" style="margin-top:12px">
+      <div class="stat income"><div class="icon">💰</div><div class="label">আয়</div><div class="value" id="dashInc">০</div><div class="count" id="dashIncCount">০ টি</div></div>
+      <div class="stat expense"><div class="icon">💸</div><div class="label">ব্যয়</div><div class="value" id="dashExp">০</div><div class="count" id="dashExpCount">০ টি</div></div>
+      <div class="stat bank"><div class="icon">🏦</div><div class="label">উত্তোলন</div><div class="value" id="dashBank">০</div><div class="count" id="dashBankCount">০ টি</div><div class="sub2">আয়-ব্যয়ের বাইরে — শুধু দেখানো হচ্ছে</div></div>
+      <div class="stat"><div class="icon">🤲</div><div class="label">হাতে থাকা টাকা</div><div class="value" id="dashHand">০</div><div class="sub2">উত্তোলন + আয় − ব্যয় (এই সময় পর্যন্ত)</div></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="cal-head"><h2 style="margin:0">📅 তারিখে ক্লিক করে হিসাব দেখুন</h2><div style="display:flex;gap:6px"><button id="dashCalPrev" type="button" aria-label="আগের মাস">‹</button><button id="dashCalNext" type="button" aria-label="পরের মাস">›</button></div></div>
+    <h3 id="dashCalTitle" style="text-align:center;margin:0 0 10px"></h3>
+    <div class="cal-grid" id="dashCalGrid"></div>
   </div>
   <div class="card" id="budgetCard"><h2>📅 মাসিক বাজেট — <span id="budgetMonthLabel"></span></h2>
     <div id="budgetBox"></div>
@@ -189,10 +227,6 @@ body.locked .app,body.locked .bottomnav{display:none}
       <button class="btn ghost" id="budgetClear" hidden>মুছে ফেলুন</button>
     </div>
     <p class="note" id="budgetMsg"></p>
-  </div>
-  <div class="grid2">
-    <div class="card"><h2>📅 আজকের হিসাব</h2><div id="todayBox"></div></div>
-    <div class="card"><h2>🗓️ এই মাসের হিসাব</h2><div id="monthBox"></div></div>
   </div>
   <div class="card"><h2>🕒 সাম্প্রতিক এন্ট্রি</h2><ul class="list" id="recentList" style="margin-top:0"></ul></div>
   <div class="card"><h2>🔧 দ্রুত কাজ</h2>
@@ -1056,12 +1090,80 @@ function setSync(mode, msg) {
 
 /* ===== Helpers ===== */
 function bn2(n) { const neg = n < 0; let s = Math.abs(Math.round(n)).toLocaleString('en-US'); return (neg ? '−' : '') + s.replace(/\d/g, d => '০১২৩৪৫৬৭৮৯'[d]); }
-function fmtDate(d) { if (!d) return ''; const p = d.split('-'); if (p.length !== 3) return d; return bn2(+p[2]) + '/' + bn2(+p[1]) + '/' + bn2(+p[0]); }
+function bnPlain(n) { return String(n).replace(/\d/g, d => '০১২৩৪৫৬৭৮৯'[d]); } /* সালের মতো সংখ্যায় হাজারের কমা বসে না — bn2(2026) "২,০২৬" দিত */
+function fmtDate(d) { if (!d) return ''; const p = d.split('-'); if (p.length !== 3) return d; return bn2(+p[2]) + '/' + bn2(+p[1]) + '/' + bnPlain(+p[0]); }
 function monthKey(d) { return d ? d.slice(0, 7) : ''; }
-function monthLabel(k) { const p = k.split('-'); const months = ['জানুয়ারি', 'ফেব্রুয়ারি', 'মার্চ', 'এপ্রিল', 'মে', 'জুন', 'জুলাই', 'আগস্ট', 'সেপ্টেম্বর', 'অক্টোবর', 'নভেম্বর', 'ডিসেম্বর']; return months[+p[1] - 1] + ' ' + bn2(+p[0]); }
+function monthLabel(k) { const p = k.split('-'); const months = ['জানুয়ারি', 'ফেব্রুয়ারি', 'মার্চ', 'এপ্রিল', 'মে', 'জুন', 'জুলাই', 'আগস্ট', 'সেপ্টেম্বর', 'অক্টোবর', 'নভেম্বর', 'ডিসেম্বর']; return months[+p[1] - 1] + ' ' + bnPlain(+p[0]); }
 function todayStr() { const t = new Date(); return t.getFullYear() + '-' + String(t.getMonth() + 1).padStart(2, '0') + '-' + String(t.getDate()).padStart(2, '0'); }
 function totals(list) { let inc = 0, exp = 0, bank = 0; (list || entries).forEach(e => { if (e.type === 'income') inc += e.amount; else if (e.type === 'expense') exp += e.amount; else if (e.type === 'bank') bank += e.amount; }); return { inc, exp, bank, balance: inc - exp, hand: bank + inc - exp }; }
 function escapeHtml(s) { return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
+
+/* ===== Dashboard (Shad POS style): period pills + date + range + calendar =====
+   Default period is এই মাস, so the seed data (24/11/2026) is visible on first open.
+   The 4 cards show the SELECTED period's আয় / ব্যয় / উত্তোলন (with entry counts);
+   উত্তোলন is display-only per the bank rule — never income/expense.
+   হাতে থাকা টাকা is cumulative through the end of the selected period
+   (উত্তোলন + আয় − ব্যয়), i.e. cash on hand as of that date. */
+let dashMode = 'month'; // today | yesterday | 7d | month | all | day | range
+let dashDay = '', dashFrom = '', dashTo = '';
+let dashCalYear, dashCalMonth;
+(function initDashCal() { const t = todayStr().split('-'); dashCalYear = +t[0]; dashCalMonth = +t[1] - 1; })();
+function addDaysStr(iso, n) { const d = new Date(iso + 'T00:00:00'); d.setDate(d.getDate() + n); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); }
+function monthEndStr(mk) { const p = mk.split('-'); const d = new Date(+p[0], +p[1], 0); return mk + '-' + String(d.getDate()).padStart(2, '0'); }
+function dashRange() {
+  const today = todayStr();
+  if (dashMode === 'today') return { from: today, to: today, label: 'আজকে — ' + fmtDate(today) };
+  if (dashMode === 'yesterday') { const y = addDaysStr(today, -1); return { from: y, to: y, label: 'গতকাল — ' + fmtDate(y) }; }
+  if (dashMode === '7d') { const f = addDaysStr(today, -6); return { from: f, to: today, label: 'গত ৭ দিন — ' + fmtDate(f) + ' থেকে ' + fmtDate(today) }; }
+  if (dashMode === 'month') { const mk = monthKey(today); return { from: mk + '-01', to: monthEndStr(mk), label: 'এই মাস — ' + monthLabel(mk) }; }
+  if (dashMode === 'all') return { from: '', to: '', label: 'সব সময়ের হিসাব' };
+  if (dashMode === 'day') return { from: dashDay, to: dashDay, label: fmtDate(dashDay) + ' — দিনের হিসাব' };
+  return { from: dashFrom, to: dashTo, label: fmtDate(dashFrom) + ' থেকে ' + fmtDate(dashTo) };
+}
+function renderDash() {
+  const r = dashRange();
+  const list = entries.filter(e => (!r.from || e.date >= r.from) && (!r.to || e.date <= r.to));
+  const t = totals(list);
+  const cnt = type => list.filter(e => e.type === type).length;
+  const hand = totals(r.to ? entries.filter(e => e.date <= r.to) : entries).hand;
+  document.getElementById('dashInc').textContent = bn2(t.inc);
+  document.getElementById('dashExp').textContent = bn2(t.exp);
+  document.getElementById('dashBank').textContent = bn2(t.bank);
+  const handEl = document.getElementById('dashHand');
+  handEl.textContent = bn2(hand); handEl.classList.toggle('neg', hand < 0);
+  document.getElementById('dashIncCount').textContent = bn2(cnt('income')) + ' টি';
+  document.getElementById('dashExpCount').textContent = bn2(cnt('expense')) + ' টি';
+  document.getElementById('dashBankCount').textContent = bn2(cnt('bank')) + ' টি';
+  document.getElementById('dashPeriodLabel').textContent = r.label + ' • ' + bn2(list.length) + ' টি এন্ট্রি';
+  ['today', 'yesterday', '7d', 'month', 'all'].forEach(m => {
+    const b = document.getElementById('pill-' + m);
+    if (b) b.classList.toggle('active', m === dashMode);
+  });
+  renderDashCal();
+}
+function renderDashCal() {
+  const months = ['জানুয়ারি', 'ফেব্রুয়ারি', 'মার্চ', 'এপ্রিল', 'মে', 'জুন', 'জুলাই', 'আগস্ট', 'সেপ্টেম্বর', 'অক্টোবর', 'নভেম্বর', 'ডিসেম্বর'];
+  document.getElementById('dashCalTitle').textContent = months[dashCalMonth] + ' ' + bnPlain(dashCalYear);
+  const first = new Date(dashCalYear, dashCalMonth, 1).getDay();
+  const days = new Date(dashCalYear, dashCalMonth + 1, 0).getDate();
+  const today = todayStr();
+  const grid = document.getElementById('dashCalGrid');
+  let html = ['রবি', 'সোম', 'মঙ্গল', 'বুধ', 'বৃহ', 'শুক্র', 'শনি'].map(d => `<div class="cal-dow">${d}</div>`).join('');
+  for (let i = 0; i < first; i++) html += '<div class="cal-day other"></div>';
+  for (let d = 1; d <= days; d++) {
+    const ds = dashCalYear + '-' + String(dashCalMonth + 1).padStart(2, '0') + '-' + String(d).padStart(2, '0');
+    const dayEntries = entries.filter(e => e.date === ds);
+    const dayExp = dayEntries.filter(e => e.type === 'expense').reduce((s, e) => s + e.amount, 0);
+    const cls = ['cal-day', ds === today ? 'today' : '', (dashMode === 'day' && ds === dashDay) ? 'selected' : ''].join(' ');
+    html += `<div class="${cls}" data-date="${ds}"><div class="dnum">${bn2(d)}</div>${dayExp ? `<div class="damt">৳${bn2(dayExp)}</div>` : ''}${dayEntries.length ? '<div class="dot"></div>' : ''}</div>`;
+  }
+  grid.innerHTML = html;
+  grid.querySelectorAll('.cal-day[data-date]').forEach(el => el.onclick = () => {
+    dashMode = 'day'; dashDay = el.dataset.date;
+    document.getElementById('dashDate').value = dashDay;
+    renderDash();
+  });
+}
 
 /* ===== Navigation (sidebar + mobile bottom nav) ===== */
 let currentView = 'dashboard';
@@ -1069,6 +1171,7 @@ function showView(v) {
   currentView = v;
   document.querySelectorAll('.view').forEach(s => s.classList.toggle('active', s.id === 'view-' + v));
   document.querySelectorAll('[data-view]').forEach(a => a.classList.toggle('active', a.dataset.view === v));
+  if (v === 'dashboard') renderDash();
   if (v === 'calendar') renderCalendar();
   if (v === 'report') renderReport();
   if (v === 'budgetlist') renderBudgetList();
@@ -1081,24 +1184,8 @@ document.querySelectorAll('[data-goto]').forEach(b => b.addEventListener('click'
 /* ===== Render: totals + dashboard + list ===== */
 let editingId = null, filterType = 'all', searchQ = '', filterMonth = 'all', filterCat = 'all', filterDate = '', filterYear = 'all', catMonthSel = '';
 function render() {
-  const t = totals();
-  document.getElementById('totalIncome').textContent = bn2(t.inc);
-  document.getElementById('totalExpense').textContent = bn2(t.exp);
-  document.getElementById('totalBank').textContent = bn2(t.bank);
-  const bal = document.getElementById('balance'); bal.textContent = bn2(t.balance); bal.classList.toggle('neg', t.balance < 0);
-  const hand = document.getElementById('handCash'); hand.textContent = bn2(t.hand); hand.classList.toggle('neg', t.hand < 0);
-  // Today + this month
-  const today = todayStr();
-  const tToday = totals(entries.filter(e => e.date === today));
-  const mk = monthKey(today);
-  const tMonth = totals(entries.filter(e => monthKey(e.date) === mk));
-  const box = (tt, label) => `
-    <div class="mini-row"><span>${label} আয়</span><b style="color:var(--green)">+ ৳${bn2(tt.inc)}</b></div>
-    <div class="mini-row"><span>${label} ব্যয়</span><b style="color:var(--red)">− ৳${bn2(tt.exp)}</b></div>
-    <div class="mini-row"><span>${label} ব্যাংক উত্তোলন</span><b style="color:var(--blue)">৳${bn2(tt.bank)}</b></div>
-    <div class="mini-row"><span>${label} বাকি</span><b>${bn2(tt.balance)}</b></div>`;
-  document.getElementById('todayBox').innerHTML = box(tToday, 'আজ');
-  document.getElementById('monthBox').innerHTML = box(tMonth, 'এই মাসে');
+  // Dashboard (period pills / date / range / calendar)
+  renderDash();
   // Monthly budget (current month)
   renderBudget();
   // Recent 5
@@ -1290,6 +1377,40 @@ document.getElementById('dateFilter').addEventListener('change', ev => { filterD
 document.getElementById('yearFilter').addEventListener('change', ev => { filterYear = ev.target.value; render(); });
 document.getElementById('monthFilter').addEventListener('change', ev => { filterMonth = ev.target.value; render(); });
 document.getElementById('catFilter').addEventListener('change', ev => { filterCat = ev.target.value; render(); });
+
+/* ===== Dashboard period controls (pills / date / range / calendar nav) ===== */
+function dashResetInputs() {
+  document.getElementById('dashDate').value = '';
+  document.getElementById('dashFrom').value = '';
+  document.getElementById('dashTo').value = '';
+}
+['today', 'yesterday', '7d', 'month', 'all'].forEach(m => {
+  document.getElementById('pill-' + m).addEventListener('click', () => {
+    dashMode = m; dashDay = ''; dashFrom = ''; dashTo = ''; dashResetInputs(); renderDash();
+  });
+});
+document.getElementById('dashGoDate').addEventListener('click', () => {
+  const v = document.getElementById('dashDate').value;
+  if (!v) return;
+  dashMode = 'day'; dashDay = v;
+  const p = v.split('-'); dashCalYear = +p[0]; dashCalMonth = +p[1] - 1;
+  renderDash();
+});
+document.getElementById('dashTodayBtn').addEventListener('click', () => {
+  dashMode = 'today'; dashDay = ''; dashFrom = ''; dashTo = ''; dashResetInputs();
+  const t = todayStr().split('-'); dashCalYear = +t[0]; dashCalMonth = +t[1] - 1;
+  renderDash();
+});
+document.getElementById('dashApplyRange').addEventListener('click', () => {
+  const f = document.getElementById('dashFrom').value, to = document.getElementById('dashTo').value;
+  if (!f || !to || f > to) return;
+  dashMode = 'range'; dashFrom = f; dashTo = to; renderDash();
+});
+document.getElementById('dashClearRange').addEventListener('click', () => {
+  dashMode = 'month'; dashDay = ''; dashFrom = ''; dashTo = ''; dashResetInputs(); renderDash();
+});
+document.getElementById('dashCalPrev').onclick = () => { dashCalMonth--; if (dashCalMonth < 0) { dashCalMonth = 11; dashCalYear--; } renderDashCal(); };
+document.getElementById('dashCalNext').onclick = () => { dashCalMonth++; if (dashCalMonth > 11) { dashCalMonth = 0; dashCalYear++; } renderDashCal(); };
 document.getElementById('listClearFilters').addEventListener('click', () => {
   filterType = 'all'; searchQ = ''; filterMonth = 'all'; filterCat = 'all'; filterDate = ''; filterYear = 'all';
   document.getElementById('search').value = '';
@@ -1319,7 +1440,7 @@ let calYear, calMonth, calSelected = null;
 })();
 function renderCalendar() {
   const months = ['জানুয়ারি', 'ফেব্রুয়ারি', 'মার্চ', 'এপ্রিল', 'মে', 'জুন', 'জুলাই', 'আগস্ট', 'সেপ্টেম্বর', 'অক্টোবর', 'নভেম্বর', 'ডিসেম্বর'];
-  document.getElementById('calTitle').textContent = months[calMonth] + ' ' + bn2(calYear);
+  document.getElementById('calTitle').textContent = months[calMonth] + ' ' + bnPlain(calYear);
   const first = new Date(calYear, calMonth, 1).getDay();
   const days = new Date(calYear, calMonth + 1, 0).getDate();
   const today = todayStr();
