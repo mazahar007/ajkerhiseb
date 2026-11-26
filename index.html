@@ -992,7 +992,7 @@ async function setupEmailLogin() {
   if (form) form.hidden = false;
   try {
     await loadSbJs();
-    if (!sb) sb = window.supabase.createClient(getSbConfig().url, getSbConfig().anonKey);
+    if (!sb) sb = window.supabase.createClient(sbBaseUrl(getSbConfig().url), getSbConfig().anonKey);
     const { data } = await sb.auth.getSession();
     if (data && data.session) { unlockApp(); }
   } catch (err) {
@@ -1007,7 +1007,7 @@ async function emailAuth(mode) {
   errBox.textContent = '';
   try {
     await loadSbJs();
-    if (!sb) sb = window.supabase.createClient(getSbConfig().url, getSbConfig().anonKey);
+    if (!sb) sb = window.supabase.createClient(sbBaseUrl(getSbConfig().url), getSbConfig().anonKey);
     if (mode === 'signin') {
       const { error } = await sb.auth.signInWithPassword({ email, password });
       if (error) throw error;
@@ -1329,12 +1329,16 @@ function sbErrText(e) {
   if (e.message) return e.message;
   try { return JSON.stringify(e); } catch (_) { return String(e); }
 }
+function sbBaseUrl(cfgUrl) {
+  try { if (location.hostname.endsWith('.vercel.app')) return location.origin + '/api/supabase'; } catch (e) {}
+  return cfgUrl;
+}
 async function initSupabase() {
   const cfg = getSbConfig();
   if (!cfg) { setSync('local'); return false; }
   try {
     await loadSbJs();
-    sb = window.supabase.createClient(cfg.url, cfg.anonKey);
+    sb = window.supabase.createClient(sbBaseUrl(cfg.url), cfg.anonKey);
     const { error } = await sb.from('transactions').select('id', { count: 'exact', head: true });
     if (error) throw error;
     sbMode = true; setSync('live'); return true;
@@ -1859,7 +1863,7 @@ document.getElementById('sbTest').onclick = async () => {
   msg.textContent = t('পরীক্ষা চলছে…');
   try {
     await loadSbJs();
-    const c = window.supabase.createClient(url, anonKey);
+    const c = window.supabase.createClient(sbBaseUrl(url), anonKey);
     const { error } = await c.from('transactions').select('id', { count: 'exact', head: true });
     msg.textContent = error ? t('❌ সংযোগ ব্যর্থ') + ': ' + sbErrText(error) : t('✅ সংযোগ ঠিক আছে — transactions টেবিল পাওয়া গেছে।');
   } catch (err) { msg.textContent = '❌ সংযোগ ব্যর্থ: ' + sbErrText(err); }
