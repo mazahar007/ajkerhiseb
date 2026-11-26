@@ -137,6 +137,7 @@ table.rep th:first-child,table.rep td:first-child{text-align:left}
 table.rep th{color:var(--muted);font-weight:600}
 .empty{color:var(--muted);text-align:center;padding:20px 0}
 .note{font-size:13px;color:var(--muted);line-height:1.6}
+#sbMsg{overflow-wrap:break-word;word-break:break-word}
 .note ol{margin:6px 0;padding-left:20px}
 footer{color:rgba(255,255,255,.75);font-size:13px;text-align:center;margin-top:24px}
 /* ---- Mobile bottom nav ---- */
@@ -1290,7 +1291,7 @@ function saveLocal() { localStorage.setItem(KEY, JSON.stringify(entries)); }
 let entries = loadLocal();
 
 /* ===== Supabase layer (optional — localStorage fallback when not configured) ===== */
-let sb = null, sbMode = false, sbStatus = 'local';
+let sb = null, sbMode = false, sbStatus = 'local', sbLastError = '';
 function getSbConfig() {
   try { const s = JSON.parse(localStorage.getItem(SB_STORE_KEY) || 'null'); if (s && s.url && s.anonKey) return s; } catch (e) {}
   return (SUPABASE_CONFIG.url && SUPABASE_CONFIG.anonKey) ? SUPABASE_CONFIG : null;
@@ -1331,7 +1332,7 @@ async function initSupabase() {
     const { error } = await sb.from('transactions').select('id', { count: 'exact', head: true });
     if (error) throw error;
     sbMode = true; setSync('live'); return true;
-  } catch (e) { sb = null; sbMode = false; setSync('err', e.message); return false; }
+  } catch (e) { sbLastError = e.message || String(e); sb = null; sbMode = false; setSync('err', e.message); return false; }
 }
 async function syncFromRemote() {
   if (!sbMode) return;
@@ -1842,7 +1843,7 @@ document.getElementById('sbSave').onclick = async () => {
     try { await syncFromRemote(); msg.textContent = t('✅ Supabase সিঙ্ক চালু হয়েছে — সব ডিভাইসে একই হিসাব দেখাবে।'); }
     catch (err) { msg.textContent = t('⚠️ সংযোগ হয়েছে, কিন্তু সিঙ্কে সমস্যা') + ': ' + err.message; setSync('err', err.message); }
     render();
-  } else { msg.textContent = t('❌ সংযোগ হয়নি — URL/key আর schema.sql (transactions টেবিল) ঠিক আছে কি না দেখুন।'); }
+  } else { msg.textContent = t('❌ সংযোগ হয়নি — URL/key আর schema.sql (transactions টেবিল) ঠিক আছে কি না দেখুন।') + (sbLastError ? ' (' + sbLastError + ')' : ''); }
 };
 document.getElementById('sbTest').onclick = async () => {
   const url = document.getElementById('sbUrl').value.trim();
