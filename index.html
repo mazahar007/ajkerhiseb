@@ -1339,7 +1339,7 @@ async function initSupabase() {
   try {
     await loadSbJs();
     sb = window.supabase.createClient(sbBaseUrl(cfg.url), cfg.anonKey);
-    const { error } = await sb.from('transactions').select('id', { count: 'exact', head: true });
+    const { error } = await sb.from('transactions').select('id').limit(1);
     if (error) throw error;
     sbMode = true; setSync('live'); return true;
   } catch (e) { sbLastError = sbErrText(e); sb = null; sbMode = false; setSync('err', sbLastError); return false; }
@@ -1864,7 +1864,7 @@ document.getElementById('sbTest').onclick = async () => {
   try {
     await loadSbJs();
     const c = window.supabase.createClient(sbBaseUrl(url), anonKey);
-    const { error } = await c.from('transactions').select('id', { count: 'exact', head: true });
+    const { error } = await c.from('transactions').select('id').limit(1);
     msg.textContent = error ? t('❌ সংযোগ ব্যর্থ') + ': ' + sbErrText(error) : t('✅ সংযোগ ঠিক আছে — transactions টেবিল পাওয়া গেছে।');
   } catch (err) { msg.textContent = '❌ সংযোগ ব্যর্থ: ' + sbErrText(err); }
 };
