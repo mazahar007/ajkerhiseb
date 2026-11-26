@@ -1330,8 +1330,7 @@ function sbErrText(e) {
   try { return JSON.stringify(e); } catch (_) { return String(e); }
 }
 function sbBaseUrl(cfgUrl) {
-  try { if (location.hostname.endsWith('.vercel.app')) return location.origin + '/api/supabase'; } catch (e) {}
-  return cfgUrl;
+  return cfgUrl; // DIRECT TEST 2026-11-27: proxy bypassed to isolate the 'failed to parse filter' error — app talks to supabase.co directly
 }
 async function initSupabase() {
   const cfg = getSbConfig();
