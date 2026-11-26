@@ -1323,6 +1323,12 @@ async function sbLoadBudgets() {
 }
 async function sbSaveBudget(mk, amount) { const { error } = await sb.from('budgets').upsert({ month: mk, amount }); if (error) throw error; }
 async function sbDeleteBudget(mk) { const { error } = await sb.from('budgets').delete().eq('month', mk); if (error) throw error; }
+function sbErrText(e) {
+  if (e == null) return '';
+  if (typeof e === 'string') return e;
+  if (e.message) return e.message;
+  try { return JSON.stringify(e); } catch (_) { return String(e); }
+}
 async function initSupabase() {
   const cfg = getSbConfig();
   if (!cfg) { setSync('local'); return false; }
@@ -1332,7 +1338,7 @@ async function initSupabase() {
     const { error } = await sb.from('transactions').select('id', { count: 'exact', head: true });
     if (error) throw error;
     sbMode = true; setSync('live'); return true;
-  } catch (e) { sbLastError = e.message || String(e); sb = null; sbMode = false; setSync('err', e.message); return false; }
+  } catch (e) { sbLastError = sbErrText(e); sb = null; sbMode = false; setSync('err', sbLastError); return false; }
 }
 async function syncFromRemote() {
   if (!sbMode) return;
@@ -1841,7 +1847,7 @@ document.getElementById('sbSave').onclick = async () => {
   const ok = await initSupabase();
   if (ok) {
     try { await syncFromRemote(); msg.textContent = t('✅ Supabase সিঙ্ক চালু হয়েছে — সব ডিভাইসে একই হিসাব দেখাবে।'); }
-    catch (err) { msg.textContent = t('⚠️ সংযোগ হয়েছে, কিন্তু সিঙ্কে সমস্যা') + ': ' + err.message; setSync('err', err.message); }
+    catch (err) { msg.textContent = t('⚠️ সংযোগ হয়েছে, কিন্তু সিঙ্কে সমস্যা') + ': ' + sbErrText(err); setSync('err', sbErrText(err)); }
     render();
   } else { msg.textContent = t('❌ সংযোগ হয়নি — URL/key আর schema.sql (transactions টেবিল) ঠিক আছে কি না দেখুন।') + (sbLastError ? ' (' + sbLastError + ')' : ''); }
 };
@@ -1855,15 +1861,15 @@ document.getElementById('sbTest').onclick = async () => {
     await loadSbJs();
     const c = window.supabase.createClient(url, anonKey);
     const { error } = await c.from('transactions').select('id', { count: 'exact', head: true });
-    msg.textContent = error ? t('❌ সংযোগ ব্যর্থ') + ': ' + error.message : t('✅ সংযোগ ঠিক আছে — transactions টেবিল পাওয়া গেছে।');
-  } catch (err) { msg.textContent = '❌ সংযোগ ব্যর্থ: ' + err.message; }
+    msg.textContent = error ? t('❌ সংযোগ ব্যর্থ') + ': ' + sbErrText(error) : t('✅ সংযোগ ঠিক আছে — transactions টেবিল পাওয়া গেছে।');
+  } catch (err) { msg.textContent = '❌ সংযোগ ব্যর্থ: ' + sbErrText(err); }
 };
 document.getElementById('sbSync').onclick = async () => {
   const msg = document.getElementById('sbMsg');
   if (!sbMode) { msg.textContent = t('❌ সিঙ্ক চালু নেই — আগে URL/key সংরক্ষণ করুন।'); return; }
   msg.textContent = t('সিঙ্ক চলছে…');
   try { await syncFromRemote(); render(); msg.textContent = t('✅ সিঙ্ক সম্পন্ন হয়েছে।'); }
-  catch (err) { msg.textContent = t('❌ সিঙ্ক ব্যর্থ') + ': ' + err.message; setSync('err', err.message); }
+  catch (err) { msg.textContent = t('❌ সিঙ্ক ব্যর্থ') + ': ' + sbErrText(err); setSync('err', sbErrText(err)); }
 };
 document.getElementById('sbClear').onclick = () => {
   localStorage.removeItem(SB_STORE_KEY);
