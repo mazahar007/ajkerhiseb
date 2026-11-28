@@ -94,6 +94,24 @@ drop policy if exists "budget_items_all_anon" on public.budget_items;
 create policy "budget_items_all_anon" on public.budget_items
   for all to anon using (true) with check (true);
 
+-- টেবিলের অনুমতি (GRANT): RLS policy একা যথেষ্ট নয় — anon/authenticated
+-- রোলের টেবিল পড়া/লেখার অনুমতিও লাগে। এই GRANT না থাকলে Supabase
+-- "permission denied for table transactions" (42501) দেয়, আর তখনই
+-- সিঙ্ক কানেক্ট হয় না। 2026-11-27-এ এই লাইনগুলো না থাকায় সিঙ্ক
+-- আটকে ছিল — SQL Editor-এ নিচের তিন লাইন চালালেই ঠিক হয়।
+grant select, insert, update, delete on public.transactions to anon, authenticated;
+grant select, insert, update, delete on public.budgets to anon, authenticated;
+grant select, insert, update, delete on public.budget_items to anon, authenticated;
+
+-- মাসিক বাজেট: প্রত্যেকের নিজের বাজেট আলাদা রাখতে (user_id, month) যৌথ
+-- প্রাইমারি কি — একই মাসে দুজনের বাজেট যাতে একে অপরেরটা না মোছে।
+-- পুরোনো প্রজেক্টে month একাই PK ছিল; নিচের ধাপগুলো সেটা বদলে দেয়।
+-- (নতুন প্রজেক্টেও পুরো ফাইল একবারে চলবে — টেবিল খালি থাকলে সব ধাপ no-op।)
+update public.budgets set user_id = 'legacy' where user_id is null;
+alter table public.budgets alter column user_id set not null;
+alter table public.budgets drop constraint if exists budgets_pkey;
+alter table public.budgets add primary key (user_id, month);
+
 -- লগইন (Supabase Auth): ইমেইল/পাসওয়ার্ড লগইনের জন্য আলাদা টেবিল
 -- লাগে না — Supabase-এর নিজের auth.users টেবিল ব্যবহার হয়। অ্যাপের
 -- পিন লগইন আলাদাভাবে ব্রাউজারে (localStorage-এ হ্যাশ আকারে) চলে,
@@ -101,6 +119,6 @@ create policy "budget_items_all_anon" on public.budget_items
 -- লগইন করা ব্যবহারকারীর ডেটা দেখাতে চাইলে উপরের anon policy-গুলোর
 -- বদলে authenticated + auth.uid() ভিত্তিক policy বসাতে হবে।
 -- লোকাল মাল্টি-অ্যাকাউন্ট: একই ব্রাউজারে একাধিক অ্যাকাউন্ট (প্রতিটার
--- নিজের পিন আর আলাদা খাতা) চলে — তবে সেগুলো শুধু ওই ব্রাউজারেই থাকে।
--- অন্য ডিভাইসে একই অ্যাকাউন্ট পেতে হলে Supabase সিঙ্ক + উপরের user_id
--- কলামে অ্যাকাউন্ট আলাদা করতে হবে (এখনো অ্যাপ user_id পাঠায় না)।
+-- নিজের পিন আর আলাদা খাতা) চলে। অ্যাপ এখন প্রতিটা লেখায় user_id
+-- (লোকাল অ্যাকাউন্টের id) পাঠায়, আর পড়ার সময়ও user_id দিয়ে ছাঁকে —
+-- তাই Supabase-এও প্রত্যেকের হিসাব আলাদা থাকে, যেকোনো ডিভাইস থেকে।

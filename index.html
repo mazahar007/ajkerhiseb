@@ -1091,13 +1091,13 @@ function spentForBudgetItem(item) {
   if (byName.length) return byName.reduce((s, e) => s + e.amount, 0);
   return entries.filter(e => e.type === 'expense' && monthKey(e.date) === item.month && (e.category || 'অন্যান্য') === item.category).reduce((s, e) => s + e.amount, 0);
 }
-async function sbUpsertBudgetItem(it) { const { error } = await sb.from('budget_items').upsert({ id: it.id, name: it.name, category: it.category, amount: it.amount, month: it.month, date: it.date || (it.month ? it.month + '-01' : todayStr()) }); if (error) throw error; }
-async function sbDeleteBudgetItem(id) { const { error } = await sb.from('budget_items').delete().eq('id', id); if (error) throw error; }
+async function sbUpsertBudgetItem(it) { const { error } = await sb.from('budget_items').upsert({ id: it.id, name: it.name, category: it.category, amount: it.amount, month: it.month, user_id: sbUserId(), date: it.date || (it.month ? it.month + '-01' : todayStr()) }); if (error) throw error; }
+async function sbDeleteBudgetItem(id) { const { error } = await sb.from('budget_items').delete().eq('id', id).eq('user_id', sbUserId()); if (error) throw error; }
 async function sbLoadBudgetItems() {
-  const { data, error } = await sb.from('budget_items').select('*');
+  const { data, error } = await sb.from('budget_items').select('*').eq('user_id', sbUserId());
   if (error) throw error;
   if (data && data.length) { budgetItems = data.map(r => ({ id: String(r.id), name: r.name, category: r.category || 'অন্যান্য', amount: +r.amount, month: r.month, date: r.date || (r.month ? r.month + '-01' : todayStr()) })); saveBudgetItems(); }
-  else if (budgetItems.length) { const { error: upErr } = await sb.from('budget_items').upsert(budgetItems.map(it => ({ id: it.id, name: it.name, category: it.category, amount: it.amount, month: it.month, date: it.date || (it.month ? it.month + '-01' : todayStr()) }))); if (upErr) throw upErr; }
+  else if (budgetItems.length) { const { error: upErr } = await sb.from('budget_items').upsert(budgetItems.map(it => ({ id: it.id, name: it.name, category: it.category, amount: it.amount, month: it.month, user_id: sbUserId(), date: it.date || (it.month ? it.month + '-01' : todayStr()) }))); if (upErr) throw upErr; }
 }
 function renderBudgetList() {
   const label = document.getElementById('budgetListMonthLabel');
@@ -1258,6 +1258,15 @@ const SEED = [
   ['আম্মা', 2000, 'অন্যান্য', ''], ['সীমা', 2000, 'অন্যান্য', ''], ['বাবুর স্কুল', 2000, 'শিক্ষা', ''],
   ['চা', 10, 'বাজার', '']
 ].forEach((x, i) => SEED.push({ id: 'seed-e' + (23 + i), type: 'expense', item: x[0], amount: x[1], date: '2026-11-25', note: x[3], category: x[2], created: 23 + i }));
+// ২৬-১১-২০২৬-এর খরচ (৫টা) — মোট ৬৫৫। বাইকের তেল যাতায়াত, বাকিগুলো বাজার।
+[
+  ['Ice cream', 40, 'বাজার', ''], ['বাইকের তেল', 220, 'যাতায়াত', ''],
+  ['আটা', 250, 'বাজার', ''], ['ডিম', 130, 'বাজার', ''], ['পাউরুটি', 15, 'বাজার', '']
+].forEach((x, i) => SEED.push({ id: 'seed-e' + (36 + i), type: 'expense', item: x[0], amount: x[1], date: '2026-11-26', note: x[3], category: x[2], created: 36 + i }));
+// ২৭-১১-২০২৬-এর খরচ (১টা) — মোট ২০।
+[
+  ['আচার', 20, 'বাজার', '']
+].forEach((x, i) => SEED.push({ id: 'seed-e' + (41 + i), type: 'expense', item: x[0], amount: x[1], date: '2026-11-27', note: x[3], category: x[2], created: 41 + i }));
 SEED.push({ id: 'seed-b1', type: 'bank', item: 'ব্যাংক থেকে উত্তোলন', amount: 5000, date: '2026-11-24', note: '', category: 'অন্যান্য', created: 100 });
 SEED.push({ id: 'seed-b2', type: 'bank', item: 'ব্যাংক থেকে উত্তোলন', amount: 4000, date: '2026-11-24', note: '', category: 'অন্যান্য', created: 101 });
 
@@ -1305,24 +1314,28 @@ function loadSbJs() {
     document.head.appendChild(s);
   });
 }
+/* Supabase-এ প্রত্যেকের হিসাব আলাদা রাখার চাবি: লগইন করা লোকাল অ্যাকাউন্টের id।
+   entryToRow / বাজেট upsert — সব লেখায় এই user_id যায়; পড়ার সময়ও এই
+   user_id দিয়ে ছাঁকা হয়। RLS খোলা আছে, তাই আলাদা করা অ্যাপের দায়িত্ব। */
+function sbUserId() { return (currentAccount && currentAccount.id) ? String(currentAccount.id) : ''; }
 function rowToEntry(r) {
   return { id: String(r.id), type: r.type, item: r.item, amount: +r.amount, date: r.date, note: r.note || '', category: r.category || autoCategory(r.item, r.type), created: r.created_at ? Date.parse(r.created_at) : 0 };
 }
 function entryToRow(e) {
-  return { id: e.id, date: e.date, item: e.item, type: e.type, amount: e.amount, note: e.note || null, category: e.category || 'অন্যান্য', created_at: new Date(e.created || Date.now()).toISOString() };
+  return { id: e.id, date: e.date, item: e.item, type: e.type, amount: e.amount, note: e.note || null, category: e.category || 'অন্যান্য', user_id: sbUserId(), created_at: new Date(e.created || Date.now()).toISOString() };
 }
 async function sbLoadBudgets() {
-  const { data, error } = await sb.from('budgets').select('month, amount');
+  const { data, error } = await sb.from('budgets').select('month, amount').eq('user_id', sbUserId());
   if (error) throw error;
   if (data && data.length) { budgets = {}; data.forEach(b => { budgets[b.month] = +b.amount; }); saveBudgets(); }
   else if (Object.keys(budgets).length) {
-    const rows = Object.entries(budgets).map(([month, amount]) => ({ month, amount }));
+    const rows = Object.entries(budgets).map(([month, amount]) => ({ month, amount, user_id: sbUserId() }));
     const { error: upErr } = await sb.from('budgets').upsert(rows);
     if (upErr) throw upErr;
   }
 }
-async function sbSaveBudget(mk, amount) { const { error } = await sb.from('budgets').upsert({ month: mk, amount }); if (error) throw error; }
-async function sbDeleteBudget(mk) { const { error } = await sb.from('budgets').delete().eq('month', mk); if (error) throw error; }
+async function sbSaveBudget(mk, amount) { const { error } = await sb.from('budgets').upsert({ month: mk, amount, user_id: sbUserId() }); if (error) throw error; }
+async function sbDeleteBudget(mk) { const { error } = await sb.from('budgets').delete().eq('user_id', sbUserId()).eq('month', mk); if (error) throw error; }
 function sbErrText(e) {
   if (e == null) return '';
   if (typeof e === 'string') return e;
@@ -1330,7 +1343,7 @@ function sbErrText(e) {
   try { return JSON.stringify(e); } catch (_) { return String(e); }
 }
 function sbBaseUrl(cfgUrl) {
-  return cfgUrl; // DIRECT TEST 2026-11-27: proxy bypassed to isolate the 'failed to parse filter' error — app talks to supabase.co directly
+  return cfgUrl; // সরাসরি Supabase — Vercel প্রক্সি বন্ধ (প্রক্সি অনুরোধ বেঁকে দিত, 'failed to parse filter' আসতো)
 }
 async function initSupabase() {
   const cfg = getSbConfig();
@@ -1345,19 +1358,26 @@ async function initSupabase() {
 }
 async function syncFromRemote() {
   if (!sbMode) return;
-  const { data, error } = await sb.from('transactions').select('*').order('date', { ascending: false }).order('created_at', { ascending: false });
+  const uid = sbUserId();
+  if (!uid) return; // অ্যাকাউন্ট ছাড়া সিঙ্ক নয় — কার হিসাব বোঝা যাবে না
+  // নিজের রো + পুরোনো user_id-ছাড়া (অনাথ) রো — অনাথ রো এই অ্যাকাউন্টের বলে ধরে নেওয়া হয়
+  const { data, error } = await sb.from('transactions').select('*').or('user_id.eq.' + uid + ',user_id.is.null').order('date', { ascending: false }).order('created_at', { ascending: false });
   if (error) throw error;
   try { await sbLoadBudgets(); } catch (e) { /* budgets table may not exist yet on old projects */ }
   try { await sbLoadBudgetItems(); } catch (e) { /* budget_items table may not exist yet on old projects */ }
-  if (data && data.length) { entries = data.map(rowToEntry); saveLocal(); }
+  if (data && data.length) {
+    // অনাথ রো (user_id null — পুরোনো কোডে ওঠা) এই অ্যাকাউন্টের নামে লিখে নেওয়া
+    if (data.some(r => r.user_id == null)) { try { await sb.from('transactions').update({ user_id: uid }).is('user_id', null); } catch (e) { /* পরের সিঙ্কে আবার চেষ্টা হবে */ } }
+    entries = data.map(rowToEntry); saveLocal();
+  }
   else if (entries.length) { // first sync: upload local ledger (seed) to Supabase
     const { error: upErr } = await sb.from('transactions').upsert(entries.map(entryToRow));
     if (upErr) throw upErr;
   }
 }
 async function sbInsert(e) { const { error } = await sb.from('transactions').insert(entryToRow(e)); if (error) throw error; }
-async function sbUpdate(e) { const { error } = await sb.from('transactions').update(entryToRow(e)).eq('id', e.id); if (error) throw error; }
-async function sbDelete(id) { const { error } = await sb.from('transactions').delete().eq('id', id); if (error) throw error; }
+async function sbUpdate(e) { const { error } = await sb.from('transactions').update(entryToRow(e)).eq('id', e.id).eq('user_id', sbUserId()); if (error) throw error; }
+async function sbDelete(id) { const { error } = await sb.from('transactions').delete().eq('id', id).eq('user_id', sbUserId()); if (error) throw error; }
 function setSync(mode, msg) {
   sbStatus = mode;
   const txt = mode === 'live' ? t('● Supabase সিঙ্ক চালু') : mode === 'err' ? t('● সিঙ্ক সমস্যা') : t('● লোকাল মোড');
@@ -1830,7 +1850,7 @@ document.getElementById('importFile').addEventListener('change', async ev => {
 document.getElementById('clearAll').onclick = async () => {
   if (!confirm(t('সত্যিই সব ডেটা মুছে ফেলবেন? আগে ব্যাকআপ নিয়ে নিন।'))) return;
   entries = []; saveLocal();
-  if (sbMode) { try { await sb.from('transactions').delete().neq('id', ''); } catch (err) { setSync('err', t('লোকাল মুছেছে, Supabase মোছা যায়নি') + ': ' + err.message); } }
+  if (sbMode) { try { await sb.from('transactions').delete().eq('user_id', sbUserId()); } catch (err) { setSync('err', t('লোকাল মুছেছে, Supabase মোছা যায়নি') + ': ' + err.message); } }
   render();
 };
 
